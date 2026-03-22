@@ -235,6 +235,50 @@
         </div>
     </div>
 
+    <!-- Revenue Modal -->
+    <div class="modal-overlay" id="revenueModal">
+        <div class="modal-card">
+            <h3 class="modal-title">Nhập doanh thu</h3>
+            <input type="hidden" id="revenueBookingId">
+            <div class="call-booking-info" id="revenueBookingInfo"></div>
+            <div class="modal-form">
+                <div class="form-group">
+                    <label>Số tiền (VNĐ) *</label>
+                    <input type="number" id="revenueAmount" placeholder="Ví dụ: 500000" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Ghi chú</label>
+                    <textarea id="revenueNotes" rows="2" placeholder="Ghi chú doanh thu..."></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeRevenueModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="saveRevenue()">Lưu doanh thu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch Assign Modal -->
+    <div class="modal-overlay" id="branchAssignModal">
+        <div class="modal-card">
+            <h3 class="modal-title">Phân chi nhánh</h3>
+            <input type="hidden" id="assignBookingId">
+            <div class="call-booking-info" id="assignBookingInfo"></div>
+            <div class="modal-form">
+                <div class="form-group">
+                    <label>Chi nhánh *</label>
+                    <select id="assignBranchId">
+                        <option value="">Chọn chi nhánh</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeBranchAssignModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="saveBranchAssign()">Phân data</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/dashboard.js"></script>
     <script>
         // Register Service Worker

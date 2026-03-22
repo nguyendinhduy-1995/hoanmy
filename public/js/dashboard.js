@@ -158,8 +158,9 @@ function renderBookingCards(bookings) {
                     <div class="bk-quick-info">
                         <span class="bk-phone-tag"><a href="tel:${b.phone}" onclick="event.stopPropagation()">${b.phone}</a></span>
                         <span class="bk-service-tag">${b.service || 'Chưa xác định'}</span>
-                        ${hasAppt ? `<span class="bk-appt-tag">${dateStr} · ${timeStr}</span>` : '<span class="bk-appt-tag empty">Chưa có lịch</span>'}
+                        ${b.branch_name ? `<span class="bk-appt-tag">${b.branch_name}</span>` : '<span class="bk-appt-tag empty">Chưa phân CN</span>'}
                         <span class="bk-call-tag ${callCount === 0 ? 'uncalled' : ''}">${callCount === 0 ? 'Chưa gọi' : callCount + ' lần'}</span>
+                        ${b.total_revenue ? `<span class="bk-appt-tag" style="color:var(--status-arrived)">${Number(b.total_revenue).toLocaleString('vi-VN')}đ</span>` : ''}
                     </div>
                 </div>
                 <div class="bk-detail-panel" id="detail-${b.id}">
@@ -315,15 +316,17 @@ async function loadBookingDetail(bookingId) {
     // Status buttons
     let statusActions = '<div class="detail-actions">';
     statusActions += `<a href="tel:${b.phone}" class="action-btn call" onclick="event.stopPropagation()">
-        <span class="action-icon">📱</span> Gọi ngay
+        Gọi ngay
     </a>`;
     statusActions += `<button class="action-btn log-call" onclick="event.stopPropagation();openCallLogModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}',${b.call_count || 0})">
-        <span class="action-icon">📝</span> Ghi cuộc gọi
+        Ghi cuộc gọi
     </button>`;
-    if (b.status !== 'arrived') statusActions += `<button class="action-btn arrived" onclick="event.stopPropagation();updateStatus(${b.id},'arrived')"><span class="action-icon">Đã đến</span> Đã đến</button>`;
-    if (b.status !== 'no_show') statusActions += `<button class="action-btn no-show" onclick="event.stopPropagation();updateStatus(${b.id},'no_show')"><span class="action-icon">Không đến</span> Không đến</button>`;
-    if (b.status !== 'pending') statusActions += `<button class="action-btn pending" onclick="event.stopPropagation();updateStatus(${b.id},'pending')"><span class="action-icon">↩️</span> Chờ xử lý</button>`;
-    if (canDelete) statusActions += `<button class="action-btn delete" onclick="event.stopPropagation();openDeleteConfirm(${b.id})"><span class="action-icon"></span> Xóa</button>`;
+    if (b.status !== 'arrived') statusActions += `<button class="action-btn arrived" onclick="event.stopPropagation();updateStatus(${b.id},'arrived')">Đã đến</button>`;
+    if (b.status === 'arrived') statusActions += `<button class="action-btn log-call" onclick="event.stopPropagation();openRevenueModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}')">Nhập doanh thu</button>`;
+    if (!b.branch_id && (CURRENT_USER.role === 'admin' || CURRENT_USER.role === 'truc_page')) statusActions += `<button class="action-btn pending" onclick="event.stopPropagation();openBranchAssignModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}')">Phân CN</button>`;
+    if (b.status !== 'no_show') statusActions += `<button class="action-btn no-show" onclick="event.stopPropagation();updateStatus(${b.id},'no_show')">Không đến</button>`;
+    if (b.status !== 'pending') statusActions += `<button class="action-btn pending" onclick="event.stopPropagation();updateStatus(${b.id},'pending')">Chờ xử lý</button>`;
+    if (canDelete) statusActions += `<button class="action-btn delete" onclick="event.stopPropagation();openDeleteConfirm(${b.id})">Xóa</button>`;
     statusActions += '</div>';
 
     targetEl.innerHTML = `
@@ -348,12 +351,16 @@ async function loadBookingDetail(bookingId) {
                         <span class="info-value">${b.source === 'manual' ? 'Nhập tay' : 'Landing Page'}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Ngày đặt</span>
-                        <span class="info-value">${createdStr}</span>
+                        <span class="info-label">Chi nhánh</span>
+                        <span class="info-value">${b.branch_name || '<em style="color:var(--text-muted)">Chưa phân</em>'}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Tên Zalo</span>
-                        <span class="info-value">${b.zalo_name || '—'}</span>
+                        <span class="info-label">Doanh thu</span>
+                        <span class="info-value" style="color:var(--status-arrived)">${b.total_revenue ? Number(b.total_revenue).toLocaleString('vi-VN') + 'đ' : '—'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày đặt</span>
+                        <span class="info-value">${createdStr}</span>
                     </div>
                 </div>
                 ${b.notes ? `<div class="detail-notes"><strong>Ghi chú:</strong> ${b.notes}</div>` : ''}
@@ -609,3 +616,110 @@ document.addEventListener('click', (e) => {
         e.target.classList.remove('active');
     }
 });
+
+// ==================== REVENUE MODAL ====================
+function openRevenueModal(bookingId, fullName, phone) {
+    document.getElementById('revenueBookingId').value = bookingId;
+    document.getElementById('revenueAmount').value = '';
+    document.getElementById('revenueNotes').value = '';
+    document.getElementById('revenueBookingInfo').innerHTML = `
+        <div><strong>${fullName}</strong></div>
+        <div>${phone}</div>
+    `;
+    document.getElementById('revenueModal').classList.add('active');
+}
+
+function closeRevenueModal() {
+    document.getElementById('revenueModal').classList.remove('active');
+}
+
+async function saveRevenue() {
+    const bookingId = document.getElementById('revenueBookingId').value;
+    const amount = parseInt(document.getElementById('revenueAmount').value);
+    const notes = document.getElementById('revenueNotes').value.trim();
+
+    if (!amount || amount <= 0) {
+        showToast('Vui lòng nhập số tiền hợp lệ', 'error');
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/bookings/${bookingId}/revenue`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ amount, notes })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        showToast(data.message);
+        closeRevenueModal();
+        loadBookings();
+    } catch (e) {
+        showToast(e.message, 'error');
+    }
+}
+
+// ==================== BRANCH ASSIGNMENT MODAL ====================
+let branchesLoaded = false;
+
+async function loadBranches() {
+    if (branchesLoaded) return;
+    try {
+        const res = await fetch('/api/branches', { headers: authHeaders() });
+        const branches = await res.json();
+        const select = document.getElementById('assignBranchId');
+        if (select) {
+            branches.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.textContent = b.name;
+                select.appendChild(opt);
+            });
+            branchesLoaded = true;
+        }
+    } catch (e) {
+        console.error('Error loading branches:', e);
+    }
+}
+
+function openBranchAssignModal(bookingId, fullName, phone) {
+    loadBranches();
+    document.getElementById('assignBookingId').value = bookingId;
+    document.getElementById('assignBranchId').value = '';
+    document.getElementById('assignBookingInfo').innerHTML = `
+        <div><strong>${fullName}</strong></div>
+        <div>${phone}</div>
+    `;
+    document.getElementById('branchAssignModal').classList.add('active');
+}
+
+function closeBranchAssignModal() {
+    document.getElementById('branchAssignModal').classList.remove('active');
+}
+
+async function saveBranchAssign() {
+    const bookingId = document.getElementById('assignBookingId').value;
+    const branch_id = document.getElementById('assignBranchId').value;
+
+    if (!branch_id) {
+        showToast('Vui lòng chọn chi nhánh', 'error');
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/bookings/${bookingId}/assign`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ branch_id: parseInt(branch_id) })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        showToast(data.message);
+        closeBranchAssignModal();
+        loadBookings();
+    } catch (e) {
+        showToast(e.message, 'error');
+    }
+}

@@ -133,13 +133,63 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_reports_role ON daily_reports(role);
 `);
 
-// Add source column to bookings (migration-safe)
-try {
-  db.prepare("SELECT source FROM bookings LIMIT 1").get();
-} catch (e) {
-  db.prepare("ALTER TABLE bookings ADD COLUMN source TEXT DEFAULT 'landing'").run();
-  console.log('  ✅ Added source column to bookings');
+// ==================== BRANCHES TABLE ====================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS branches (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+  );
+
+  CREATE TABLE IF NOT EXISTS revenues (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    booking_id INTEGER NOT NULL,
+    amount INTEGER NOT NULL,
+    notes TEXT DEFAULT '',
+    created_by INTEGER NOT NULL,
+    created_at DATETIME DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_revenues_booking ON revenues(booking_id);
+  CREATE INDEX IF NOT EXISTS idx_revenues_date ON revenues(created_at);
+`);
+
+// Seed default 5 branches if empty
+const branchCount = db.prepare('SELECT COUNT(*) as c FROM branches').get().c;
+if (branchCount === 0) {
+  const insertBranch = db.prepare('INSERT INTO branches (name) VALUES (?)');
+  ['Chi nhánh 1', 'Chi nhánh 2', 'Chi nhánh 3', 'Chi nhánh 4', 'Chi nhánh 5'].forEach(n => insertBranch.run(n));
+  console.log('  ✅ Seeded 5 default branches');
 }
+
+// ==================== SAFE MIGRATIONS ====================
+
+// Add source column to bookings
+try { db.prepare("SELECT source FROM bookings LIMIT 1").get(); }
+catch (e) { db.prepare("ALTER TABLE bookings ADD COLUMN source TEXT DEFAULT 'landing'").run(); console.log('  ✅ Added source column'); }
+
+// Add branch_id to bookings
+try { db.prepare("SELECT branch_id FROM bookings LIMIT 1").get(); }
+catch (e) { db.prepare("ALTER TABLE bookings ADD COLUMN branch_id INTEGER REFERENCES branches(id)").run(); console.log('  ✅ Added branch_id to bookings'); }
+
+// Add assigned_to (telesales user) to bookings
+try { db.prepare("SELECT assigned_to FROM bookings LIMIT 1").get(); }
+catch (e) { db.prepare("ALTER TABLE bookings ADD COLUMN assigned_to INTEGER REFERENCES users(id)").run(); console.log('  ✅ Added assigned_to to bookings'); }
+
+// Add assigned_by to bookings
+try { db.prepare("SELECT assigned_by FROM bookings LIMIT 1").get(); }
+catch (e) { db.prepare("ALTER TABLE bookings ADD COLUMN assigned_by INTEGER REFERENCES users(id)").run(); console.log('  ✅ Added assigned_by to bookings'); }
+
+// Add assigned_at to bookings
+try { db.prepare("SELECT assigned_at FROM bookings LIMIT 1").get(); }
+catch (e) { db.prepare("ALTER TABLE bookings ADD COLUMN assigned_at DATETIME").run(); console.log('  ✅ Added assigned_at to bookings'); }
+
+// Add branch_id to users
+try { db.prepare("SELECT branch_id FROM users LIMIT 1").get(); }
+catch (e) { db.prepare("ALTER TABLE users ADD COLUMN branch_id INTEGER REFERENCES branches(id)").run(); console.log('  ✅ Added branch_id to users'); }
 
 // ==================== PASSWORD UTILS ====================
 
