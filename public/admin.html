@@ -1019,37 +1019,7 @@
             <button class="load-more" id="loadMore" onclick="loadMoreLogs()" style="display:none">Tải thêm ↓</button>
         </div>
 
-        <!-- Landing Pages Panel -->
-        <div class="panel" id="landingPanel">
-            <div class="stitle">
-                <h2> Quản lý Landing Page</h2>
-                <span class="count" id="lpCount">0 trang</span>
-            </div>
-            <div id="landingList"></div>
-        </div>
 
-        <!-- Analytics Panel -->
-        <div class="panel" id="analyticsPanel">
-            <div class="stitle">
-                <h2> Phân tích</h2>
-            </div>
-            <div class="an-filter">
-                <select id="anDays" onchange="loadAnalytics()">
-                    <option value="7">7 ngày</option>
-                    <option value="14">14 ngày</option>
-                    <option value="30" selected>30 ngày</option>
-                    <option value="90">90 ngày</option>
-                </select>
-                <select id="anService" onchange="loadAnalytics()">
-                    <option value="">Tất cả dịch vụ</option>
-                </select>
-            </div>
-            <div id="analyticsContent">
-                <div class="empty"><span class="ei"></span>
-                    <p>Đang tải...</p>
-                </div>
-            </div>
-        </div>
 
         <!-- Uncalled Panel -->
         <div class="panel" id="uncalledPanel">
@@ -1072,20 +1042,11 @@
         <button class="tab" onclick="switchTab('uncalled')">
             <span class="ti"></span> Chưa gọi
         </button>
-        <button class="tab" onclick="switchTab('landing')">
-            <span class="ti"></span> Landing
-        </button>
         <button class="tab" onclick="switchTab('reports')">
             <span class="ti"></span> Báo cáo
         </button>
-        <button class="tab" onclick="switchTab('analytics')">
-            <span class="ti"></span> Phân tích
-        </button>
         <button class="tab" onclick="switchTab('logs')">
             <span class="ti"></span> Lịch sử
-        </button>
-        <button class="tab" onclick="window.location.href='/direct-page'">
-            <span class="ti"></span> Trực Page
         </button>
     </div>
 
@@ -1153,8 +1114,8 @@
         }
 
         // ==================== TABS ====================
-        const TAB_MAP = { users: 0, uncalled: 1, landing: 2, reports: 3, analytics: 4, logs: 5 };
-        const PANELS = ['usersPanel', 'uncalledPanel', 'landingPanel', 'reportsPanel', 'analyticsPanel', 'logsPanel'];
+        const TAB_MAP = { users: 0, uncalled: 1, reports: 2, logs: 3 };
+        const PANELS = ['usersPanel', 'uncalledPanel', 'reportsPanel', 'logsPanel'];
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === TAB_MAP[tab]));
@@ -1165,8 +1126,6 @@
             if (tab === 'logs' && document.getElementById('logList').children.length === 0) {
                 logOffset = 0; loadLogs();
             }
-            if (tab === 'landing' && !landingLoaded) loadLandingPages();
-            if (tab === 'analytics' && !analyticsLoaded) loadAnalytics();
             if (tab === 'uncalled') loadUncalled();
             if (tab === 'reports' && !reportsLoaded) loadReports();
         }
@@ -1175,9 +1134,9 @@
         (function () {
             const role = currentUser?.role;
             if (role !== 'admin') {
-                // Hide admin-only tabs: users(0), landing(2), analytics(4)
+                // Hide admin-only tabs: users(0)
                 const tabBtns = document.querySelectorAll('.tabs .tab');
-                [0, 2, 4].forEach(i => { if (tabBtns[i]) tabBtns[i].style.display = 'none'; });
+                [0].forEach(i => { if (tabBtns[i]) tabBtns[i].style.display = 'none'; });
                 // Hide FAB button
                 document.getElementById('fabBtn').style.display = 'none';
                 // Auto-switch to reports tab for non-admin
@@ -1505,220 +1464,6 @@
                 showToast('Lỗi tải báo cáo', 'err');
             }
         }
-
-        // ==================== LANDING PAGE META ====================
-        let landingLoaded = false;
-        let analyticsLoaded = false;
-
-        async function loadLandingPages() {
-            try {
-                const res = await fetch('/api/landing-meta', { headers: headers() });
-                const pages = await res.json();
-                document.getElementById('lpCount').textContent = pages.length + ' trang';
-                renderLandingPages(pages);
-                landingLoaded = true;
-            } catch (e) { showToast('Lỗi tải landing pages', 'err'); }
-        }
-
-        function renderLandingPages(pages) {
-            const el = document.getElementById('landingList');
-            el.innerHTML = pages.map(p => {
-                const hasMeta = p.og_title || p.og_description || p.og_image;
-                return `<div class="card lp-card">
-                    <div class="lp-header">
-                        <span class="lp-name">${p.service_icon} ${p.service_name}</span>
-                        <span class="lp-badge ${hasMeta ? 'has' : 'no'}">${hasMeta ? ' Có Meta' : 'Chưa cấu hình'}</span>
-                    </div>
-                    <div class="lp-url">/dat-lich/${p.service_id}</div>
-                    ${hasMeta ? `<div class="lp-meta-preview">
-                        ${p.og_title ? `<div><span class="ogkey">og:title</span> ${p.og_title}</div>` : ''}
-                        ${p.og_description ? `<div><span class="ogkey">og:desc</span> ${p.og_description.substring(0, 80)}...</div>` : ''}
-                        ${p.og_image ? `<div><span class="ogkey">og:image</span> </div>` : ''}
-                    </div>` : ''}
-                    <div class="lp-actions">
-                        <button class="btn-meta" onclick="openMetaModal('${p.service_id}','${p.service_name}')">🏷️ Thẻ Meta</button>
-                        <button class="btn-view" onclick="window.open('/dat-lich/${p.service_id}','_blank')">👁 Xem trang</button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        // Meta Modal
-        function openMetaModal(serviceId, serviceName) {
-            // Create modal if not exists
-            let modal = document.getElementById('metaModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.className = 'modal-bg';
-                modal.id = 'metaModal';
-                modal.innerHTML = `<div class="modal">
-                    <h3 id="metaModalTitle">🏷️ Thẻ Meta Facebook</h3>
-                    <input type="hidden" id="metaServiceId">
-                    <div class="field"><label>og:title *</label><input type="text" id="metaTitle" placeholder="Tiêu đề hiển thị trên Facebook"></div>
-                    <div class="field"><label>og:description</label><textarea id="metaDesc" placeholder="Mô tả ngắn (120-160 ký tự)"></textarea></div>
-                    <div class="field"><label>og:image (URL ảnh)</label><input type="text" id="metaImage" placeholder="https://... (1200x630px tốt nhất)"></div>
-                    <div class="field"><label>og:url</label><input type="text" id="metaUrl" placeholder="URL chính thức"></div>
-                    <div class="field"><label>Facebook App ID</label><input type="text" id="metaFbId" placeholder="(tùy chọn)"></div>
-                    <div class="field"><label>Thẻ head tùy chỉnh</label><textarea id="metaCustom" placeholder="HTML thêm vào <head>"></textarea></div>
-                    <div class="modal-actions">
-                        <button class="btn-cancel" onclick="document.getElementById('metaModal').classList.remove('show')">Hủy</button>
-                        <button class="btn-save" onclick="saveMeta()">Lưu Meta</button>
-                    </div>
-                </div>`;
-                document.body.appendChild(modal);
-            }
-
-            document.getElementById('metaModalTitle').textContent = `🏷️ ${serviceName} — Thẻ Meta`;
-            document.getElementById('metaServiceId').value = serviceId;
-
-            // Load existing data
-            fetch(`/api/landing-meta`, { headers: headers() })
-                .then(r => r.json())
-                .then(pages => {
-                    const p = pages.find(x => x.service_id === serviceId) || {};
-                    document.getElementById('metaTitle').value = p.og_title || '';
-                    document.getElementById('metaDesc').value = p.og_description || '';
-                    document.getElementById('metaImage').value = p.og_image || '';
-                    document.getElementById('metaUrl').value = p.og_url || '';
-                    document.getElementById('metaFbId').value = p.fb_app_id || '';
-                    document.getElementById('metaCustom').value = p.custom_head || '';
-                    modal.classList.add('show');
-                });
-        }
-
-        async function saveMeta() {
-            const serviceId = document.getElementById('metaServiceId').value;
-            try {
-                const res = await fetch(`/api/landing-meta/${serviceId}`, {
-                    method: 'POST', headers: headers(),
-                    body: JSON.stringify({
-                        og_title: document.getElementById('metaTitle').value,
-                        og_description: document.getElementById('metaDesc').value,
-                        og_image: document.getElementById('metaImage').value,
-                        og_url: document.getElementById('metaUrl').value,
-                        fb_app_id: document.getElementById('metaFbId').value,
-                        custom_head: document.getElementById('metaCustom').value
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                showToast('Đã lưu thẻ Meta!', 'ok');
-                document.getElementById('metaModal').classList.remove('show');
-                loadLandingPages();
-            } catch (e) { showToast(e.message, 'err'); }
-        }
-
-        // ==================== ANALYTICS ====================
-        async function loadAnalytics() {
-            const days = document.getElementById('anDays').value;
-            const serviceId = document.getElementById('anService').value;
-            const el = document.getElementById('analyticsContent');
-            el.innerHTML = '<div class="empty"><span class="ei"></span><p>Đang tải...</p></div>';
-
-            try {
-                const params = new URLSearchParams({ days });
-                if (serviceId) params.set('service_id', serviceId);
-                const res = await fetch(`/api/analytics?${params}`, { headers: headers() });
-                const data = await res.json();
-                renderAnalytics(data);
-                analyticsLoaded = true;
-            } catch (e) {
-                el.innerHTML = '<div class="empty"><span class="ei"></span><p>Lỗi tải dữ liệu</p></div>';
-            }
-        }
-
-        function renderAnalytics(data) {
-            const el = document.getElementById('analyticsContent');
-            const { overview, conversions, utmSources, utmCampaigns, devices, referrers } = data;
-
-            // Total devices for percentage
-            const totalDeviceViews = devices.reduce((s, d) => s + d.views, 0) || 1;
-            const DEVICE_ICONS = { mobile: '', desktop: '💻', tablet: '📟' };
-            const DEVICE_NAMES = { mobile: 'Di động', desktop: 'Máy tính', tablet: 'Máy tính bảng' };
-
-            let html = `
-            <!-- Overview -->
-            <div class="an-grid">
-                <div class="an-card"><div class="an-val">${overview.totalViews}</div><div class="an-label">Lượt xem</div></div>
-                <div class="an-card"><div class="an-val">${overview.totalBookings}</div><div class="an-label">Đặt lịch</div></div>
-                <div class="an-card"><div class="an-val">${overview.uniqueIPs}</div><div class="an-label">IP duy nhất</div></div>
-            </div>
-
-            <!-- Conversion -->
-            <div class="an-section card">
-                <h3> Tỷ lệ chuyển đổi</h3>
-                <table class="conv-table">
-                    <thead><tr><th>Dịch vụ</th><th>Xem</th><th>Đặt lịch</th><th>Tỷ lệ</th></tr></thead>
-                    <tbody>${conversions.map(c => {
-                const rate = parseFloat(c.rate);
-                const cls = rate >= 5 ? 'good' : rate >= 2 ? 'mid' : 'low';
-                return `<tr>
-                            <td>${c.icon} ${c.service_name}</td>
-                            <td>${c.views}</td>
-                            <td>${c.bookings}</td>
-                            <td><span class="conv-rate ${cls}">${c.rate}%</span></td>
-                        </tr>`;
-            }).join('')}</tbody>
-                </table>
-            </div>
-
-            <!-- Devices -->
-            ${devices.length ? `<div class="an-section">
-                <h3> Thiết bị</h3>
-                <div class="device-bar">
-                    ${devices.map(d => `<div class="device-chip">
-                        <span class="dv">${DEVICE_ICONS[d.device_type] || '🔧'}</span>
-                        <span class="dc">${d.views}</span>
-                        <span class="dp">${DEVICE_NAMES[d.device_type] || d.device_type} · ${((d.views / totalDeviceViews) * 100).toFixed(0)}%</span>
-                    </div>`).join('')}
-                </div>
-            </div>` : ''}
-
-            <!-- UTM Sources -->
-            ${utmSources.length ? `<div class="an-section card">
-                <h3>Nguồn UTM</h3>
-                ${utmSources.map(u => `<div class="utm-row">
-                    <span class="utm-name">${u.utm_source}</span>
-                    <span class="utm-count">${u.views}</span>
-                </div>`).join('')}
-            </div>` : ''}
-
-            <!-- UTM Campaigns -->
-            ${utmCampaigns.length ? `<div class="an-section card">
-                <h3>📢 Chiến dịch</h3>
-                ${utmCampaigns.map(u => `<div class="utm-row">
-                    <span class="utm-name">${u.utm_campaign} <small style="color:var(--text3)">· ${u.utm_source}</small></span>
-                    <span class="utm-count">${u.views}</span>
-                </div>`).join('')}
-            </div>` : ''}
-
-            <!-- Referrers -->
-            ${referrers.length ? `<div class="an-section card">
-                <h3>🌍 Nguồn giới thiệu</h3>
-                ${referrers.slice(0, 10).map(r => {
-                let domain = r.referrer;
-                try { domain = new URL(r.referrer).hostname; } catch (e) { }
-                return `<div class="utm-row">
-                        <span class="utm-name">${domain}</span>
-                        <span class="utm-count">${r.views}</span>
-                    </div>`;
-            }).join('')}
-            </div>` : ''}
-            `;
-
-            el.innerHTML = html;
-        }
-
-        // Populate service filter for analytics
-        fetch('/api/services').then(r => r.json()).then(services => {
-            const sel = document.getElementById('anService');
-            services.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.textContent = `${s.icon} ${s.name}`;
-                sel.appendChild(opt);
-            });
-        });
 
         // Init
         loadUsers();
