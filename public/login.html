@@ -8,14 +8,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icons/icon-192.png">
-    <title>Đăng nhập — Hoàn Mỹ CRM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    <title>Đăng nhập — Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #F2F3F5;
             min-height: 100vh;
             display: flex;
@@ -41,10 +41,11 @@
         }
 
         .brand-name {
-            font-size: 1.25rem;
+            font-size: 1rem;
             font-weight: 700;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.02em;
             color: #9E7C0C;
+            line-height: 1.4;
         }
 
         .brand-sub {
@@ -78,7 +79,7 @@
             background: #F5F6F8;
             border: 1px solid #E8EAED;
             border-radius: 8px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Be Vietnam Pro', sans-serif;
             font-size: 0.875rem;
             color: #1A1D21;
             transition: border-color 0.12s, box-shadow 0.12s;
@@ -100,7 +101,7 @@
             border: none;
             border-radius: 8px;
             color: #fff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Be Vietnam Pro', sans-serif;
             font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
@@ -140,7 +141,7 @@
 <body>
     <div class="login-box">
         <div class="brand">
-            <div class="brand-name">HOÀN MỸ</div>
+            <div class="brand-name">VIỆN THẨM MỸ QUỐC TẾ<br>HOÀN MỸ</div>
             <div class="brand-sub">CRM Quản lý</div>
             <div class="brand-line"></div>
         </div>
@@ -161,10 +162,24 @@
     </div>
 
     <script>
+        function getWorkspacePath(role) {
+            switch(role) {
+                case 'admin': return '/admin';
+                case 'telesale': return '/staff';
+                case 'truc_page': return '/page';
+                default: return '/login';
+            }
+        }
+
         const token = localStorage.getItem('crm_token');
         if (token) {
             fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } })
-                .then(r => { if (r.ok) window.location.href = '/'; });
+                .then(r => {
+                    if (r.ok) return r.json();
+                    throw new Error();
+                })
+                .then(user => { window.location.href = getWorkspacePath(user.role); })
+                .catch(() => {});
         }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -190,7 +205,7 @@
 
                 localStorage.setItem('crm_token', data.token);
                 localStorage.setItem('crm_user', JSON.stringify(data.user));
-                window.location.href = '/';
+                window.location.href = getWorkspacePath(data.user.role);
             } catch (error) {
                 err.textContent = error.message;
                 err.classList.add('show');

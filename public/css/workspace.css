@@ -1,0 +1,1005 @@
+/* ==========================================
+   WORKSPACE LAYOUT — Shared across all roles
+   Gold Luxury Theme: #9E7C0C
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --gold: #9E7C0C;
+    --gold-light: #B8960E;
+    --gold-dark: #8A6D0A;
+    --gold-bg: rgba(158,124,12,0.06);
+    --gold-border: rgba(158,124,12,0.15);
+    --sidebar-w: 240px;
+    --topbar-h: 56px;
+    --bg: #F2F3F5;
+    --surface: #fff;
+    --surface-hover: #FAFBFC;
+    --text: #1A1D21;
+    --text-secondary: #5F6368;
+    --text-muted: #9AA0A6;
+    --border: #E8EAED;
+    --border-light: #F0F1F3;
+    --red: #D93025;
+    --green: #188038;
+    --blue: #1A73E8;
+    --orange: #E37400;
+    --radius: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --transition: 0.15s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+/* ==================== LAYOUT ==================== */
+
+.ws-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.ws-sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    transition: transform 0.25s ease;
+}
+
+.ws-main {
+    flex: 1;
+    margin-left: var(--sidebar-w);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.ws-topbar {
+    height: var(--topbar-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+}
+
+.ws-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+/* ==================== SIDEBAR ==================== */
+
+.ws-brand {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.ws-brand-name {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--gold);
+    line-height: 1.3;
+}
+
+.ws-brand-sub {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ws-nav {
+    flex: 1;
+    padding: 12px 8px;
+    overflow-y: auto;
+}
+
+.ws-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    margin-bottom: 2px;
+    user-select: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.ws-nav-item:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.ws-nav-item.active {
+    background: var(--gold-bg);
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.ws-nav-item .nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.ws-nav-item.active .nav-icon {
+    opacity: 1;
+}
+
+.ws-nav-item .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+.ws-nav-divider {
+    height: 1px;
+    background: var(--border-light);
+    margin: 8px 12px;
+}
+
+/* ==================== SIDEBAR FOOTER ==================== */
+
+.ws-sidebar-footer {
+    padding: 12px 12px;
+    border-top: 1px solid var(--border-light);
+}
+
+.ws-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+}
+
+.ws-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gold-bg);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.ws-user-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ws-user-role {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+}
+
+/* ==================== TOPBAR ==================== */
+
+.ws-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ws-topbar-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.ws-topbar-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 8px;
+}
+
+.ws-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--text);
+}
+
+.ws-hamburger svg {
+    width: 24px;
+    height: 24px;
+}
+
+.ws-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ws-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.ws-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-muted);
+}
+
+.ws-btn-primary {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+}
+
+.ws-btn-primary:hover {
+    background: var(--gold-dark);
+    border-color: var(--gold-dark);
+}
+
+.ws-btn-danger {
+    color: var(--red);
+    border-color: rgba(217,48,37,0.2);
+}
+
+.ws-btn-danger:hover {
+    background: rgba(217,48,37,0.05);
+}
+
+.ws-btn-sm {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+}
+
+.ws-btn-icon {
+    padding: 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: all var(--transition);
+}
+
+.ws-btn-icon:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+/* ==================== CARDS ==================== */
+
+.ws-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.ws-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.ws-card-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.ws-card-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ==================== KPI CARDS ==================== */
+
+.ws-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.ws-kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition);
+}
+
+.ws-kpi-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.ws-kpi-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+}
+
+.ws-kpi-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.ws-kpi-change {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.ws-kpi-change.positive { color: var(--green); }
+.ws-kpi-change.negative { color: var(--red); }
+.ws-kpi-change.neutral { color: var(--text-muted); }
+
+.ws-kpi-accent {
+    border-left: 3px solid var(--gold);
+}
+
+/* ==================== TABLE ==================== */
+
+.ws-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.ws-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.ws-table th {
+    background: var(--bg);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.ws-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text);
+}
+
+.ws-table tr:last-child td {
+    border-bottom: none;
+}
+
+.ws-table tr:hover td {
+    background: var(--surface-hover);
+}
+
+/* ==================== STATUS BADGES ==================== */
+
+.ws-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.ws-badge-pending { background: rgba(227,116,0,0.1); color: var(--orange); }
+.ws-badge-arrived { background: rgba(24,128,56,0.1); color: var(--green); }
+.ws-badge-no-show { background: rgba(217,48,37,0.1); color: var(--red); }
+.ws-badge-gold { background: var(--gold-bg); color: var(--gold); }
+
+/* ==================== MODAL ==================== */
+
+.ws-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+}
+
+.ws-modal-overlay.show {
+    display: flex;
+    animation: wsFadeIn 0.15s ease;
+}
+
+.ws-modal {
+    background: var(--surface);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+.ws-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ws-modal-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
+
+.ws-modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.ws-modal-close:hover { background: var(--bg); }
+
+.ws-modal-body {
+    padding: 20px;
+}
+
+.ws-modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@keyframes wsFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ==================== FORM ==================== */
+
+.ws-field {
+    margin-bottom: 14px;
+}
+
+.ws-field label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.ws-field input,
+.ws-field select,
+.ws-field textarea {
+    width: 100%;
+    padding: 9px 12px;
+    background: #F5F6F8;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.8125rem;
+    color: var(--text);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.ws-field input:focus,
+.ws-field select:focus,
+.ws-field textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(158,124,12,0.08);
+    background: #fff;
+}
+
+.ws-field textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* ==================== FILTER BAR ==================== */
+
+.ws-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.ws-search {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.ws-search input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.8125rem;
+    color: var(--text);
+}
+
+.ws-search input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(158,124,12,0.08);
+}
+
+.ws-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+}
+
+.ws-filter-btn {
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.ws-filter-btn:hover {
+    border-color: var(--text-muted);
+}
+
+.ws-filter-btn.active {
+    background: var(--gold-bg);
+    border-color: var(--gold-border);
+    color: var(--gold);
+    font-weight: 600;
+}
+
+/* ==================== TABS ==================== */
+
+.ws-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.ws-tab {
+    padding: 10px 20px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition);
+    font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.ws-tab:hover {
+    color: var(--text);
+}
+
+.ws-tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    font-weight: 600;
+}
+
+.ws-tab-content {
+    display: none;
+}
+
+.ws-tab-content.active {
+    display: block;
+}
+
+/* ==================== QUICK ACTIONS ==================== */
+
+.ws-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ws-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+}
+
+.ws-action-call {
+    background: rgba(26,115,232,0.1);
+    color: var(--blue);
+}
+.ws-action-call:hover { background: rgba(26,115,232,0.2); }
+
+.ws-action-arrived {
+    background: rgba(24,128,56,0.1);
+    color: var(--green);
+}
+.ws-action-arrived:hover { background: rgba(24,128,56,0.2); }
+
+.ws-action-noshow {
+    background: rgba(217,48,37,0.1);
+    color: var(--red);
+}
+.ws-action-noshow:hover { background: rgba(217,48,37,0.2); }
+
+.ws-action-assign {
+    background: var(--gold-bg);
+    color: var(--gold);
+}
+.ws-action-assign:hover { background: rgba(158,124,12,0.12); }
+
+/* ==================== EMPTY STATE ==================== */
+
+.ws-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-muted);
+}
+
+.ws-empty-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    opacity: 0.5;
+}
+
+.ws-empty-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ==================== TOAST ==================== */
+
+.ws-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--text);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    animation: wsSlideUp 0.2s ease;
+    max-width: 360px;
+}
+
+.ws-toast.success { background: var(--green); }
+.ws-toast.error { background: var(--red); }
+
+@keyframes wsSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== SCROLLBAR ==================== */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ==================== SIDEBAR OVERLAY (mobile) ==================== */
+
+.ws-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 99;
+}
+
+
+
+/* ==================== SECTION HEADERS ==================== */
+
+.ws-section {
+    margin-bottom: 24px;
+}
+
+.ws-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.ws-section-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ==================== PLACEHOLDER PAGES ==================== */
+
+.ws-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.ws-placeholder-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+}
+
+.ws-placeholder-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.ws-placeholder-desc {
+    font-size: 0.8125rem;
+    max-width: 320px;
+}
+
+/* ==================== LOADING ==================== */
+
+.ws-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+}
+
+.ws-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: wsSpin 0.6s linear infinite;
+}
+
+@keyframes wsSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Date filter buttons */
+.date-filter-btn { font-size: 12px; padding: 5px 12px; transition: all 0.15s; }
+.date-filter-btn.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+.date-filter-btn:not(.active):hover { border-color: var(--gold); color: var(--gold); }
+
+/* Lead card component */
+.ws-lead-card {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ws-lead-card:hover { background: #fafafa; }
+.ws-lead-card:active { background: #f5f5f5; }
+
+/* ==================== MOBILE RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    /* Sidebar: off-canvas drawer */
+    .ws-sidebar { transform: translateX(-100%); position: fixed; z-index: 1001; width: 260px; }
+    .ws-sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.15); }
+    .ws-sidebar-overlay.show { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; }
+    .ws-hamburger { display: flex; }
+
+    /* Main area: full width */
+    .ws-main { margin-left: 0; }
+
+    /* Topbar: compact */
+    .ws-topbar { padding: 0 12px; height: 48px; }
+    .ws-topbar-title { font-size: 15px; }
+    .ws-topbar-right .ws-btn { font-size: 11px; padding: 5px 8px; }
+    .ws-topbar-right .ws-btn-danger { font-size: 11px; }
+
+    /* Content padding */
+    .ws-content { padding: 12px; }
+
+    /* KPI grid: 2 columns, compact */
+    .ws-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; margin-bottom: 16px; }
+    .ws-kpi-card { padding: 10px 12px !important; }
+    .ws-kpi-value { font-size: 1.15rem !important; }
+    .ws-kpi-label { font-size: 10px !important; line-height: 1.3; }
+    .ws-kpi-change { font-size: 10px !important; }
+
+    /* Tables: horizontal scroll with better touch */
+    .ws-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px; padding: 0 12px; }
+    .ws-table { min-width: 580px; }
+    .ws-table th { padding: 8px 10px; font-size: 11px; }
+    .ws-table td { padding: 8px 10px; font-size: 12px; white-space: nowrap; }
+
+    /* Cards */
+    .ws-card { padding: 14px; border-radius: 10px; }
+
+    /* Section headers */
+    .ws-section-title { font-size: 13px; }
+
+    /* Modals: full width */
+    .ws-modal { width: 95vw !important; max-width: 95vw !important; max-height: 85vh; border-radius: 14px; }
+    .ws-modal-body { max-height: 60vh; overflow-y: auto; padding: 14px; }
+    .ws-modal-header { padding: 12px 16px; }
+    .ws-modal-footer { padding: 10px 16px; }
+    .ws-modal-title { font-size: 14px; }
+
+    /* Tabs: scrollable row */
+    .ws-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 0; }
+    .ws-tab { font-size: 12px; padding: 8px 12px; white-space: nowrap; flex-shrink: 0; }
+
+    /* Filter bar: stack vertically */
+    .ws-filter-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+    .ws-search { min-width: 0; }
+    .ws-search input { font-size: 14px; padding: 10px 12px 10px 36px; }
+    .ws-filter-bar select { font-size: 13px; padding: 8px 12px; width: 100%; }
+
+    /* Lead cards */
+    .ws-lead-card { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+
+    /* Nav items: touch-friendly size */
+    .ws-nav-item { font-size: 13px; padding: 11px 16px; gap: 10px; }
+
+    /* Date filter buttons: wrap and touch-friendly */
+    .date-filter-btn { font-size: 11px; padding: 6px 10px; }
+
+    /* Source/funnel grid: single column */
+    [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+
+    /* Toast: full width */
+    .ws-toast { left: 12px; right: 12px; bottom: 12px; max-width: none; text-align: center; }
+
+    /* Appointment cards */
+    .ws-lead-card div[style*="flex:1"] { min-width: 0; }
+    .ws-lead-card div[style*="font-size:12px"],
+    .ws-lead-card div[style*="font-size:13px"] { font-size: 11px !important; line-height: 1.4; }
+
+    /* Action buttons */
+    .ws-action-btn { font-size: 11px; padding: 4px 8px; }
+    .ws-actions { gap: 4px; }
+
+    /* Forms on mobile */
+    .ws-field input, .ws-field select, .ws-field textarea { font-size: 14px; padding: 10px 12px; }
+    .ws-field label { font-size: 12px; }
+
+    /* Buttons: proper sizing */
+    .ws-btn { font-size: 12px; padding: 6px 10px; }
+    .ws-btn-sm { font-size: 11px; padding: 4px 8px; }
+
+    /* Badge sizing */
+    .ws-badge { font-size: 10px; padding: 2px 6px; }
+}
+
+@media (max-width: 430px) {
+    /* Very small phones */
+    .ws-kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 6px; }
+    .ws-kpi-card { padding: 8px 10px !important; }
+    .ws-kpi-value { font-size: 1rem !important; }
+    .ws-kpi-label { font-size: 9px !important; }
+
+    .ws-content { padding: 8px; }
+    .ws-topbar-right .ws-btn { font-size: 10px; padding: 4px 6px; }
+
+    .ws-table { min-width: 500px; }
+    .ws-table th, .ws-table td { padding: 6px 8px; font-size: 11px; }
+
+    .ws-action-btn { font-size: 10px; padding: 3px 6px; }
+
+    .date-filter-btn { font-size: 10px; padding: 4px 8px; }
+
+    .ws-modal { width: 98vw !important; max-width: 98vw !important; }
+    .ws-modal-body { padding: 10px; }
+
+    .ws-section-title { font-size: 12px; }
+
+    .ws-tabs { gap: 0; }
+    .ws-tab { font-size: 11px; padding: 6px 10px; }
+}
+

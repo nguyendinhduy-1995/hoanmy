@@ -1,1568 +1,726 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#B8860B">
+    <meta name="theme-color" content="#9E7C0C">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icons/icon-192.png">
-    <title>Quản trị - Hoàn Mỹ CRM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box
-        }
-
-        :root {
-            --pink: #B8860B;
-            --pink-light: #D4A537;
-            --green: #00B894;
-            --red: #E17055;
-            --gold: #F39C12;
-            --text: #2D3436;
-            --text2: #636E72;
-            --text3: #B2BEC3;
-            --bg: #FFFBF0;
-            --white: #fff;
-            --shadow: 0 2px 16px rgba(184, 134, 11, 0.06);
-            --radius: 14px
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #FFFBF0, #FFF3D6, #FDF5E6);
-            color: var(--text);
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
-            padding-bottom: 80px
-        }
-
-        /* Nav */
-        .nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, .92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1.5px solid rgba(184, 134, 11, .08);
-            padding: 0 16px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between
-        }
-
-        .nav-logo {
-            font-size: .9rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #B8860B, #D4A537);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent
-        }
-
-        .nav-back {
-            padding: 8px 14px;
-            border: 1.5px solid rgba(184, 134, 11, .1);
-            border-radius: 50px;
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--text2);
-            background: var(--white);
-            text-decoration: none;
-            transition: all .2s
-        }
-
-        .nav-back:active {
-            transform: scale(.95)
-        }
-
-        /* Tabs - bottom for one-hand use */
-        .tabs {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, .96);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1.5px solid rgba(184, 134, 11, .08);
-            display: flex;
-            padding: 6px 8px 8px;
-            gap: 4px
-        }
-
-        .tab {
-            flex: 1;
-            padding: 8px 4px;
-            border: none;
-            background: none;
-            border-radius: 12px;
-            font-family: 'Inter', sans-serif;
-            font-size: .68rem;
-            font-weight: 700;
-            color: var(--text3);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            transition: all .2s
-        }
-
-        .tab.active {
-            background: rgba(184, 134, 11, .08);
-            color: var(--pink)
-        }
-
-        .tab .ti {
-            font-size: 1.2rem
-        }
-
-        /* Content */
-        .content {
-            padding: 16px
-        }
-
-        .panel {
-            display: none
-        }
-
-        .panel.active {
-            display: block;
-            animation: fadeUp .3s ease
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px)
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0)
-            }
-        }
-
-        /* Section title */
-        .stitle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px
-        }
-
-        .stitle h2 {
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--text)
-        }
-
-        .stitle .count {
-            font-size: .72rem;
-            background: var(--bg);
-            padding: 3px 10px;
-            border-radius: 20px;
-            color: var(--text2);
-            font-weight: 600
-        }
-
-        /* Cards */
-        .card {
-            background: var(--white);
-            border: 1.5px solid rgba(184, 134, 11, .06);
-            border-radius: var(--radius);
-            padding: 14px;
-            margin-bottom: 10px;
-            box-shadow: var(--shadow);
-            transition: all .2s
-        }
-
-        .card:active {
-            transform: scale(.98)
-        }
-
-        /* User card */
-        .user-row {
-            display: flex;
-            align-items: center;
-            gap: 12px
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            flex-shrink: 0
-        }
-
-        .user-avatar.admin {
-            background: linear-gradient(135deg, #FFF3D6, #F5E6B8)
-        }
-
-        .user-avatar.truc_page {
-            background: linear-gradient(135deg, #D5F5E3, #A9DFBF)
-        }
-
-        .user-avatar.telesale {
-            background: linear-gradient(135deg, #E0DFFE, #D1C4E9)
-        }
-
-        .user-info {
-            flex: 1;
-            min-width: 0
-        }
-
-        .user-name {
-            font-size: .88rem;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis
-        }
-
-        .user-meta {
-            font-size: .72rem;
-            color: var(--text3);
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-top: 2px
-        }
-
-        .role-badge {
-            font-size: .65rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: .5px
-        }
-
-        .role-badge.admin {
-            background: #FFF3D6;
-            color: #C2185B
-        }
-
-        .role-badge.truc_page {
-            background: #D5F5E3;
-            color: #2E7D32
-        }
-
-        .role-badge.telesale {
-            background: #E0DFFE;
-            color: #5C6BC0
-        }
-
-        .user-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0
-        }
-
-        .user-actions button {
-            width: 34px;
-            height: 34px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: .9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all .15s
-        }
-
-        .btn-edit {
-            background: #FFF3CD;
-            color: #B87D00
-        }
-
-        .btn-toggle {
-            background: #D5F5E3;
-            color: #00B894
-        }
-
-        .btn-toggle.off {
-            background: #FFF0ED;
-            color: #E17055
-        }
-
-        .btn-del {
-            background: #FDEDEC;
-            color: #E17055
-        }
-
-        .user-actions button:active {
-            transform: scale(.9)
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            display: inline-block
-        }
-
-        .status-dot.on {
-            background: var(--green)
-        }
-
-        .status-dot.off {
-            background: var(--red)
-        }
-
-        /* Log card */
-        .log-item {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start
-        }
-
-        .log-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-top: 6px;
-            flex-shrink: 0
-        }
-
-        .log-dot.login {
-            background: var(--green)
-        }
-
-        .log-dot.logout {
-            background: var(--text3)
-        }
-
-        .log-dot.booking {
-            background: var(--pink)
-        }
-
-        .log-dot.user {
-            background: var(--gold)
-        }
-
-        .log-dot.error {
-            background: var(--red)
-        }
-
-        .log-body {
-            flex: 1;
-            min-width: 0
-        }
-
-        .log-action {
-            font-size: .82rem;
-            font-weight: 600;
-            color: var(--text)
-        }
-
-        .log-detail {
-            font-size: .75rem;
-            color: var(--text2);
-            margin-top: 1px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis
-        }
-
-        .log-time {
-            font-size: .68rem;
-            color: var(--text3);
-            margin-top: 2px;
-            font-variant-numeric: tabular-nums
-        }
-
-        /* FAB - add user */
-        .fab {
-            position: fixed;
-            bottom: 76px;
-            right: 16px;
-            z-index: 99;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #B8860B, #D4A537);
-            color: white;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(184, 134, 11, .3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all .2s
-        }
-
-        .fab:active {
-            transform: scale(.9)
-        }
-
-        .fab.hide {
-            display: none
-        }
-
-        /* Modal */
-        .modal-bg {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 200;
-            background: rgba(255, 245, 247, .92);
-            backdrop-filter: blur(8px);
-            align-items: flex-end;
-            justify-content: center
-        }
-
-        .modal-bg.show {
-            display: flex
-        }
-
-        .modal {
-            background: var(--white);
-            border-radius: 20px 20px 0 0;
-            padding: 24px 20px 32px;
-            width: 100%;
-            max-width: 480px;
-            animation: slideUp .3s ease;
-            max-height: 85vh;
-            overflow-y: auto
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%)
-            }
-
-            to {
-                transform: translateY(0)
-            }
-        }
-
-        .modal h3 {
-            font-size: 1rem;
-            font-weight: 800;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px
-        }
-
-        .modal .field {
-            margin-bottom: 14px
-        }
-
-        .modal .field label {
-            display: block;
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--text2);
-            margin-bottom: 5px
-        }
-
-        .modal .field input,
-        .modal .field select {
-            width: 100%;
-            padding: 12px 14px;
-            background: #FFFCF5;
-            border: 1.5px solid rgba(184, 134, 11, .1);
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-size: .92rem;
-            color: var(--text)
-        }
-
-        .modal .field input:focus,
-        .modal .field select:focus {
-            outline: none;
-            border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(184, 134, 11, .1)
-        }
-
-        .modal .field select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23636E72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 20px
-        }
-
-        .modal-actions button {
-            flex: 1;
-            padding: 13px;
-            border: none;
-            border-radius: 50px;
-            font-family: 'Inter', sans-serif;
-            font-size: .88rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all .2s
-        }
-
-        .modal-actions button:active {
-            transform: scale(.97)
-        }
-
-        .btn-cancel {
-            background: #F1F1F1;
-            color: var(--text2)
-        }
-
-        .btn-save {
-            background: linear-gradient(135deg, #B8860B, #D4A537);
-            color: white;
-            box-shadow: 0 4px 16px rgba(184, 134, 11, .2)
-        }
-
-        .btn-confirm-del {
-            background: var(--red);
-            color: white
-        }
-
-        /* Toast */
-        .toast-c {
-            position: fixed;
-            top: 64px;
-            left: 16px;
-            right: 16px;
-            z-index: 300
-        }
-
-        .toast {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: .82rem;
-            font-weight: 600;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, .08);
-            animation: fadeUp .3s ease;
-            margin-bottom: 6px;
-            background: white
-        }
-
-        .toast.ok {
-            border-left: 3px solid var(--green);
-            color: var(--green)
-        }
-
-        .toast.err {
-            border-left: 3px solid var(--red);
-            color: var(--red)
-        }
-
-        /* Empty */
-        .empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text3)
-        }
-
-        .empty .ei {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 8px
-        }
-
-        .empty p {
-            font-size: .85rem
-        }
-
-        /* Load more */
-        .load-more {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            border: 1.5px dashed rgba(184, 134, 11, .15);
-            border-radius: 12px;
-            background: none;
-            font-family: 'Inter', sans-serif;
-            font-size: .82rem;
-            font-weight: 600;
-            color: var(--pink);
-            cursor: pointer;
-            margin-top: 8px
-        }
-
-        .load-more:active {
-            background: rgba(184, 134, 11, .04)
-        }
-
-        /* Landing card */
-        .lp-card {
-            padding: 14px;
-        }
-
-        .lp-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .lp-name {
-            font-size: .88rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .lp-url {
-            font-size: .68rem;
-            color: var(--text3);
-            word-break: break-all;
-            margin-bottom: 8px;
-        }
-
-        .lp-meta-preview {
-            font-size: .72rem;
-            color: var(--text2);
-            line-height: 1.5;
-        }
-
-        .lp-meta-preview .ogkey {
-            color: var(--text3);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: .62rem;
-            letter-spacing: .5px;
-        }
-
-        .lp-actions {
-            display: flex;
-            gap: 6px;
-            margin-top: 10px;
-            border-top: 1px solid rgba(184, 134, 11, .06);
-            padding-top: 10px;
-        }
-
-        .lp-actions button {
-            flex: 1;
-            padding: 9px;
-            border: 1.5px solid rgba(184, 134, 11, .1);
-            border-radius: 10px;
-            background: var(--bg);
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--text);
-            transition: all .15s;
-        }
-
-        .lp-actions button:active {
-            transform: scale(.95);
-        }
-
-        .lp-actions .btn-meta {
-            background: #FFF3CD;
-            border-color: #FFE69C;
-            color: #B87D00;
-        }
-
-        .lp-actions .btn-view {
-            background: #D5F5E3;
-            border-color: #A9DFBF;
-            color: #2E7D32;
-        }
-
-        .lp-badge {
-            font-size: .62rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: 700;
-        }
-
-        .lp-badge.has {
-            background: #D5F5E3;
-            color: #2E7D32;
-        }
-
-        .lp-badge.no {
-            background: #F1F1F1;
-            color: var(--text3);
-        }
-
-        /* Meta modal textarea */
-        .modal .field textarea {
-            width: 100%;
-            padding: 12px 14px;
-            background: #FFFCF5;
-            border: 1.5px solid rgba(184, 134, 11, .1);
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-size: .85rem;
-            color: var(--text);
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .modal .field textarea:focus {
-            outline: none;
-            border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(184, 134, 11, .1);
-        }
-
-        /* Analytics */
-        .an-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 14px;
-        }
-
-        .an-card {
-            background: var(--white);
-            border: 1.5px solid rgba(184, 134, 11, .06);
-            border-radius: var(--radius);
-            padding: 12px;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        .an-val {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--pink);
-        }
-
-        .an-label {
-            font-size: .62rem;
-            color: var(--text3);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-top: 2px;
-        }
-
-        .an-section {
-            margin-bottom: 16px;
-        }
-
-        .an-section h3 {
-            font-size: .82rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .conv-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .78rem;
-        }
-
-        .conv-table th {
-            text-align: left;
-            padding: 8px 6px;
-            font-size: .62rem;
-            color: var(--text3);
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            border-bottom: 1.5px solid rgba(184, 134, 11, .08);
-            font-weight: 700;
-        }
-
-        .conv-table td {
-            padding: 8px 6px;
-            border-bottom: 1px solid rgba(184, 134, 11, .04);
-        }
-
-        .conv-rate {
-            font-weight: 700;
-        }
-
-        .conv-rate.good {
-            color: var(--green);
-        }
-
-        .conv-rate.mid {
-            color: #B87D00;
-        }
-
-        .conv-rate.low {
-            color: var(--red);
-        }
-
-        .utm-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(184, 134, 11, .04);
-        }
-
-        .utm-name {
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .utm-count {
-            font-size: .78rem;
-            font-weight: 700;
-            color: var(--pink);
-            background: #FFF3D6;
-            padding: 2px 10px;
-            border-radius: 12px;
-        }
-
-        .device-bar {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .device-chip {
-            flex: 1;
-            text-align: center;
-            padding: 8px 4px;
-            background: var(--white);
-            border: 1.5px solid rgba(184, 134, 11, .06);
-            border-radius: 10px;
-        }
-
-        .device-chip .dv {
-            font-size: 1rem;
-            display: block;
-        }
-
-        .device-chip .dc {
-            font-size: .78rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .device-chip .dp {
-            font-size: .62rem;
-            color: var(--text3);
-            font-weight: 600;
-        }
-
-        .an-filter {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .an-filter select {
-            padding: 8px 28px 8px 10px;
-            background: var(--bg);
-            border: 1.5px solid rgba(184, 134, 11, .08);
-            border-radius: 20px;
-            font-family: 'Inter', sans-serif;
-            font-size: .78rem;
-            color: var(--text);
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23636E72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-        }
-    </style>
+    <title>Admin — Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ</title>
+    <link rel="stylesheet" href="/css/workspace.css">
 </head>
-
 <body>
-
-    <!-- Nav -->
-    <nav class="nav">
-        <span class="nav-logo">Quản trị</span>
-        <a href="/" class="nav-back">← Về CRM</a>
-    </nav>
-
-    <!-- Content -->
-    <div class="content">
-        <!-- Users Panel -->
-        <div class="panel active" id="usersPanel">
-            <div class="stitle">
-                <h2> Quản lý User</h2>
-                <span class="count" id="userCount">0 tài khoản</span>
-            </div>
-            <div id="userList"></div>
+<div class="ws-layout">
+    <aside class="ws-sidebar" id="sidebar">
+        <div class="ws-brand">
+            <div class="ws-brand-name">Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ</div>
+            <div class="ws-brand-sub">Admin</div>
         </div>
+        <nav class="ws-nav">
+            <button class="ws-nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Tổng quan
+            </button>
+            <button class="ws-nav-item" data-page="leads" onclick="switchPage('leads')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                Khách hàng
+            </button>
+            <button class="ws-nav-item" data-page="appointments" onclick="switchPage('appointments')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Lịch hẹn
+            </button>
 
-        <!-- Reports Panel -->
-        <div class="panel" id="reportsPanel">
-            <div class="stitle">
-                <h2> Báo cáo</h2>
-                <select id="reportDays" onchange="loadReports()"
-                    style="padding:6px 10px;border-radius:8px;border:1.5px solid rgba(232,67,147,.12);font-size:.8rem;background:#fff">
-                    <option value="7">7 ngày</option>
-                    <option value="14" selected>14 ngày</option>
-                    <option value="30">30 ngày</option>
-                </select>
-            </div>
-
-            <!-- Trực Page input form (only visible to truc_page & admin) -->
-            <div class="card" id="reportInputCard" style="margin-bottom:12px">
-                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px"> Nhập báo cáo Trực Page</div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
-                    <div style="flex:1;min-width:100px">
-                        <label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Ngày báo
-                            cáo</label>
-                        <input type="date" id="rpDate"
-                            style="width:100%;padding:8px 10px;border:1.5px solid rgba(232,67,147,.12);border-radius:8px;font-size:.85rem">
-                    </div>
-                    <div style="flex:1;min-width:100px">
-                        <label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Số liên
-                            hệ</label>
-                        <input type="number" id="rpContacts" min="0" placeholder="VD: 150"
-                            style="width:100%;padding:8px 10px;border:1.5px solid rgba(232,67,147,.12);border-radius:8px;font-size:.85rem">
-                    </div>
-                    <div style="flex:1;min-width:80px">
-                        <label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Ghi
-                            chú</label>
-                        <input type="text" id="rpNotes" placeholder="(tùy chọn)"
-                            style="width:100%;padding:8px 10px;border:1.5px solid rgba(232,67,147,.12);border-radius:8px;font-size:.85rem">
-                    </div>
-                    <button onclick="submitReport()"
-                        style="padding:8px 16px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82rem">📤
-                        Gửi</button>
-                </div>
-            </div>
-
-            <!-- Trực Page Report Table -->
-            <div class="card" style="margin-bottom:12px">
-                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px"> Báo cáo Trực Page</div>
-                <div style="font-size:.72rem;color:var(--text2);margin-bottom:8px">Tỉ lệ ra số = Số Data (ngày trước) ÷
-                    Tổng liên hệ × 100%</div>
-                <div style="overflow-x:auto">
-                    <table style="width:100%;border-collapse:collapse;font-size:.78rem">
-                        <thead>
-                            <tr style="background:#FFF8E8">
-                                <th
-                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--pink);font-size:.72rem">
-                                    NGÀY</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--pink);font-size:.72rem">
-                                    LIÊN HỆ</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--pink);font-size:.72rem">
-                                    DATA</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--pink);font-size:.72rem">
-                                    TỈ LỆ</th>
-                                <th
-                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--pink);font-size:.72rem">
-                                    NGƯỜI BÁO CÁO</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trucPageTable"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Telesale Report Table -->
-            <div class="card">
-                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px"> Báo cáo Telesale</div>
-                <div style="font-size:.72rem;color:var(--text2);margin-bottom:8px">Tỉ lệ = Tổng lịch hẹn ÷ Tổng Data ×
-                    100%</div>
-                <div style="overflow-x:auto">
-                    <table style="width:100%;border-collapse:collapse;font-size:.78rem">
-                        <thead>
-                            <tr style="background:#E8F6F3">
-                                <th
-                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--green);font-size:.72rem">
-                                    NGÀY</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
-                                    DATA</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
-                                    LỊCH HẸN</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
-                                    ĐÃ ĐẾN</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
-                                    TỈ LỆ ĐẾN</th>
-                                <th
-                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
-                                    TỈ LỆ HẸN</th>
-                                <th
-                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--green);font-size:.72rem">
-                                    NHÂN VIÊN GỌI</th>
-                            </tr>
-                        </thead>
-                        <tbody id="telesaleTable"></tbody>
-                    </table>
+            <button class="ws-nav-item" data-page="users" onclick="switchPage('users')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                Quản lý tài khoản
+            </button>
+            <button class="ws-nav-item" data-page="logs" onclick="switchPage('logs')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Nhật ký hoạt động
+            </button>
+        </nav>
+        <div class="ws-sidebar-footer">
+            <div class="ws-user-info">
+                <div class="ws-user-avatar" id="userAvatar">?</div>
+                <div>
+                    <div class="ws-user-name" id="userName">—</div>
+                    <div class="ws-user-role">Admin</div>
                 </div>
             </div>
         </div>
+    </aside>
+    <div class="ws-sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-        <!-- Logs Panel -->
-        <div class="panel" id="logsPanel">
-            <div class="stitle">
-                <h2> Lịch sử hoạt động</h2>
-                <span class="count" id="logCount">0 bản ghi</span>
+    <main class="ws-main">
+        <header class="ws-topbar">
+            <div class="ws-topbar-left">
+                <button class="ws-hamburger" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <h1 class="ws-topbar-title" id="pageTitle">Tổng quan</h1>
             </div>
-            <div id="logList"></div>
-            <button class="load-more" id="loadMore" onclick="loadMoreLogs()" style="display:none">Tải thêm ↓</button>
+            <div class="ws-topbar-right">
+                <button class="ws-btn" onclick="exportCSV()" title="Xuất Excel" style="font-size:13px">📥 Xuất CSV</button>
+                <button class="ws-btn" onclick="loadDashboard()" title="Làm mới">↻</button>
+                <button class="ws-btn ws-btn-danger" onclick="logout()">Đăng xuất</button>
+            </div>
+        </header>
+
+        <div class="ws-content">
+            <!-- DASHBOARD -->
+            <div id="page-dashboard" class="ws-page active">
+                <!-- Date Range Filter -->
+                <div class="ws-filter-bar" style="margin-bottom:12px">
+                    <span style="font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap">📅 Thời gian:</span>
+                    <button class="ws-btn date-filter-btn active" onclick="setDateRange('today')" data-range="today">Hôm nay</button>
+                    <button class="ws-btn date-filter-btn" onclick="setDateRange('7d')" data-range="7d">Tuần</button>
+                    <button class="ws-btn date-filter-btn" onclick="setDateRange('month')" data-range="month">Tháng</button>
+                    <button class="ws-btn date-filter-btn" onclick="setDateRange('all')" data-range="all">Tất cả</button>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                        <input type="date" id="dashFrom" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <span style="color:var(--text-muted)">→</span>
+                        <input type="date" id="dashTo" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <button class="ws-btn ws-btn-primary" onclick="setDateRange('custom')" style="font-size:12px;padding:5px 10px">Lọc</button>
+                    </div>
+                </div>
+
+                <!-- Overview KPIs -->
+                <div class="ws-kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">
+                    <div class="ws-kpi-card ws-kpi-accent"><div class="ws-kpi-label">Tổng khách hàng</div><div class="ws-kpi-value" id="dTotal">—</div></div>
+                    <div class="ws-kpi-card"><div class="ws-kpi-label">Hôm nay</div><div class="ws-kpi-value" id="dToday">—</div></div>
+                    <div class="ws-kpi-card"><div class="ws-kpi-label">Đã gọi</div><div class="ws-kpi-value" id="dCalled">—</div></div>
+                    <div class="ws-kpi-card"><div class="ws-kpi-label">Có hẹn</div><div class="ws-kpi-value" id="dAppointed">—</div></div>
+                    <div class="ws-kpi-card" style="border-left:3px solid var(--green)"><div class="ws-kpi-label">Đã đến</div><div class="ws-kpi-value" id="dArrived">—</div></div>
+                    <div class="ws-kpi-card" style="border-left:3px solid var(--gold)"><div class="ws-kpi-label">Tổng doanh thu</div><div class="ws-kpi-value" id="dRevenue" style="font-size:clamp(0.875rem,3vw,1.375rem)">—</div></div>
+                </div>
+
+                <!-- Rates -->
+                <div class="ws-kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">
+                    <div class="ws-kpi-card"><div class="ws-kpi-label">Tỷ lệ gọi / dữ liệu</div><div class="ws-kpi-value" id="dCallRate">—</div></div>
+                    <div class="ws-kpi-card"><div class="ws-kpi-label">Tỷ lệ hẹn / dữ liệu</div><div class="ws-kpi-value" id="dAppRate">—</div></div>
+                    <div class="ws-kpi-card"><div class="ws-kpi-label">Tỷ lệ đến / hẹn</div><div class="ws-kpi-value" id="dArrivalRate">—</div></div>
+                    <div class="ws-kpi-card"><div class="ws-kpi-label">Doanh thu bình quân / khách đến</div><div class="ws-kpi-value" id="dAvgRevenue">—</div></div>
+                </div>
+
+                <!-- Branch Comparison -->
+                <div class="ws-card" style="margin-top:16px">
+                    <h3 style="padding:16px 16px 8px;font-size:15px">📊 So sánh chi nhánh</h3>
+                    <div id="branchCompare" style="min-height:100px"><div class="ws-loading"><div class="ws-spinner"></div></div></div>
+                </div>
+
+                <!-- Staff Comparison -->
+                <div class="ws-card" style="margin-top:16px">
+                    <h3 style="padding:16px 16px 8px;font-size:15px">👥 Hiệu suất Telesales</h3>
+                    <div id="staffCompare" style="min-height:100px"><div class="ws-loading"><div class="ws-spinner"></div></div></div>
+                </div>
+
+                <!-- Source & Funnel -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px" class="dash-source-grid">
+                    <div class="ws-card">
+                        <h3 style="padding:16px 16px 8px;font-size:15px">📡 Theo nguồn</h3>
+                        <div id="sourceList" style="min-height:60px"></div>
+                    </div>
+                    <div class="ws-card">
+                        <h3 style="padding:16px 16px 8px;font-size:15px">🎯 Theo phễu</h3>
+                        <div id="funnelList" style="min-height:60px"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APPOINTMENTS PAGE -->
+            <div id="page-appointments" class="ws-page" style="display:none">
+                <div class="ws-filter-bar" style="margin-bottom:12px">
+                    <span style="font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap">📅 Xem lịch:</span>
+                    <button class="ws-btn date-filter-btn active" onclick="setAdminApptRange('today')" data-aarange="today">Hôm nay</button>
+                    <button class="ws-btn date-filter-btn" onclick="setAdminApptRange('week')" data-aarange="week">Tuần</button>
+                    <button class="ws-btn date-filter-btn" onclick="setAdminApptRange('month')" data-aarange="month">Tháng</button>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                        <input type="date" id="adminApptFrom" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <span style="color:var(--text-muted)">→</span>
+                        <input type="date" id="adminApptTo" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <button class="ws-btn ws-btn-primary" onclick="setAdminApptRange('custom')" style="font-size:12px;padding:5px 10px">Lọc</button>
+                    </div>
+                    <select id="adminApptBranch" class="ws-btn" style="cursor:pointer;font-size:12px" onchange="loadAdminAppts()">
+                        <option value="">Tất cả chi nhánh</option>
+                    </select>
+                </div>
+                <div class="ws-card" style="padding:0">
+                    <div id="adminApptList" style="min-height:200px"><div class="ws-loading"><div class="ws-spinner"></div></div></div>
+                </div>
+            </div>
+
+
+
+            <!-- LEADS PAGE -->
+            <div id="page-leads" class="ws-page" style="display:none">
+                <div class="ws-filter-bar">
+                    <div class="ws-search">
+                        <svg class="ws-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="leadSearch" placeholder="Tìm tên, SĐT..." oninput="renderLeads()">
+                    </div>
+                    <select id="leadStatusFilter" class="ws-btn" style="cursor:pointer" onchange="renderLeads()">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="NEW">Mới</option><option value="ASSIGNED">Đã phân</option>
+                        <option value="CALLED">Đã gọi</option><option value="FOLLOW_UP">Chăm sóc</option>
+                        <option value="APPOINTED">Có hẹn</option><option value="ARRIVED">Đã đến</option>
+                        <option value="WON">Có doanh thu</option><option value="LOST">Mất</option>
+                    </select>
+                    <select id="leadBranchFilter" class="ws-btn" style="cursor:pointer" onchange="renderLeads()">
+                        <option value="">Tất cả chi nhánh</option>
+                    </select>
+                </div>
+                <div class="ws-card" style="padding:0">
+                    <div id="leadListContainer" style="min-height:200px">
+                        <div class="ws-loading"><div class="ws-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS PAGE -->
+            <div id="page-users" class="ws-page" style="display:none">
+                <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+                    <button class="ws-btn ws-btn-primary" onclick="openUserModal()">+ Tạo tài khoản</button>
+                </div>
+                <div class="ws-card" style="padding:0">
+                    <div id="userListContainer" style="min-height:200px">
+                        <div class="ws-loading"><div class="ws-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOGS PAGE -->
+            <div id="page-logs" class="ws-page" style="display:none">
+                <div class="ws-card" style="padding:0">
+                    <div id="logListContainer" style="min-height:200px">
+                        <div class="ws-loading"><div class="ws-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </main>
+</div>
 
-
-
-        <!-- Uncalled Panel -->
-        <div class="panel" id="uncalledPanel">
-            <div class="stitle">
-                <h2> Data chưa gọi</h2>
-                <span class="count" id="uncalledCount">0 khách</span>
-            </div>
-            <div id="uncalledList"></div>
+<!-- Lead Detail Modal -->
+<div class="ws-modal-overlay" id="leadDetailModal">
+    <div class="ws-modal" style="max-width:520px">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title" id="leadDetailTitle">Chi tiết khách hàng</h3>
+            <button class="ws-modal-close" onclick="closeLeadDetail()">&times;</button>
+        </div>
+        <div class="ws-modal-body" id="leadDetailBody" style="max-height:70vh;overflow-y:auto">
+            <div class="ws-loading"><div class="ws-spinner"></div></div>
         </div>
     </div>
+</div>
 
-    <!-- FAB -->
-    <button class="fab" id="fabBtn" onclick="openCreateModal()">+</button>
-
-    <!-- Bottom Tabs -->
-    <div class="tabs">
-        <button class="tab active" onclick="switchTab('users')">
-            <span class="ti"></span> Tài khoản
-        </button>
-        <button class="tab" onclick="switchTab('uncalled')">
-            <span class="ti"></span> Chưa gọi
-        </button>
-        <button class="tab" onclick="switchTab('reports')">
-            <span class="ti"></span> Báo cáo
-        </button>
-        <button class="tab" onclick="switchTab('logs')">
-            <span class="ti"></span> Lịch sử
-        </button>
-    </div>
-
-    <!-- Create/Edit Modal -->
-    <div class="modal-bg" id="userModal">
-        <div class="modal">
-            <h3 id="modalTitle">Thêm tài khoản</h3>
+<!-- User Modal -->
+<div class="ws-modal-overlay" id="userModal">
+    <div class="ws-modal">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title" id="userModalTitle">Tạo user</h3>
+            <button class="ws-modal-close" onclick="closeUserModal()">&times;</button>
+        </div>
+        <div class="ws-modal-body">
             <input type="hidden" id="editUserId">
-            <div class="field">
-                <label>Tên hiển thị *</label>
-                <input type="text" id="mDisplayName" placeholder="VD: Nguyễn Thị Hoa" autocomplete="off">
-            </div>
-            <div class="field">
-                <label>Tên đăng nhập *</label>
-                <input type="text" id="mUsername" placeholder="VD: hoa.nguyen hoặc 0901234567" autocomplete="off">
-            </div>
-            <div class="field">
-                <label id="mPassLabel">Mật khẩu *</label>
-                <input type="password" id="mPassword" placeholder="Nhập mật khẩu" autocomplete="new-password">
-            </div>
-            <div class="field">
+            <div class="ws-field"><label>Username *</label><input type="text" id="umUsername" placeholder="username"></div>
+            <div class="ws-field"><label>Tên hiển thị *</label><input type="text" id="umDisplayName" placeholder="Tên nhân sự"></div>
+            <div class="ws-field"><label>Mật khẩu *</label><input type="password" id="umPassword" placeholder="Mật khẩu"></div>
+            <div class="ws-field">
                 <label>Vai trò *</label>
-                <select id="mRole">
-                    <option value="telesale"> Telesale</option>
-                    <option value="truc_page"> Trực Page</option>
+                <select id="umRole">
                     <option value="admin">Admin</option>
+                    <option value="truc_page">Trực Page</option>
+                    <option value="telesale">Telesales</option>
                 </select>
             </div>
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
-                <button class="btn-save" id="saveBtn" onclick="saveUser()">Lưu</button>
+            <div class="ws-field">
+                <label>Chi nhánh</label>
+                <select id="umBranch"><option value="">— Không —</option></select>
             </div>
+        </div>
+        <div class="ws-modal-footer">
+            <button class="ws-btn" onclick="closeUserModal()">Hủy</button>
+            <button class="ws-btn ws-btn-primary" onclick="submitUser()">Lưu</button>
         </div>
     </div>
+</div>
 
-    <!-- Delete Confirm Modal -->
-    <div class="modal-bg" id="deleteModal">
-        <div class="modal" style="text-align:center;padding-top:32px">
-            <div style="font-size:2.5rem;margin-bottom:10px">⚠️</div>
-            <h3 style="justify-content:center">Xác nhận xóa tài khoản?</h3>
-            <p style="font-size:.85rem;color:var(--text2);margin-bottom:20px" id="delUserName"></p>
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
-                <button class="btn-confirm-del" id="confirmDelBtn" onclick="confirmDelete()">Xóa</button>
+<script>
+const TOKEN = localStorage.getItem('crm_token');
+const USER = JSON.parse(localStorage.getItem('crm_user') || '{}');
+if (!TOKEN) window.location.href = '/login';
+if (USER.role && USER.role !== 'admin') {
+    const paths = { truc_page: '/page', telesale: '/staff' };
+    window.location.href = paths[USER.role] || '/login';
+}
+
+document.getElementById('userName').textContent = USER.displayName || USER.username || '—';
+document.getElementById('userAvatar').textContent = (USER.displayName || USER.username || '?')[0].toUpperCase();
+
+function api(url, opts = {}) {
+    return fetch(url, { ...opts, headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json', ...opts.headers } })
+    .then(r => { if (r.status === 401) { localStorage.clear(); window.location.href = '/login'; } return r.json(); });
+}
+
+function logout() { api('/api/logout', { method: 'POST' }).finally(() => { localStorage.clear(); window.location.href = '/login'; }); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+
+function switchPage(page) {
+    document.querySelectorAll('.ws-page').forEach(p => p.style.display = 'none');
+    document.getElementById('page-' + page).style.display = 'block';
+    document.querySelectorAll('.ws-nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector(`[data-page="${page}"]`).classList.add('active');
+    const titles = { dashboard: 'Tổng quan', leads: 'Khách hàng', appointments: 'Lịch hẹn', users: 'Quản lý tài khoản', logs: 'Nhật ký hoạt động' };
+    document.getElementById('pageTitle').textContent = titles[page] || '';
+    closeSidebar();
+    if (page === 'leads') loadLeads();
+    if (page === 'users') loadUsers();
+    if (page === 'logs') loadLogs();
+    if (page === 'appointments') loadAdminAppts();
+
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function fmt(n) { return Number(n || 0).toLocaleString('vi-VN'); }
+
+const SOURCE_LABELS = { FACEBOOK:'Facebook', ZALO:'Zalo', TIKTOK:'TikTok', HOTLINE:'Hotline', WALK_IN:'Khách vãng lai', LANDING:'Landing', OTHER:'Khác' };
+const STATUS_LABELS = {
+    NEW:'<span class="ws-badge" style="background:#E3F2FD;color:#1565C0">Mới</span>',
+    ASSIGNED:'<span class="ws-badge" style="background:#FFF3E0;color:#E65100">Đã phân</span>',
+    CALLED:'<span class="ws-badge" style="background:#F3E5F5;color:#7B1FA2">Đã gọi</span>',
+    FOLLOW_UP:'<span class="ws-badge" style="background:#FCE4EC;color:#C62828">Chăm sóc</span>',
+    APPOINTED:'<span class="ws-badge" style="background:#E8F5E9;color:#2E7D32">Có hẹn</span>',
+    ARRIVED:'<span class="ws-badge ws-badge-arrived">Đã đến</span>',
+    WON:'<span class="ws-badge" style="background:#FFF8E1;color:#F57F17">💰 Có doanh thu</span>',
+    LOST:'<span class="ws-badge ws-badge-no-show">Mất</span>',
+};
+const ROLE_LABELS = { admin:'Admin', truc_page:'Trực Page', telesale:'Telesales' };
+
+// ==================== DASHBOARD ====================
+let dashData = null;
+let branchList = [];
+let currentDateRange = 'all';
+
+function setDateRange(range) {
+    currentDateRange = range;
+    document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+    if (range !== 'custom') {
+        const btn = document.querySelector(`[data-range="${range}"]`);
+        if (btn) btn.classList.add('active');
+    }
+    loadDashboard();
+}
+
+function getDateParams() {
+    const now = new Date();
+    const pad = d => String(d).padStart(2, '0');
+    const fmtDate = dt => `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+    switch (currentDateRange) {
+        case 'today': { const t = fmtDate(now); return `from=${t}&to=${t}`; }
+        case '7d': { const d7 = new Date(now); d7.setDate(d7.getDate() - 6); return `from=${fmtDate(d7)}&to=${fmtDate(now)}`; }
+        case 'month': { const m1 = new Date(now.getFullYear(), now.getMonth(), 1); return `from=${fmtDate(m1)}&to=${fmtDate(now)}`; }
+        case 'custom': {
+            const f = document.getElementById('dashFrom').value;
+            const t = document.getElementById('dashTo').value;
+            if (f && t) return `from=${f}&to=${t}`;
+            return '';
+        }
+        default: return '';
+    }
+}
+
+async function loadDashboard() {
+    try {
+        const params = getDateParams();
+        const url = '/api/dashboard/admin' + (params ? '?' + params : '');
+        const [d, br] = await Promise.all([api(url), api('/api/branches')]);
+        dashData = d;
+        branchList = br || [];
+
+        // Populate branch filters
+        const brOpts = branchList.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+        document.getElementById('leadBranchFilter').innerHTML = '<option value="">Tất cả chi nhánh</option>' + brOpts;
+        document.getElementById('umBranch').innerHTML = '<option value="">— Không —</option>' + brOpts;
+        if (document.getElementById('adminApptBranch')) document.getElementById('adminApptBranch').innerHTML = '<option value="">Tất cả chi nhánh</option>' + brOpts;
+
+        const o = d.overview;
+        document.getElementById('dTotal').textContent = fmt(o.total_leads);
+        document.getElementById('dToday').textContent = fmt(o.leads_today);
+        document.getElementById('dCalled').textContent = fmt(o.total_called);
+        document.getElementById('dAppointed').textContent = fmt(o.total_appointed);
+        document.getElementById('dArrived').textContent = fmt(o.total_arrived);
+        document.getElementById('dRevenue').textContent = fmt(o.total_revenue) + 'đ';
+        document.getElementById('dCallRate').textContent = o.call_rate + '%';
+        document.getElementById('dAppRate').textContent = o.appointment_rate + '%';
+        document.getElementById('dArrivalRate').textContent = o.arrival_rate + '%';
+        document.getElementById('dAvgRevenue').textContent = fmt(o.avg_revenue_per_arrival) + 'đ';
+
+        // Branch cards
+        document.getElementById('branchCompare').innerHTML = (d.branches || []).map(b => {
+            const callRate = b.total_leads > 0 ? ((b.called / b.total_leads) * 100).toFixed(0) : 0;
+            return `<div style="padding:12px 16px;border-bottom:1px solid #f0f0f0">
+                <div style="font-weight:600;margin-bottom:4px">${esc(b.name || b.code)}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--text-secondary)">
+                    <span>KH: <strong>${b.total_leads}</strong></span>
+                    <span>Gọi: <strong>${b.called}</strong> <small style="color:var(--text-muted)">(${callRate}%)</small></span>
+                    <span>Hẹn: <strong>${b.appointed}</strong></span>
+                    <span>Đến: <strong>${b.arrived}</strong></span>
+                    <span style="color:var(--gold);font-weight:600">💰 ${fmt(b.revenue)}đ</span>
+                </div>
+            </div>`;
+        }).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted)">Không có dữ liệu</div>';
+
+        // Staff cards
+        document.getElementById('staffCompare').innerHTML = (d.staff || []).map(s => `<div style="padding:12px 16px;border-bottom:1px solid #f0f0f0">
+            <div style="font-weight:600;margin-bottom:2px">${esc(s.display_name)}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${esc(s.branch_name || s.branch_code || '—')}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--text-secondary)">
+                <span>KH: <strong>${s.total_leads}</strong></span>
+                <span>Gọi: <strong>${s.called}</strong></span>
+                <span>Hẹn: <strong>${s.appointed}</strong></span>
+                <span>Đến: <strong>${s.arrived}</strong></span>
+                <span style="color:var(--gold);font-weight:600">💰 ${fmt(s.revenue)}đ</span>
             </div>
+        </div>`).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted)">Không có dữ liệu</div>';
+
+        // Source list
+        document.getElementById('sourceList').innerHTML = (d.sources || []).map(s => `<div style="padding:8px 16px;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:500">${SOURCE_LABELS[s.source] || s.source}</span>
+            <span style="font-size:13px;color:var(--text-secondary)">${s.count} KH · ${s.arrived} đến · <strong style="color:var(--gold)">${fmt(s.revenue)}đ</strong></span>
+        </div>`).join('') || '<div style="padding:12px 16px;color:var(--text-muted)">—</div>';
+
+        // Funnel list
+        document.getElementById('funnelList').innerHTML = (d.funnels || []).map(f => `<div style="padding:8px 16px;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:500">${esc(f.funnel_name)}</span>
+            <span style="font-size:13px;color:var(--text-secondary)">${f.count} KH · ${f.arrived} đến · <strong style="color:var(--gold)">${fmt(f.revenue)}đ</strong></span>
+        </div>`).join('') || '<div style="padding:12px 16px;color:var(--text-muted)">—</div>';
+
+    } catch (e) { console.error('Dashboard error:', e); }
+}
+
+// ==================== LEADS ====================
+let allLeads = [];
+
+async function loadLeads() {
+    try {
+        const data = await api('/api/bookings');
+        allLeads = data.bookings || [];
+        renderLeads();
+    } catch (e) { console.error(e); }
+}
+
+function renderLeads() {
+    const search = (document.getElementById('leadSearch').value || '').toLowerCase();
+    const status = document.getElementById('leadStatusFilter').value;
+    const branch = document.getElementById('leadBranchFilter').value;
+    let list = allLeads;
+    if (status) list = list.filter(l => l.status === status);
+    if (branch) list = list.filter(l => String(l.branch_id) === branch);
+    if (search) list = list.filter(l => (l.full_name||'').toLowerCase().includes(search) || (l.phone||'').includes(search));
+
+    const container = document.getElementById('leadListContainer');
+    if (!list.length) { container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Không có dữ liệu</div></div>'; return; }
+    container.innerHTML = list.map(l => {
+        return `<div class="ws-lead-card" onclick="openLeadDetail(${l.id})">
+            <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:14px">${esc(l.full_name)}</div>
+                <div style="font-size:13px;color:var(--text-muted)">
+                    <a href="tel:${l.phone}" style="color:var(--blue);text-decoration:none" onclick="event.stopPropagation()">${esc(l.phone)}</a>
+                    ${l.interest_service ? ' · ' + esc(l.interest_service) : ''}
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+                    ${SOURCE_LABELS[l.source] || l.source || ''}
+                    ${l.branch_name ? ' · ' + esc(l.branch_name) : ''}
+                    ${l.called_count > 0 ? ' · 📞 ' + l.called_count : ''}
+                    ${l.first_revenue > 0 ? ' · 💰 ' + fmt(l.first_revenue) + 'đ' : ''}
+                </div>
+            </div>
+            <div>${STATUS_LABELS[l.status] || l.status}</div>
+        </div>`;
+    }).join('');
+}
+
+// ==================== LEAD DETAIL MODAL ====================
+async function openLeadDetail(id) {
+    const l = allLeads.find(x => x.id === id);
+    if (!l) return;
+    document.getElementById('leadDetailTitle').textContent = l.full_name;
+    document.getElementById('leadDetailBody').innerHTML = '<div class="ws-loading"><div class="ws-spinner"></div></div>';
+    document.getElementById('leadDetailModal').classList.add('show');
+
+    let callsHtml = '', eventsHtml = '';
+    try {
+        const [clRes, evRes] = await Promise.all([api(`/api/bookings/${id}/calls`), api(`/api/bookings/${id}/events`)]);
+        const calls = clRes.calls || [];
+        const events = evRes.events || [];
+        callsHtml = calls.length ? calls.map(c => `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;justify-content:space-between;align-items:center"><strong>Gọi #${c.call_number}</strong><small style="color:var(--text-muted)">${new Date(c.call_time).toLocaleString('vi-VN')}</small></div>
+            <div style="font-size:13px">${OUTCOME_TEXT[c.outcome]||c.outcome} ${c.notes ? '— '+esc(c.notes):''}</div>
+        </div>`).join('') : '<div style="padding:8px;color:var(--text-muted)">Chưa có cuộc gọi</div>';
+        eventsHtml = events.length ? events.map(e => `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;justify-content:space-between"><strong style="font-size:13px">${esc(e.type)}</strong><small style="color:var(--text-muted)">${new Date(e.created_at).toLocaleString('vi-VN')}</small></div>
+            <div style="font-size:12px;color:#555">${esc(e.note)}${e.old_value||e.new_value?' <span style="color:var(--text-muted)">'+esc(e.old_value)+' → '+esc(e.new_value)+'</span>':''}</div>
+        </div>`).join('') : '<div style="padding:8px;color:var(--text-muted)">Chưa có sự kiện</div>';
+    } catch(e) { callsHtml = '<div style="color:red">Lỗi tải</div>'; eventsHtml = callsHtml; }
+
+    document.getElementById('leadDetailBody').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+            <div><small style="color:var(--text-muted)">Họ tên</small><div><strong>${esc(l.full_name)}</strong></div></div>
+            <div><small style="color:var(--text-muted)">SĐT</small><div><a href="tel:${l.phone}" style="color:var(--blue)">${esc(l.phone)}</a></div></div>
+            <div><small style="color:var(--text-muted)">Nguồn</small><div>${SOURCE_LABELS[l.source]||l.source||'—'}</div></div>
+            <div><small style="color:var(--text-muted)">Phễu</small><div>${esc(l.funnel_name)||'—'}</div></div>
+            <div><small style="color:var(--text-muted)">Dịch vụ</small><div>${esc(l.interest_service||l.service)||'—'}</div></div>
+            <div><small style="color:var(--text-muted)">Độ nóng</small><div>${l.hot_level||'—'}</div></div>
+            <div><small style="color:var(--text-muted)">Chi nhánh</small><div>${l.branch_name?esc(l.branch_name):'<span style="color:var(--orange)">Chưa phân</span>'}</div></div>
+            <div><small style="color:var(--text-muted)">Trạng thái</small><div>${STATUS_LABELS[l.status]||l.status}</div></div>
+            <div><small style="color:var(--text-muted)">Doanh thu</small><div>${l.first_revenue>0?'<strong style="color:var(--gold)">'+fmt(l.first_revenue)+'đ</strong>':'—'}</div></div>
+            <div><small style="color:var(--text-muted)">Ngày tạo</small><div>${new Date(l.created_at).toLocaleString('vi-VN')}</div></div>
         </div>
-    </div>
+        ${l.initial_note?'<div style="margin-bottom:14px"><small style="color:var(--text-muted)">Ghi chú</small><div style="background:#f9f9f9;padding:8px;border-radius:6px;font-size:13px">'+esc(l.initial_note)+'</div></div>':''}
+        <h4 style="margin:14px 0 6px;font-size:14px">📞 Lịch sử gọi (${l.called_count||0})</h4>
+        <div style="max-height:200px;overflow-y:auto">${callsHtml}</div>
+        <h4 style="margin:14px 0 6px;font-size:14px">📋 Lịch sử sự kiện</h4>
+        <div style="max-height:200px;overflow-y:auto">${eventsHtml}</div>
+    `;
+}
+function closeLeadDetail() { document.getElementById('leadDetailModal').classList.remove('show'); }
 
-    <div class="toast-c" id="toastC"></div>
+const OUTCOME_TEXT = {
+    NO_ANSWER:'Không nghe máy', WRONG_NUMBER:'Sai số', NOT_INTERESTED:'Không quan tâm',
+    CALL_BACK_LATER:'Hẹn gọi lại', CARING:'Chăm sóc', CONSULTED:'Đã tư vấn',
+    APPOINTMENT_BOOKED:'Đã hẹn lịch', ARRIVED:'Đã đến', CLOSED_FIRST_REVENUE:'Đóng doanh thu', LOST:'Mất'
+};
 
-    <script>
-        const API = '';
-        let token = localStorage.getItem('crm_token');
-        let currentUser = JSON.parse(localStorage.getItem('crm_user') || '{}');
-        let deleteUserId = null;
-        let logOffset = 0;
+// ==================== USER MANAGEMENT ====================
+let allUsers = [];
 
-        // Auth check - all authenticated users can access
-        if (!token) {
-            window.location.href = '/login';
-        }
-
-        function headers() {
-            return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
-        }
-
-        // ==================== TABS ====================
-        const TAB_MAP = { users: 0, uncalled: 1, reports: 2, logs: 3 };
-        const PANELS = ['usersPanel', 'uncalledPanel', 'reportsPanel', 'logsPanel'];
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === TAB_MAP[tab]));
-            PANELS.forEach(p => document.getElementById(p).classList.remove('active'));
-            document.getElementById(PANELS[TAB_MAP[tab]]).classList.add('active');
-            document.getElementById('fabBtn').classList.toggle('hide', tab !== 'users');
-
-            if (tab === 'logs' && document.getElementById('logList').children.length === 0) {
-                logOffset = 0; loadLogs();
-            }
-            if (tab === 'uncalled') loadUncalled();
-            if (tab === 'reports' && !reportsLoaded) loadReports();
-        }
-
-        // Role-based tab visibility
-        (function () {
-            const role = currentUser?.role;
-            if (role !== 'admin') {
-                // Hide admin-only tabs: users(0)
-                const tabBtns = document.querySelectorAll('.tabs .tab');
-                [0].forEach(i => { if (tabBtns[i]) tabBtns[i].style.display = 'none'; });
-                // Hide FAB button
-                document.getElementById('fabBtn').style.display = 'none';
-                // Auto-switch to reports tab for non-admin
-                switchTab('reports');
-            }
-        })();
-
-        // ==================== USERS ====================
-        async function loadUsers() {
-            try {
-                const res = await fetch('/api/users', { headers: headers() });
-                if (res.status === 401) { window.location.href = '/login'; return; }
-                const users = await res.json();
-                document.getElementById('userCount').textContent = users.length + ' tài khoản';
-                renderUsers(users);
-            } catch (e) { showToast('Lỗi tải tài khoản', 'err'); }
-        }
-
-        const ROLE_MAP = { admin: 'Quản trị', truc_page: ' Trực Page', telesale: ' Telesale' };
-        const ROLE_ICON = { admin: '', truc_page: '', telesale: '' };
-        const ROLE_LABEL = { admin: 'QUẢN TRỊ', truc_page: 'TRỰC PAGE', telesale: 'TELESALE' };
-
-        function renderUsers(users) {
-            const el = document.getElementById('userList');
-            if (!users.length) { el.innerHTML = '<div class="empty"><span class="ei"></span><p>Chưa có tài khoản nào</p></div>'; return; }
-
-            el.innerHTML = users.map(u => `
-        <div class="card">
-          <div class="user-row">
-            <div class="user-avatar ${u.role}">${ROLE_ICON[u.role]}</div>
-            <div class="user-info">
-              <div class="user-name">${u.display_name}</div>
-              <div class="user-meta">
-                <span>@${u.username}</span>
-                <span class="role-badge ${u.role}">${ROLE_MAP[u.role]}</span>
-                <span class="status-dot ${u.active ? 'on' : 'off'}"></span>
-              </div>
+async function loadUsers() {
+    try {
+        allUsers = await api('/api/users');
+        document.getElementById('userListContainer').innerHTML = allUsers.map(u => `<div class="ws-lead-card">
+            <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:14px">${esc(u.display_name)}</div>
+                <div style="font-size:13px;color:var(--text-muted)">
+                    @${esc(u.username)} · ${ROLE_LABELS[u.role] || u.role}
+                    ${u.branch_name ? ' · ' + esc(u.branch_name) : ''}
+                </div>
             </div>
-            <div class="user-actions">
-              <button class="btn-edit" onclick="openEditModal(${u.id},'${u.username}','${u.display_name}','${u.role}')" title="Sửa">✏️</button>
-              <button class="btn-toggle ${u.active ? '' : 'off'}" onclick="toggleUser(${u.id},${u.active ? 0 : 1})" title="${u.active ? 'Khóa' : 'Mở'}">
-                ${u.active ? '🔓' : '🔒'}
-              </button>
-              ${u.id !== currentUser.id ? `<button class="btn-del" onclick="openDeleteModal(${u.id},'${u.display_name}')" title="Xóa">🗑</button>` : ''}
+            <div style="display:flex;align-items:center;gap:6px">
+                ${u.active ? '<span class="ws-badge ws-badge-arrived">Active</span>' : '<span class="ws-badge ws-badge-no-show">Khóa</span>'}
+                <div class="ws-actions">
+                    <button class="ws-action-btn" onclick="editUser(${u.id})">Sửa</button>
+                    <button class="ws-action-btn ws-action-noshow" onclick="toggleUser(${u.id},${u.active?0:1})">${u.active?'Khóa':'Mở'}</button>
+                </div>
             </div>
-          </div>
-        </div>
-      `).join('');
+        </div>`).join('') || '<div class="ws-empty"><div class="ws-empty-text">Không có tài khoản</div></div>';
+    } catch (e) { console.error(e); }
+}
+
+function openUserModal(editId) {
+    document.getElementById('editUserId').value = editId || '';
+    document.getElementById('userModalTitle').textContent = editId ? 'Sửa user' : 'Tạo user';
+    if (editId) {
+        const u = allUsers.find(x => x.id === editId);
+        if (u) {
+            document.getElementById('umUsername').value = u.username;
+            document.getElementById('umUsername').disabled = true;
+            document.getElementById('umDisplayName').value = u.display_name;
+            document.getElementById('umPassword').value = '';
+            document.getElementById('umPassword').placeholder = 'Để trống nếu không đổi';
+            document.getElementById('umRole').value = u.role;
+            document.getElementById('umBranch').value = u.branch_id || '';
         }
+    } else {
+        document.getElementById('umUsername').value = '';
+        document.getElementById('umUsername').disabled = false;
+        document.getElementById('umDisplayName').value = '';
+        document.getElementById('umPassword').value = '';
+        document.getElementById('umPassword').placeholder = 'Mật khẩu';
+        document.getElementById('umRole').value = 'telesale';
+        document.getElementById('umBranch').value = '';
+    }
+    document.getElementById('userModal').classList.add('show');
+}
+function closeUserModal() { document.getElementById('userModal').classList.remove('show'); }
 
-        // ==================== MODALS ====================
-        function openCreateModal() {
-            document.getElementById('modalTitle').textContent = 'Thêm tài khoản';
-            document.getElementById('editUserId').value = '';
-            document.getElementById('mDisplayName').value = '';
-            document.getElementById('mUsername').value = '';
-            document.getElementById('mPassword').value = '';
-            document.getElementById('mUsername').disabled = false;
-            document.getElementById('mPassLabel').textContent = 'Mật khẩu *';
-            document.getElementById('mRole').value = 'telesale';
-            document.getElementById('userModal').classList.add('show');
-        }
+function editUser(id) { openUserModal(id); }
 
-        function openEditModal(id, username, displayName, role) {
-            document.getElementById('modalTitle').textContent = '✏️ Sửa tài khoản';
-            document.getElementById('editUserId').value = id;
-            document.getElementById('mDisplayName').value = displayName;
-            document.getElementById('mUsername').value = username;
-            document.getElementById('mUsername').disabled = true;
-            document.getElementById('mPassword').value = '';
-            document.getElementById('mPassLabel').textContent = 'Đổi mật khẩu (để trống nếu giữ nguyên)';
-            document.getElementById('mRole').value = role;
-            document.getElementById('userModal').classList.add('show');
-        }
+async function submitUser() {
+    const editId = document.getElementById('editUserId').value;
+    const body = {
+        display_name: document.getElementById('umDisplayName').value.trim(),
+        role: document.getElementById('umRole').value,
+        branch_id: document.getElementById('umBranch').value ? Number(document.getElementById('umBranch').value) : null,
+    };
+    const password = document.getElementById('umPassword').value.trim();
 
-        function closeModal() { document.getElementById('userModal').classList.remove('show'); }
-        function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); deleteUserId = null; }
+    if (editId) {
+        if (password) body.password = password;
+        try {
+            const res = await api(`/api/users/${editId}`, { method: 'PATCH', body: JSON.stringify(body) });
+            if (res.error) { showToast(res.error, 'error'); return; }
+            showToast('Đã cập nhật'); closeUserModal(); loadUsers();
+        } catch (e) { showToast('Lỗi', 'error'); }
+    } else {
+        body.username = document.getElementById('umUsername').value.trim();
+        body.password = password;
+        if (!body.username || !body.password || !body.display_name) { showToast('Điền đầy đủ thông tin', 'error'); return; }
+        try {
+            const res = await api('/api/users', { method: 'POST', body: JSON.stringify(body) });
+            if (res.error) { showToast(res.error, 'error'); return; }
+            showToast('Đã tạo user'); closeUserModal(); loadUsers();
+        } catch (e) { showToast('Lỗi', 'error'); }
+    }
+}
 
-        function openDeleteModal(id, name) {
-            deleteUserId = id;
-            document.getElementById('delUserName').textContent = name;
-            document.getElementById('deleteModal').classList.add('show');
-        }
-
-        // ==================== SAVE USER ====================
-        async function saveUser() {
-            const editId = document.getElementById('editUserId').value;
-            const displayName = document.getElementById('mDisplayName').value.trim();
-            const username = document.getElementById('mUsername').value.trim();
-            const password = document.getElementById('mPassword').value;
-            const role = document.getElementById('mRole').value;
-
-            if (!displayName) { showToast('Vui lòng nhập tên hiển thị', 'err'); return; }
-
-            try {
-                let res;
-                if (editId) {
-                    // Update
-                    const body = { display_name: displayName, role };
-                    if (password) body.password = password;
-                    res = await fetch(`/api/users/${editId}`, { method: 'PATCH', headers: headers(), body: JSON.stringify(body) });
-                } else {
-                    // Create
-                    if (!username || !password) { showToast('Vui lòng nhập đầy đủ thông tin', 'err'); return; }
-                    res = await fetch('/api/users', {
-                        method: 'POST', headers: headers(),
-                        body: JSON.stringify({ username, password, display_name: displayName, role })
-                    });
-                }
-
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-
-                showToast(data.message, 'ok');
-                closeModal();
-                loadUsers();
-            } catch (e) { showToast(e.message, 'err'); }
-        }
-
-        // ==================== TOGGLE & DELETE ====================
-        async function toggleUser(id, active) {
-            try {
-                const res = await fetch(`/api/users/${id}`, {
-                    method: 'PATCH', headers: headers(),
-                    body: JSON.stringify({ active: !!active })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                showToast(active ? 'Đã mở khóa tài khoản' : 'Đã khóa tài khoản', 'ok');
-                loadUsers();
-            } catch (e) { showToast(e.message, 'err'); }
-        }
-
-        async function confirmDelete() {
-            if (!deleteUserId) return;
-            try {
-                const res = await fetch(`/api/users/${deleteUserId}`, { method: 'DELETE', headers: headers() });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                showToast('Đã xóa tài khoản', 'ok');
-                closeDeleteModal();
-                loadUsers();
-            } catch (e) { showToast(e.message, 'err'); }
-        }
-
-        // ==================== LOGS ====================
-        async function loadLogs(append = false) {
-            try {
-                const res = await fetch(`/api/logs?limit=30&offset=${logOffset}`, { headers: headers() });
-                const data = await res.json();
-                document.getElementById('logCount').textContent = data.total + ' bản ghi';
-                renderLogs(data.logs, append);
-                document.getElementById('loadMore').style.display = (logOffset + 30 < data.total) ? 'block' : 'none';
-            } catch (e) { showToast('Lỗi tải lịch sử', 'err'); }
-        }
-
-        function loadMoreLogs() { logOffset += 30; loadLogs(true); }
-
-        function getLogDotClass(action) {
-            if (action.includes('login')) return 'login';
-            if (action.includes('logout')) return 'logout';
-            if (action.includes('booking')) return 'booking';
-            if (action.includes('user')) return 'user';
-            if (action.includes('failed')) return 'error';
-            return 'booking';
-        }
-
-        const ACTION_LABELS = {
-            login: '🟢 Đăng nhập', logout: '⚪ Đăng xuất', login_failed: '🔴 Đăng nhập thất bại',
-            booking_created: 'Đặt lịch mới', booking_status_updated: '📝 Cập nhật lịch hẹn',
-            booking_deleted: '🗑 Xóa lịch hẹn', user_created: '👤 Tạo tài khoản',
-            user_updated: '✏️ Sửa tài khoản', user_deleted: '🗑 Xóa tài khoản',
-            call_logged: ' Ghi cuộc gọi', landing_meta_updated: '🏷️ Cập nhật Meta'
-        };
-
-        function renderLogs(logs, append) {
-            const el = document.getElementById('logList');
-            if (!logs.length && !append) { el.innerHTML = '<div class="empty"><span class="ei"></span><p>Chưa có hoạt động nào</p></div>'; return; }
-
-            const html = logs.map(l => {
-                const d = new Date(l.created_at);
-                const timeStr = d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-                const roleLabel = l.role ? (ROLE_LABEL[l.role] || l.role) : '';
-                return `
-          <div class="card">
-            <div class="log-item">
-              <span class="log-dot ${getLogDotClass(l.action)}"></span>
-              <div class="log-body">
-                <div class="log-action">${ACTION_LABELS[l.action] || l.action}</div>
-                <div class="log-detail">${l.detail || ''}</div>
-                <div class="log-time">${l.username || 'Hệ thống'}${roleLabel ? ' · ' + roleLabel : ''} · ${timeStr}</div>
-              </div>
-            </div>
-          </div>
-        `;
-            }).join('');
-
-            if (append) el.innerHTML += html;
-            else el.innerHTML = html;
-        }
-
-        // ==================== UTILS ====================
-        function showToast(msg, type = 'ok') {
-            const c = document.getElementById('toastC');
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            t.textContent = msg;
-            c.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
-
-        function logout() {
-            fetch('/api/logout', { method: 'POST', headers: headers() }).finally(() => {
-                localStorage.removeItem('crm_token');
-                localStorage.removeItem('crm_user');
-                window.location.href = '/login';
-            });
-        }
-
-        // ==================== REPORTS ====================
-        let reportsLoaded = false;
-
-        // Set default report date to today
-        const rpDateEl = document.getElementById('rpDate');
-        if (rpDateEl) rpDateEl.value = new Date().toISOString().split('T')[0];
-
-        // Hide input card for telesale users
-        if (currentUser?.role === 'telesale') {
-            const inputCard = document.getElementById('reportInputCard');
-            if (inputCard) inputCard.style.display = 'none';
-        }
-
-        async function submitReport() {
-            const contacts_count = parseInt(document.getElementById('rpContacts').value);
-            const report_date = document.getElementById('rpDate').value;
-            const notes = document.getElementById('rpNotes').value;
-
-            if (!contacts_count || contacts_count <= 0) {
-                showToast('Vui lòng nhập số liên hệ', 'err'); return;
-            }
-
-            try {
-                const res = await fetch('/api/reports/truc-page', {
-                    method: 'POST',
-                    headers: headers(),
-                    body: JSON.stringify({ contacts_count, report_date, notes })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-
-                showToast(data.message);
-                document.getElementById('rpContacts').value = '';
-                document.getElementById('rpNotes').value = '';
-                loadReports();
-            } catch (e) {
-                showToast(e.message, 'err');
-            }
-        }
-
-        async function loadReports() {
-            try {
-                const days = document.getElementById('reportDays')?.value || 14;
-                const res = await fetch(`/api/reports?days=${days}`, { headers: headers() });
-                if (!res.ok) {
-                    if (res.status === 403) {
-                        document.getElementById('trucPageTable').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text2)">Chỉ Admin mới xem được báo cáo</td></tr>';
-                        document.getElementById('telesaleTable').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text2)">Chỉ Admin mới xem được báo cáo</td></tr>';
-                        return;
-                    }
-                    throw new Error('Lỗi tải báo cáo');
-                }
-                const reports = await res.json();
-
-                // Render Trực Page table
-                const tpBody = document.getElementById('trucPageTable');
-                let tpHtml = '';
-                reports.forEach(day => {
-                    if (day.truc_page.length > 0) {
-                        day.truc_page.forEach((r, i) => {
-                            const rateNum = parseFloat(r.rate);
-                            const rateColor = rateNum >= 5 ? 'var(--green)' : rateNum >= 2 ? 'var(--gold)' : 'var(--red)';
-                            tpHtml += `<tr style="border-bottom:1px solid #f0f0f0">
-                                ${i === 0 ? `<td style="padding:8px 6px;font-weight:600">${day.day_label}</td>` : `<td style="padding:8px 6px"></td>`}
-                                <td style="padding:8px 6px;text-align:center;font-weight:600">${r.contacts_count}</td>
-                                <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--pink)">${r.prev_day_data}</td>
-                                <td style="padding:8px 6px;text-align:center;font-weight:700;color:${rateColor}">${r.rate}%</td>
-                                <td style="padding:8px 6px;font-size:.72rem;color:var(--text2)">${r.display_name || r.username}${r.notes ? ` · ${r.notes}` : ''}</td>
-                            </tr>`;
-                        });
-                    } else {
-                        tpHtml += `<tr style="border-bottom:1px solid #f0f0f0">
-                            <td style="padding:8px 6px;font-weight:600">${day.day_label}</td>
-                            <td colspan="4" style="padding:8px 6px;text-align:center;color:var(--text3);font-size:.72rem">Chưa có báo cáo</td>
-                        </tr>`;
-                    }
-                });
-                tpBody.innerHTML = tpHtml;
-
-                // Render Telesale table
-                const tsBody = document.getElementById('telesaleTable');
-                let tsHtml = '';
-                reports.forEach(day => {
-                    const ts = day.telesale;
-                    const rateNum = parseFloat(ts.rate);
-                    const rateColor = rateNum >= 50 ? 'var(--green)' : rateNum >= 20 ? 'var(--gold)' : 'var(--red)';
-                    const callers = ts.calls.length > 0
-                        ? ts.calls.map(c => `${c.display_name || c.username} (${c.call_count})`).join(', ')
-                        : '—';
-                    const arrRateNum = parseFloat(ts.arrival_rate || 0);
-                    const arrColor = arrRateNum >= 70 ? 'var(--green)' : arrRateNum >= 40 ? 'var(--gold)' : 'var(--red)';
-                    tsHtml += `<tr style="border-bottom:1px solid #f0f0f0">
-                        <td style="padding:8px 6px;font-weight:600">${day.day_label}</td>
-                        <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--pink)">${ts.data_count}</td>
-                        <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--green)">${ts.appointments}</td>
-                        <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--green)">${ts.arrived_today || 0}</td>
-                        <td style="padding:8px 6px;text-align:center;font-weight:700;color:${arrColor}">${ts.arrival_rate || '0.0'}%</td>
-                        <td style="padding:8px 6px;text-align:center;font-weight:700;color:${rateColor}">${ts.rate}%</td>
-                        <td style="padding:8px 6px;font-size:.72rem;color:var(--text2)">${callers}</td>
-                    </tr>`;
-                });
-                tsBody.innerHTML = tsHtml;
-
-                reportsLoaded = true;
-            } catch (e) {
-                showToast('Lỗi tải báo cáo', 'err');
-            }
-        }
-
-        // Init
+async function toggleUser(id, active) {
+    if (!confirm(active ? 'Mở khóa user này?' : 'Khóa user này?')) return;
+    try {
+        await api(`/api/users/${id}`, { method: 'PATCH', body: JSON.stringify({ active }) });
+        showToast(active ? 'Đã mở khóa' : 'Đã khóa');
         loadUsers();
+    } catch (e) { showToast('Lỗi', 'error'); }
+}
 
-        // ==================== UNCALLED LEADS ====================
-        async function loadUncalled() {
-            try {
-                const res = await fetch('/api/bookings?uncalled=true&sort=created_at&order=desc', { headers: headers() });
-                const data = await res.json();
-                const bookings = data.bookings;
-                document.getElementById('uncalledCount').textContent = bookings.length + ' khách';
-                renderUncalled(bookings);
-            } catch (e) { showToast('Lỗi tải data chưa gọi', 'err'); }
-        }
+// ==================== LOGS ====================
+async function loadLogs() {
+    try {
+        const data = await api('/api/logs?limit=200');
+        document.getElementById('logListContainer').innerHTML = (data.logs || []).map(l => `<div style="padding:10px 16px;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600;font-size:13px">${esc(l.action)}</div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(l.username)} <small>${l.role}</small></div>
+                    ${l.detail ? '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;word-break:break-word">' + esc(l.detail) + '</div>' : ''}
+                </div>
+                <small style="color:var(--text-muted);white-space:nowrap">${new Date(l.created_at).toLocaleString('vi-VN')}</small>
+            </div>
+        </div>`).join('') || '<div class="ws-empty"><div class="ws-empty-text">Không có nhật ký</div></div>';
+    } catch (e) { console.error(e); }
+}
 
-        function renderUncalled(bookings) {
-            const el = document.getElementById('uncalledList');
-            if (!bookings.length) {
-                el.innerHTML = '<div class="empty"><span class="ei"></span><p>Không có data nào chưa gọi!</p></div>';
-                return;
-            }
+function showToast(msg, type = 'success') {
+    const t = document.createElement('div'); t.className = 'ws-toast ' + type; t.textContent = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+}
 
-            el.innerHTML = bookings.map(b => {
-                const apptDate = new Date(b.appointment_date);
-                const dateStr = apptDate.toLocaleDateString('vi-VN');
-                const timeStr = apptDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                const createdDate = new Date(b.created_at);
-                const createdStr = createdDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-                const source = b.source === 'manual' ? '✍️ Thủ công' : ' Landing';
+// ==================== EXPORT ====================
+function exportCSV() {
+    const params = getDateParams();
+    const statusFilter = document.getElementById('leadStatusFilter');
+    const branchFilter = document.getElementById('leadBranchFilter');
+    let url = '/api/bookings/export';
+    const parts = [];
+    if (params) parts.push(params);
+    if (statusFilter && statusFilter.value) parts.push('status=' + statusFilter.value);
+    if (branchFilter && branchFilter.value) parts.push('branch_id=' + branchFilter.value);
+    if (parts.length) url += '?' + parts.join('&');
+    const a = document.createElement('a');
+    a.href = url;
+    a.setAttribute('download', '');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast('Đang tải file CSV...');
+}
 
-                return `<div class="card">
-                    <div class="user-row">
-                        <div class="user-avatar telesale" style="font-size:1.2rem"></div>
-                        <div class="user-info">
-                            <div class="user-name">${b.full_name}</div>
-                            <div class="user-meta">
-                                <a href="tel:${b.phone}" style="color:var(--pink);text-decoration:none;font-weight:600">${b.phone}</a>
-                                <span>${source}</span>
-                            </div>
-                            <div class="user-meta" style="margin-top:2px">
-                                <span> ${dateStr} ${timeStr}</span>
-                                <span>· Đặt lúc ${createdStr}</span>
-                            </div>
-                            <div style="font-size:.75rem;color:#636E72;margin-top:2px">${b.service}</div>
-                            ${b.notes ? `<div style="font-size:.72rem;color:#B2BEC3;margin-top:1px">📝 ${b.notes}</div>` : ''}
-                        </div>
-                        <div class="user-actions">
-                            <a href="tel:${b.phone}" class="btn-edit" style="text-decoration:none;display:flex;align-items:center;justify-content:center" title="Gọi ngay"></a>
-                            <button class="btn-toggle" onclick="openAdminCallModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}')" title="Ghi cuộc gọi">📝</button>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
+// ==================== ADMIN APPOINTMENTS ====================
+let adminApptRange = 'today';
+function pad(d) { return String(d).padStart(2,'0'); }
+function fmtDate(dt) { return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`; }
+const STATUS_TEXT = {NEW:'Mới',ASSIGNED:'Đã phân',CALLED:'Đã gọi',FOLLOW_UP:'Chăm sóc',APPOINTED:'Có hẹn',ARRIVED:'Đã đến',WON:'Có doanh thu',LOST:'Mất'};
 
-        // Admin Call Modal
-        function openAdminCallModal(bookingId, fullName, phone) {
-            let modal = document.getElementById('adminCallModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.className = 'modal-bg';
-                modal.id = 'adminCallModal';
-                modal.innerHTML = `<div class="modal">
-                    <h3> Ghi nhận cuộc gọi</h3>
-                    <input type="hidden" id="adCallBookingId">
-                    <div id="adCallInfo" style="background:#FFFCF5;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:.85rem;line-height:1.6"></div>
-                    <div class="field">
-                        <label>Ghi chú cuộc gọi</label>
-                        <textarea id="adCallNotes" style="width:100%;padding:12px;background:#FFFCF5;border:1.5px solid rgba(232,67,147,.1);border-radius:10px;font-family:'Inter',sans-serif;font-size:.85rem;color:#2D3436;resize:vertical;min-height:80px" placeholder="VD: Khách hẹn lại tuần sau..."></textarea>
-                    </div>
-                    <div class="modal-actions">
-                        <button class="btn-cancel" onclick="document.getElementById('adminCallModal').classList.remove('show')">Hủy</button>
-                        <button class="btn-save" onclick="saveAdminCall()"> Ghi cuộc gọi</button>
-                    </div>
-                </div>`;
-                document.body.appendChild(modal);
-            }
-            document.getElementById('adCallBookingId').value = bookingId;
-            document.getElementById('adCallNotes').value = '';
-            document.getElementById('adCallInfo').innerHTML = `<div><strong>${fullName}</strong></div><div> <a href="tel:${phone}">${phone}</a></div>`;
-            modal.classList.add('show');
-        }
+function setAdminApptRange(range) {
+    adminApptRange = range;
+    document.querySelectorAll('[data-aarange]').forEach(b => b.classList.remove('active'));
+    if (range !== 'custom') { const btn = document.querySelector(`[data-aarange="${range}"]`); if (btn) btn.classList.add('active'); }
+    loadAdminAppts();
+}
 
-        async function saveAdminCall() {
-            const bookingId = document.getElementById('adCallBookingId').value;
-            const notes = document.getElementById('adCallNotes').value.trim();
-            try {
-                const res = await fetch(`/api/bookings/${bookingId}/calls`, {
-                    method: 'POST', headers: headers(),
-                    body: JSON.stringify({ notes })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                showToast(data.message, 'ok');
-                document.getElementById('adminCallModal').classList.remove('show');
-                loadUncalled();
-            } catch (e) { showToast(e.message, 'err'); }
-        }
-    </script>
+async function loadAdminAppts() {
+    const now = new Date();
+    let from, to;
+    if (adminApptRange === 'today') { from = to = fmtDate(now); }
+    else if (adminApptRange === 'week') { const d = new Date(now); d.setDate(d.getDate()-d.getDay()+1); const e = new Date(d); e.setDate(e.getDate()+6); from = fmtDate(d); to = fmtDate(e); }
+    else if (adminApptRange === 'month') { from = fmtDate(new Date(now.getFullYear(),now.getMonth(),1)); to = fmtDate(new Date(now.getFullYear(),now.getMonth()+1,0)); }
+    else if (adminApptRange === 'custom') { from = document.getElementById('adminApptFrom').value; to = document.getElementById('adminApptTo').value; }
+    let url = '/api/appointments';
+    const parts = [];
+    if (from && to) parts.push(`from=${from}&to=${to}`);
+    const br = document.getElementById('adminApptBranch')?.value;
+    if (br) parts.push(`branch_id=${br}`);
+    if (parts.length) url += '?' + parts.join('&');
+    try {
+        const data = await api(url);
+        const appts = data.appointments || [];
+        const container = document.getElementById('adminApptList');
+        if (!appts.length) { container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Không có lịch hẹn</div></div>'; return; }
+        container.innerHTML = appts.map(a => {
+            const dt = a.appointment_at ? new Date(a.appointment_at) : null;
+            const color = ({APPOINTED:'#2E7D32',ARRIVED:'#00695C',WON:'#F57F17'})[a.status] || '#333';
+            return `<div class="ws-lead-card" onclick="openApptDetail(${a.id})">
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600">${esc(a.full_name)}</div>
+                    <div style="font-size:13px;color:var(--text-muted)"><a href="tel:${a.phone}" style="color:var(--blue)" onclick="event.stopPropagation()">${esc(a.phone)}</a> ${a.interest_service ? ' · '+esc(a.interest_service):''}</div>
+                    <div style="font-size:12px;color:var(--text-muted)">📅 ${dt?dt.toLocaleDateString('vi-VN')+' '+dt.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'—'} · ${esc(a.branch_name||'')} · ${esc(a.telesales_name||'')}</div>
+                </div>
+                <span style="padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;background:${color}15;color:${color}">${STATUS_TEXT[a.status]||a.status}</span>
+            </div>`;
+        }).join('');
+    } catch(e) { console.error(e); }
+}
+
+// ==================== ADMIN REMINDERS ====================
+async function loadAdminReminders() {
+    try {
+        const [careData, noShow] = await Promise.all([
+            api('/api/reminders/care-after-arrived'),
+            api('/api/reminders/no-show-yesterday')
+        ]);
+        const careLeads = careData.leads || [];
+        const noShowLeads = noShow.leads || [];
+
+        document.getElementById('adminCareList').innerHTML = careLeads.length
+            ? careLeads.map(l => renderAdminReminderItem(l, `Dịch vụ: ${l.first_service_name||l.interest_service||'Chưa xác định'}`, l.branch_name)).join('')
+            : '<div style="color:var(--text-muted);font-size:13px">Không có khách cần chăm sóc</div>';
+
+        document.getElementById('adminNoShowList').innerHTML = noShowLeads.length
+            ? noShowLeads.map(l => renderAdminReminderItem(l, `Hẹn: ${l.appointment_at ? new Date(l.appointment_at).toLocaleDateString('vi-VN') : '—'}`, l.branch_name)).join('')
+            : '<div style="color:var(--text-muted);font-size:13px">Không có khách hẹn chưa đến</div>';
+    } catch(e) { console.error(e); }
+}
+
+function renderAdminReminderItem(l, noteText, branchName) {
+    return `<div style="padding:8px 0;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="flex:1;min-width:0">
+            <div><strong>${esc(l.full_name)}</strong> · <a href="tel:${l.phone}" style="color:var(--blue)">${esc(l.phone)}</a></div>
+            <div style="font-size:12px;color:var(--text-muted)">${esc(noteText)} · ${esc(branchName||'')} · ${esc(l.telesales_name||'')}</div>
+        </div>
+        <span style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500;background:${({ARRIVED:'#E8F5E9',WON:'#FFF8E1',APPOINTED:'#E8F5E9'})[l.status]||'#f5f5f5'};color:${({ARRIVED:'#2E7D32',WON:'#F57F17',APPOINTED:'#2E7D32'})[l.status]||'#333'}">${STATUS_TEXT[l.status]||l.status}</span>
+    </div>`;
+}
+
+// ==================== APPOINTMENT DETAIL ====================
+async function openApptDetail(id) {
+    // Try from allLeads first, otherwise fetch
+    let l = allLeads.find(x => x.id === id);
+    if (!l) {
+        try {
+            const data = await api('/api/bookings?limit=9999');
+            const list = data.bookings || [];
+            l = list.find(x => x.id === id);
+        } catch(e) {}
+    }
+    if (!l) { showToast('Không tìm thấy dữ liệu', 'error'); return; }
+    // Reuse same detail modal
+    allLeads = allLeads.some(x => x.id === id) ? allLeads : [...allLeads, l];
+    openLeadDetail(id);
+}
+
+// Init
+loadDashboard();
+</script>
 </body>
-
 </html>

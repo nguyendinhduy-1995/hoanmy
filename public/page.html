@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#9E7C0C">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <title>Trực Page — Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ</title>
+    <link rel="stylesheet" href="/css/workspace.css">
+</head>
+<body>
+<div class="ws-layout">
+    <aside class="ws-sidebar" id="sidebar">
+        <div class="ws-brand">
+            <div class="ws-brand-name">Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ</div>
+            <div class="ws-brand-sub">Trực Page</div>
+        </div>
+        <nav class="ws-nav">
+            <button class="ws-nav-item active" data-page="inbox" onclick="switchPage('inbox')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Trực Page
+                <span class="nav-badge" id="inboxBadge" style="display:none">0</span>
+            </button>
+            <button class="ws-nav-item" data-page="data" onclick="switchPage('data')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Tất cả khách hàng
+            </button>
+            <button class="ws-nav-item" data-page="appointments" onclick="switchPage('appointments')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Lịch hẹn
+            </button>
+            <button class="ws-nav-item" data-page="reports" onclick="switchPage('reports')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Báo cáo
+            </button>
+        </nav>
+        <div class="ws-sidebar-footer">
+            <div class="ws-user-info">
+                <div class="ws-user-avatar" id="userAvatar">?</div>
+                <div>
+                    <div class="ws-user-name" id="userName">—</div>
+                    <div class="ws-user-role">Trực Page</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="ws-sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <main class="ws-main">
+        <header class="ws-topbar">
+            <div class="ws-topbar-left">
+                <button class="ws-hamburger" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <h1 class="ws-topbar-title" id="pageTitle">Trực Page</h1>
+            </div>
+            <div class="ws-topbar-right">
+                <button class="ws-btn ws-btn-primary" onclick="openAddModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nhập data
+                </button>
+                <button class="ws-btn ws-btn-danger" onclick="logout()">Đăng xuất</button>
+            </div>
+        </header>
+
+        <div class="ws-content">
+            <!-- INBOX / MAIN PAGE -->
+            <div id="page-inbox" class="ws-page active">
+                <!-- KPI -->
+                <div class="ws-kpi-grid">
+                    <div class="ws-kpi-card ws-kpi-accent">
+                        <div class="ws-kpi-label">Nhập hôm nay</div>
+                        <div class="ws-kpi-value" id="kpiDataToday">—</div>
+                    </div>
+                    <div class="ws-kpi-card" style="border-left:3px solid var(--orange)">
+                        <div class="ws-kpi-label">Chưa phân chi nhánh</div>
+                        <div class="ws-kpi-value" id="kpiUnassigned">—</div>
+                    </div>
+                    <div class="ws-kpi-card">
+                        <div class="ws-kpi-label">Đã phân hôm nay</div>
+                        <div class="ws-kpi-value" id="kpiAssignedToday">—</div>
+                    </div>
+                    <div class="ws-kpi-card">
+                        <div class="ws-kpi-label">Tổng data</div>
+                        <div class="ws-kpi-value" id="kpiTotal">—</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="ws-tabs">
+                    <button class="ws-tab active" data-tab="unassigned" onclick="setTab('unassigned')">Chưa phân chi nhánh</button>
+                    <button class="ws-tab" data-tab="assigned" onclick="setTab('assigned')">Đã phân</button>
+                </div>
+
+                <!-- Search + Filters -->
+                <div class="ws-filter-bar">
+                    <div class="ws-search">
+                        <svg class="ws-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="searchInput" placeholder="Tìm tên, SĐT..." oninput="renderData()">
+                    </div>
+                    <select id="filterBranch" class="ws-btn" style="cursor:pointer" onchange="renderData()">
+                        <option value="">Tất cả chi nhánh</option>
+                    </select>
+                </div>
+
+                <!-- Data Table -->
+                <div class="ws-card" style="padding:0">
+                    <div id="dataContainer" style="min-height:200px">
+                        <div class="ws-loading"><div class="ws-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALL DATA PAGE -->
+            <div id="page-data" class="ws-page" style="display:none">
+                <div class="ws-filter-bar">
+                    <div class="ws-search">
+                        <svg class="ws-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="dataSearchInput" placeholder="Tìm tên, SĐT..." oninput="renderAllData()">
+                    </div>
+                    <select id="filterStatus" class="ws-btn" style="cursor:pointer" onchange="renderAllData()">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="NEW">Mới</option><option value="ASSIGNED">Đã phân</option>
+                        <option value="CALLED">Đã gọi</option><option value="FOLLOW_UP">Chăm sóc</option>
+                        <option value="APPOINTED">Có hẹn</option><option value="ARRIVED">Đã đến</option>
+                        <option value="WON">Có doanh thu</option><option value="LOST">Mất</option>
+                    </select>
+                    <select id="filterBranchAll" class="ws-btn" style="cursor:pointer" onchange="renderAllData()">
+                        <option value="">Tất cả chi nhánh</option>
+                    </select>
+                </div>
+                <div class="ws-card" style="padding:0">
+                    <div id="allDataContainer" style="min-height:200px">
+                        <div class="ws-loading"><div class="ws-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APPOINTMENTS PAGE -->
+            <div id="page-appointments" class="ws-page" style="display:none">
+                <div class="ws-filter-bar" style="margin-bottom:12px">
+                    <span style="font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap">📅 Xem lịch:</span>
+                    <button class="ws-btn date-filter-btn active" onclick="setPageApptRange('today')" data-parange="today">Hôm nay</button>
+                    <button class="ws-btn date-filter-btn" onclick="setPageApptRange('week')" data-parange="week">Tuần</button>
+                    <button class="ws-btn date-filter-btn" onclick="setPageApptRange('month')" data-parange="month">Tháng</button>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                        <input type="date" id="pageApptFrom" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <span style="color:var(--text-muted)">→</span>
+                        <input type="date" id="pageApptTo" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <button class="ws-btn ws-btn-primary" onclick="setPageApptRange('custom')" style="font-size:12px;padding:5px 10px">Lọc</button>
+                    </div>
+                    <select id="apptBranchFilter" class="ws-btn" style="cursor:pointer;font-size:12px" onchange="loadPageAppts()">
+                        <option value="">Tất cả chi nhánh</option>
+                    </select>
+                </div>
+                <div class="ws-card" style="padding:0">
+                    <div id="pageApptList" style="min-height:200px"><div class="ws-loading"><div class="ws-spinner"></div></div></div>
+                </div>
+            </div>
+
+            <!-- REPORTS PAGE -->
+            <div id="page-reports" class="ws-page" style="display:none">
+                <div class="ws-filter-bar" style="margin-bottom:12px">
+                    <span style="font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap">📊 Thời gian:</span>
+                    <button class="ws-btn date-filter-btn active" onclick="setPageReportRange('today')" data-prrange="today">Hôm nay</button>
+                    <button class="ws-btn date-filter-btn" onclick="setPageReportRange('week')" data-prrange="week">Tuần</button>
+                    <button class="ws-btn date-filter-btn" onclick="setPageReportRange('month')" data-prrange="month">Tháng</button>
+                    <button class="ws-btn date-filter-btn" onclick="setPageReportRange('all')" data-prrange="all">Tất cả</button>
+                </div>
+                <div class="ws-kpi-grid" style="margin-bottom:12px">
+                    <div class="ws-kpi-card ws-kpi-accent"><div class="ws-kpi-label">Tổng số điện thoại nhập</div><div class="ws-kpi-value" id="prTotal">—</div></div>
+                </div>
+                <div class="ws-card" style="padding:0">
+                    <h4 style="padding:16px 16px 8px">📋 Số điện thoại nhập theo dịch vụ</h4>
+                    <div id="prServiceList" style="min-height:60px">
+                        <div style="padding:24px;text-align:center;color:var(--text-muted)">Đang tải...</div>
+                    </div>
+                </div>
+                <div class="ws-card" style="padding:0;margin-top:12px">
+                    <h4 style="padding:16px 16px 8px">🏢 Phân bổ theo chi nhánh</h4>
+                    <div id="prBranchList" style="min-height:60px">
+                        <div style="padding:24px;text-align:center;color:var(--text-muted)">Đang tải...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Add Lead Modal -->
+<div class="ws-modal-overlay" id="addModal">
+    <div class="ws-modal" style="max-width:520px">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title">Nhập data khách hàng</h3>
+            <button class="ws-modal-close" onclick="closeAddModal()">&times;</button>
+        </div>
+        <div class="ws-modal-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="ws-field" style="grid-column:1/-1">
+                    <label>Họ tên *</label>
+                    <input type="text" id="addName" placeholder="Nhập họ tên khách hàng">
+                </div>
+                <div class="ws-field">
+                    <label>Số điện thoại *</label>
+                    <input type="tel" id="addPhone" placeholder="0912345678">
+                </div>
+                <div class="ws-field">
+                    <label>Kênh nguồn</label>
+                    <select id="addSource">
+                        <option value="FACEBOOK">Facebook</option>
+                        <option value="ZALO">Zalo</option>
+                        <option value="TIKTOK">TikTok</option>
+                        <option value="HOTLINE">Hotline</option>
+                        <option value="WALK_IN">Walk-in</option>
+                        <option value="OTHER">Khác</option>
+                    </select>
+                </div>
+                <div class="ws-field">
+                    <label>Dịch vụ quan tâm</label>
+                    <input type="text" id="addService" placeholder="VD: Triệt lông, Chăm sóc da...">
+                </div>
+                <div class="ws-field">
+                    <label>Phễu / Chiến dịch</label>
+                    <input type="text" id="addFunnel" placeholder="VD: FB_T3_TrietLong">
+                </div>
+                <div class="ws-field">
+                    <label>Mức độ nóng</label>
+                    <select id="addHotLevel">
+                        <option value="HOT">🔥 HOT</option>
+                        <option value="WARM" selected>☀️ WARM</option>
+                        <option value="COLD">❄️ COLD</option>
+                    </select>
+                </div>
+                <div class="ws-field">
+                    <label>Phân chi nhánh</label>
+                    <select id="addBranch">
+                        <option value="">— Chọn chi nhánh —</option>
+                    </select>
+                </div>
+                <div class="ws-field" style="grid-column:1/-1">
+                    <label>Nội dung chat tóm tắt</label>
+                    <textarea id="addNotes" rows="3" placeholder="Tóm tắt nội dung chat, nhu cầu cụ thể..."></textarea>
+                </div>
+            </div>
+            <!-- Duplicate warning -->
+            <div id="dupWarning" style="display:none;margin-top:12px;padding:12px;background:#FFF3E0;border-radius:8px;border:1px solid #FFB74D">
+                <div style="font-weight:600;color:#E65100;margin-bottom:4px">⚠️ Lead trùng SĐT</div>
+                <div id="dupDetail" style="font-size:13px;color:#333"></div>
+                <div style="margin-top:8px;display:flex;gap:8px">
+                    <button class="ws-btn" onclick="closeDupWarning()" style="font-size:12px">Hủy</button>
+                    <button class="ws-btn ws-btn-primary" onclick="submitAddForce()" style="font-size:12px">Vẫn tạo mới</button>
+                </div>
+            </div>
+        </div>
+        <div class="ws-modal-footer">
+            <button class="ws-btn" onclick="closeAddModal()">Hủy</button>
+            <button class="ws-btn ws-btn-primary" id="btnSubmitAdd" onclick="submitAdd()">Nhập & Phân data</button>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Modal -->
+<div class="ws-modal-overlay" id="assignModal">
+    <div class="ws-modal">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title">Phân chi nhánh</h3>
+            <button class="ws-modal-close" onclick="closeAssignModal()">&times;</button>
+        </div>
+        <div class="ws-modal-body">
+            <div class="ws-field">
+                <label>Khách hàng</label>
+                <input type="text" id="assignName" readonly>
+            </div>
+            <div class="ws-field">
+                <label>Chọn chi nhánh *</label>
+                <select id="assignBranch">
+                    <option value="">— Chọn chi nhánh —</option>
+                </select>
+            </div>
+        </div>
+        <div class="ws-modal-footer">
+            <button class="ws-btn" onclick="closeAssignModal()">Hủy</button>
+            <button class="ws-btn ws-btn-primary" onclick="submitAssign()">Phân chi nhánh</button>
+        </div>
+    </div>
+</div>
+
+<!-- Lead Detail Drawer -->
+<div class="ws-modal-overlay" id="detailDrawer">
+    <div class="ws-modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title">Chi tiết Lead</h3>
+            <button class="ws-modal-close" onclick="closeDetail()">&times;</button>
+        </div>
+        <div class="ws-modal-body" id="detailBody" style="font-size:14px">
+        </div>
+    </div>
+</div>
+
+<script>
+const TOKEN = localStorage.getItem('crm_token');
+const USER = JSON.parse(localStorage.getItem('crm_user') || '{}');
+if (!TOKEN) { window.location.href = '/login'; }
+if (USER.role && USER.role !== 'truc_page') {
+    const paths = { admin: '/admin', telesale: '/staff' };
+    window.location.href = paths[USER.role] || '/login';
+}
+
+document.getElementById('userName').textContent = USER.displayName || USER.username || '—';
+document.getElementById('userAvatar').textContent = (USER.displayName || USER.username || '?')[0].toUpperCase();
+
+function api(url, opts = {}) {
+    return fetch(url, {
+        ...opts,
+        headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json', ...opts.headers }
+    }).then(r => {
+        if (r.status === 401) { localStorage.clear(); window.location.href = '/login'; }
+        return r.json();
+    });
+}
+
+function logout() { api('/api/logout', { method: 'POST' }).finally(() => { localStorage.clear(); window.location.href = '/login'; }); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+
+function switchPage(page) {
+    document.querySelectorAll('.ws-page').forEach(p => p.style.display = 'none');
+    document.getElementById('page-' + page).style.display = 'block';
+    document.querySelectorAll('.ws-nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector(`[data-page="${page}"]`).classList.add('active');
+    const titles = { inbox: 'Trực Page', data: 'Tất cả khách hàng', appointments: 'Lịch hẹn', reports: 'Báo cáo' };
+    document.getElementById('pageTitle').textContent = titles[page] || '';
+    closeSidebar();
+    if (page === 'data') renderAllData();
+    if (page === 'appointments') loadPageAppts();
+    if (page === 'reports') loadPageReports();
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function fmt(n) { return Number(n || 0).toLocaleString('vi-VN'); }
+
+const STATUS_LABELS = {
+    NEW: '<span class="ws-badge" style="background:#E3F2FD;color:#1565C0">Mới</span>',
+    ASSIGNED: '<span class="ws-badge" style="background:#FFF3E0;color:#E65100">Đã phân</span>',
+    CALLED: '<span class="ws-badge" style="background:#F3E5F5;color:#7B1FA2">Đã gọi</span>',
+    FOLLOW_UP: '<span class="ws-badge" style="background:#FCE4EC;color:#C62828">Chăm sóc</span>',
+    APPOINTED: '<span class="ws-badge" style="background:#E8F5E9;color:#2E7D32">Có hẹn</span>',
+    ARRIVED: '<span class="ws-badge ws-badge-arrived">Đã đến</span>',
+    WON: '<span class="ws-badge" style="background:#FFF8E1;color:#F57F17">💰 Có doanh thu</span>',
+    LOST: '<span class="ws-badge ws-badge-no-show">Mất</span>',
+};
+
+const SOURCE_LABELS = { FACEBOOK: 'Facebook', ZALO: 'Zalo', TIKTOK: 'TikTok', HOTLINE: 'Hotline', WALK_IN: 'Khách vãng lai', LANDING: 'Landing', OTHER: 'Khác' };
+
+// ==================== DATA ====================
+let allBookings = [];
+let branches = [];
+let currentTab = 'unassigned';
+
+async function loadData() {
+    try {
+        const [bData, brData] = await Promise.all([api('/api/bookings'), api('/api/branches')]);
+        allBookings = bData.bookings || [];
+        branches = brData || [];
+
+        const brOpts = branches.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+        document.getElementById('addBranch').innerHTML = '<option value="">— Chọn chi nhánh —</option>' + brOpts;
+        document.getElementById('assignBranch').innerHTML = '<option value="">— Chọn chi nhánh —</option>' + brOpts;
+        document.getElementById('filterBranch').innerHTML = '<option value="">Tất cả chi nhánh</option>' + brOpts;
+        document.getElementById('filterBranchAll').innerHTML = '<option value="">Tất cả chi nhánh</option>' + brOpts;
+        document.getElementById('apptBranchFilter').innerHTML = '<option value="">Tất cả chi nhánh</option>' + brOpts;
+
+        // KPI
+        const today = new Date().toISOString().slice(0, 10);
+        const dataToday = allBookings.filter(b => (b.created_at || '').slice(0, 10) === today).length;
+        const unassigned = allBookings.filter(b => !b.branch_id).length;
+        const assignedToday = allBookings.filter(b => b.branch_id && (b.assigned_at || '').slice(0, 10) === today).length;
+
+        document.getElementById('kpiDataToday').textContent = dataToday;
+        document.getElementById('kpiUnassigned').textContent = unassigned;
+        document.getElementById('kpiAssignedToday').textContent = assignedToday;
+        document.getElementById('kpiTotal').textContent = allBookings.length;
+
+        const badge = document.getElementById('inboxBadge');
+        if (unassigned > 0) { badge.textContent = unassigned; badge.style.display = 'inline'; }
+        else { badge.style.display = 'none'; }
+
+        renderData();
+    } catch (e) { console.error(e); }
+}
+
+function setTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.ws-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    renderData();
+}
+
+function renderData() {
+    const search = (document.getElementById('searchInput').value || '').toLowerCase();
+    const branchFilter = document.getElementById('filterBranch').value;
+    let list = allBookings;
+    if (currentTab === 'unassigned') list = list.filter(b => !b.branch_id);
+    else list = list.filter(b => b.branch_id);
+    if (branchFilter) list = list.filter(b => String(b.branch_id) === branchFilter);
+    if (search) list = list.filter(b => (b.full_name||'').toLowerCase().includes(search) || (b.phone||'').includes(search));
+
+    const container = document.getElementById('dataContainer');
+    if (list.length === 0) {
+        container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Không có dữ liệu</div></div>';
+        return;
+    }
+    container.innerHTML = list.map(b => {
+        const src = SOURCE_LABELS[b.source] || b.source || '';
+        const statusHtml = STATUS_LABELS[b.status] || b.status;
+        const progress = [];
+        if (b.called_count > 0) progress.push(`📞 ${b.called_count}`);
+        if (b.status === 'APPOINTED' || b.status === 'ARRIVED' || b.status === 'WON') progress.push('📅 Có hẹn');
+        if (b.status === 'ARRIVED' || b.status === 'WON') progress.push('✅ Đã đến');
+        if (b.first_revenue > 0) progress.push(`💰 ${fmt(b.first_revenue)}đ`);
+
+        return `<div class="ws-lead-card" onclick="openDetail(${b.id})">
+            <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:14px">${esc(b.full_name)}</div>
+                <div style="font-size:13px;color:var(--text-muted)">
+                    <a href="tel:${b.phone}" style="color:var(--blue);text-decoration:none" onclick="event.stopPropagation()">${esc(b.phone)}</a>
+                    ${b.interest_service ? ' · ' + esc(b.interest_service) : ''}
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+                    ${src}${b.funnel_name ? ' / ' + esc(b.funnel_name) : ''}
+                    ${b.branch_name ? ' · <span class="ws-badge ws-badge-gold" style="font-size:10px">' + esc(b.branch_name) + '</span>' : ' · <span style="color:var(--orange)">Chưa phân</span>'}
+                    ${progress.length ? ' · ' + progress.join(' · ') : ''}
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                <div>${statusHtml}</div>
+                ${!b.branch_id ? '<div class="ws-actions" onclick="event.stopPropagation()"><button class="ws-action-btn ws-action-assign" onclick="openAssignModal('+b.id+',\''+esc(b.full_name)+'\')" >Phân</button><button class="ws-action-btn ws-action-noshow" onclick="deleteBooking('+b.id+')">Xóa</button></div>' : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderAllData() {
+    const search = (document.getElementById('dataSearchInput').value || '').toLowerCase();
+    const statusFilter = document.getElementById('filterStatus').value;
+    const branchFilter = document.getElementById('filterBranchAll').value;
+    let list = allBookings;
+    if (statusFilter) list = list.filter(b => b.status === statusFilter);
+    if (branchFilter) list = list.filter(b => String(b.branch_id) === branchFilter);
+    if (search) list = list.filter(b => (b.full_name||'').toLowerCase().includes(search) || (b.phone||'').includes(search));
+
+    const container = document.getElementById('allDataContainer');
+    if (list.length === 0) {
+        container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Không có dữ liệu</div></div>';
+        return;
+    }
+    container.innerHTML = list.map(b => {
+        return `<div class="ws-lead-card" onclick="openDetail(${b.id})">
+            <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:14px">${esc(b.full_name)}</div>
+                <div style="font-size:13px;color:var(--text-muted)">
+                    <a href="tel:${b.phone}" style="color:var(--blue);text-decoration:none" onclick="event.stopPropagation()">${esc(b.phone)}</a>
+                    ${b.interest_service ? ' · ' + esc(b.interest_service) : ''}
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+                    ${SOURCE_LABELS[b.source] || b.source || ''}
+                    ${b.branch_name ? ' · ' + esc(b.branch_name) : ''}
+                    ${b.called_count > 0 ? ' · 📞 ' + b.called_count : ''}
+                    ${b.first_revenue > 0 ? ' · 💰 ' + fmt(b.first_revenue) + 'đ' : ''}
+                </div>
+            </div>
+            <div>${STATUS_LABELS[b.status] || b.status}</div>
+        </div>`;
+    }).join('');
+}
+
+// ==================== LEAD DETAIL ====================
+async function openDetail(id) {
+    const b = allBookings.find(x => x.id === id);
+    if (!b) return;
+
+    let eventsHtml = '<div style="color:var(--text-muted);padding:8px">Đang tải...</div>';
+    let callsHtml = '';
+    try {
+        const [evRes, clRes] = await Promise.all([api(`/api/bookings/${id}/events`), api(`/api/bookings/${id}/calls`)]);
+        const events = evRes.events || [];
+        const calls = clRes.calls || [];
+        eventsHtml = events.length ? events.map(e => `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;justify-content:space-between"><strong>${esc(e.type)}</strong><small style="color:var(--text-muted)">${new Date(e.created_at).toLocaleString('vi-VN')}</small></div>
+            <div style="font-size:13px;color:#555">${esc(e.note)}${e.old_value || e.new_value ? ` <span style="color:var(--text-muted)">${esc(e.old_value)} → ${esc(e.new_value)}</span>` : ''}</div>
+            <div style="font-size:12px;color:var(--text-muted)">${esc(e.user_display_name || e.username || '')}</div>
+        </div>`).join('') : '<div style="padding:8px;color:var(--text-muted)">Chưa có sự kiện</div>';
+
+        callsHtml = calls.length ? calls.map(c => `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;justify-content:space-between"><strong>Gọi #${c.call_number}</strong> <small>${c.outcome}</small></div>
+            <div style="font-size:13px">${esc(c.notes)}</div>
+            <div style="font-size:12px;color:var(--text-muted)">${esc(c.username)} — ${new Date(c.call_time).toLocaleString('vi-VN')}</div>
+        </div>`).join('') : '<div style="padding:8px;color:var(--text-muted)">Chưa có cuộc gọi</div>';
+    } catch (e) { eventsHtml = '<div style="color:red">Lỗi tải dữ liệu</div>'; }
+
+    document.getElementById('detailBody').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+            <div><small style="color:var(--text-muted)">Họ tên</small><div><strong>${esc(b.full_name)}</strong></div></div>
+            <div><small style="color:var(--text-muted)">SĐT</small><div><a href="tel:${b.phone}">${esc(b.phone)}</a></div></div>
+            <div><small style="color:var(--text-muted)">Nguồn</small><div>${SOURCE_LABELS[b.source] || b.source || '—'}</div></div>
+            <div><small style="color:var(--text-muted)">Phễu</small><div>${esc(b.funnel_name) || '—'}</div></div>
+            <div><small style="color:var(--text-muted)">Dịch vụ</small><div>${esc(b.interest_service || b.service) || '—'}</div></div>
+            <div><small style="color:var(--text-muted)">Độ nóng</small><div>${b.hot_level || '—'}</div></div>
+            <div><small style="color:var(--text-muted)">Chi nhánh</small><div>${b.branch_name ? esc(b.branch_name) : '<span style="color:var(--orange)">Chưa phân</span>'}</div></div>
+            <div><small style="color:var(--text-muted)">Trạng thái</small><div>${STATUS_LABELS[b.status] || b.status}</div></div>
+            <div><small style="color:var(--text-muted)">DT lần đầu</small><div>${b.first_revenue > 0 ? '<strong style="color:var(--gold)">' + fmt(b.first_revenue) + 'đ</strong>' : '—'}</div></div>
+            <div><small style="color:var(--text-muted)">Ngày tạo</small><div>${new Date(b.created_at).toLocaleString('vi-VN')}</div></div>
+        </div>
+        ${b.initial_note ? '<div style="margin-bottom:16px"><small style="color:var(--text-muted)">Ghi chú chat</small><div style="background:#f9f9f9;padding:8px;border-radius:6px;font-size:13px">' + esc(b.initial_note) + '</div></div>' : ''}
+        <h4 style="margin:16px 0 8px;font-size:14px">📞 Lịch sử gọi (${b.called_count || 0})</h4>
+        <div style="max-height:200px;overflow-y:auto">${callsHtml}</div>
+        <h4 style="margin:16px 0 8px;font-size:14px">📋 Lịch sử sự kiện</h4>
+        <div style="max-height:200px;overflow-y:auto">${eventsHtml}</div>
+    `;
+    document.getElementById('detailDrawer').classList.add('show');
+}
+function closeDetail() { document.getElementById('detailDrawer').classList.remove('show'); }
+
+// ==================== ADD MODAL ====================
+function openAddModal() {
+    ['addName','addPhone','addService','addFunnel','addNotes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('addSource').value = 'FACEBOOK';
+    document.getElementById('addHotLevel').value = 'WARM';
+    document.getElementById('addBranch').value = '';
+    document.getElementById('dupWarning').style.display = 'none';
+    document.getElementById('btnSubmitAdd').style.display = '';
+    document.getElementById('addModal').classList.add('show');
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }
+
+function getAddFormData() {
+    return {
+        full_name: document.getElementById('addName').value.trim(),
+        phone: document.getElementById('addPhone').value.trim(),
+        interest_service: document.getElementById('addService').value.trim(),
+        source: document.getElementById('addSource').value,
+        funnel_name: document.getElementById('addFunnel').value.trim(),
+        hot_level: document.getElementById('addHotLevel').value,
+        initial_note: document.getElementById('addNotes').value.trim(),
+        branch_id: document.getElementById('addBranch').value ? Number(document.getElementById('addBranch').value) : null,
+    };
+}
+
+async function submitAdd() {
+    const data = getAddFormData();
+    if (!data.full_name || !data.phone) { showToast('Vui lòng nhập họ tên và SĐT', 'error'); return; }
+
+    try {
+        const res = await fetch('/api/bookings/manual', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const json = await res.json();
+
+        if (res.status === 409 && json.error === 'duplicate') {
+            // Show duplicate warning
+            const ex = json.existing_lead;
+            document.getElementById('dupDetail').innerHTML = json.message;
+            document.getElementById('dupWarning').style.display = 'block';
+            document.getElementById('btnSubmitAdd').style.display = 'none';
+            return;
+        }
+        if (!res.ok) { showToast(json.error || 'Lỗi', 'error'); return; }
+
+        showToast(data.branch_id ? 'Đã nhập & phân data' : 'Đã nhập data');
+        closeAddModal();
+        loadData();
+    } catch (e) { showToast('Lỗi nhập data', 'error'); }
+}
+
+async function submitAddForce() {
+    const data = getAddFormData();
+    try {
+        const res = await api('/api/bookings/manual/force', { method: 'POST', body: JSON.stringify(data) });
+        showToast('Đã tạo lead mới (bỏ qua trùng)');
+        closeAddModal();
+        loadData();
+    } catch (e) { showToast('Lỗi', 'error'); }
+}
+
+function closeDupWarning() {
+    document.getElementById('dupWarning').style.display = 'none';
+    document.getElementById('btnSubmitAdd').style.display = '';
+}
+
+// ==================== ASSIGN MODAL ====================
+let assignBookingId = null;
+function openAssignModal(id, name) {
+    assignBookingId = id;
+    document.getElementById('assignName').value = name;
+    document.getElementById('assignBranch').value = '';
+    document.getElementById('assignModal').classList.add('show');
+}
+function closeAssignModal() { document.getElementById('assignModal').classList.remove('show'); }
+
+async function submitAssign() {
+    if (!assignBookingId) return;
+    const branch_id = document.getElementById('assignBranch').value;
+    if (!branch_id) { showToast('Vui lòng chọn chi nhánh', 'error'); return; }
+    try {
+        await api(`/api/bookings/${assignBookingId}/assign`, { method: 'POST', body: JSON.stringify({ branch_id: Number(branch_id) }) });
+        showToast('Đã phân chi nhánh');
+        closeAssignModal();
+        loadData();
+    } catch (e) { showToast('Lỗi phân chi nhánh', 'error'); }
+}
+
+async function deleteBooking(id) {
+    if (!confirm('Xóa data này?')) return;
+    try { await api(`/api/bookings/${id}`, { method: 'DELETE' }); showToast('Đã xóa'); loadData(); }
+    catch (e) { showToast('Lỗi xóa', 'error'); }
+}
+
+function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = 'ws-toast ' + type;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+function pad(d) { return String(d).padStart(2,'0'); }
+function fmtDate(dt) { return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`; }
+
+// ==================== APPOINTMENTS ====================
+let pageApptRange = 'today';
+function setPageApptRange(range) {
+    pageApptRange = range;
+    document.querySelectorAll('[data-parange]').forEach(b => b.classList.remove('active'));
+    if (range !== 'custom') { const btn = document.querySelector(`[data-parange="${range}"]`); if (btn) btn.classList.add('active'); }
+    loadPageAppts();
+}
+async function loadPageAppts() {
+    const now = new Date();
+    let from, to;
+    if (pageApptRange === 'today') { from = to = fmtDate(now); }
+    else if (pageApptRange === 'week') { const d = new Date(now); d.setDate(d.getDate()-d.getDay()+1); const e = new Date(d); e.setDate(e.getDate()+6); from = fmtDate(d); to = fmtDate(e); }
+    else if (pageApptRange === 'month') { from = fmtDate(new Date(now.getFullYear(),now.getMonth(),1)); to = fmtDate(new Date(now.getFullYear(),now.getMonth()+1,0)); }
+    else if (pageApptRange === 'custom') { from = document.getElementById('pageApptFrom').value; to = document.getElementById('pageApptTo').value; }
+    let url = '/api/appointments';
+    const parts = [];
+    if (from && to) parts.push(`from=${from}&to=${to}`);
+    const br = document.getElementById('apptBranchFilter').value;
+    if (br) parts.push(`branch_id=${br}`);
+    if (parts.length) url += '?' + parts.join('&');
+    try {
+        const data = await api(url);
+        const appts = data.appointments || [];
+        const container = document.getElementById('pageApptList');
+        if (!appts.length) { container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Không có lịch hẹn</div></div>'; return; }
+        container.innerHTML = appts.map(a => {
+            const dt = a.appointment_at ? new Date(a.appointment_at) : null;
+            const color = ({APPOINTED:'#2E7D32',ARRIVED:'#00695C',WON:'#F57F17'})[a.status] || '#333';
+            return `<div class="ws-lead-card" onclick="openPageApptDetail(${a.id})">
+                <div style="flex:1;min-width:0">
+                    <div style="font-weight:600">${esc(a.full_name)}</div>
+                    <div style="font-size:13px;color:var(--text-muted)"><a href="tel:${a.phone}" style="color:var(--blue)" onclick="event.stopPropagation()">${esc(a.phone)}</a> ${a.interest_service ? ' · '+esc(a.interest_service):''}</div>
+                    <div style="font-size:12px;color:var(--text-muted)">📅 ${dt?dt.toLocaleDateString('vi-VN')+' '+dt.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'—'} · ${esc(a.branch_name||'')}</div>
+                </div>
+                <span style="padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;background:${color}15;color:${color}">${({APPOINTED:'Có hẹn',ARRIVED:'Đã đến',WON:'Có doanh thu'})[a.status]||a.status}</span>
+            </div>`;
+        }).join('');
+    } catch(e) { console.error(e); }
+}
+
+async function openPageApptDetail(id) {
+    let b = allBookings.find(x => x.id === id);
+    if (!b) {
+        try { const data = await api('/api/bookings?limit=9999'); allBookings = data.bookings || []; b = allBookings.find(x => x.id === id); } catch(e) {}
+    }
+    if (b) { openDetail(id); }
+}
+
+// ==================== REPORTS ====================
+let pageReportRange = 'today';
+function setPageReportRange(range) {
+    pageReportRange = range;
+    document.querySelectorAll('[data-prrange]').forEach(b => b.classList.remove('active'));
+    if (range !== 'custom') { const btn = document.querySelector(`[data-prrange="${range}"]`); if (btn) btn.classList.add('active'); }
+    loadPageReports();
+}
+async function loadPageReports() {
+    const now = new Date();
+    let from, to;
+    if (pageReportRange === 'today') { from = to = fmtDate(now); }
+    else if (pageReportRange === 'week') { const d = new Date(now); d.setDate(d.getDate()-d.getDay()+1); const e = new Date(d); e.setDate(e.getDate()+6); from = fmtDate(d); to = fmtDate(e); }
+    else if (pageReportRange === 'month') { from = fmtDate(new Date(now.getFullYear(),now.getMonth(),1)); to = fmtDate(new Date(now.getFullYear(),now.getMonth()+1,0)); }
+    else if (pageReportRange === 'all') { from = '2020-01-01'; to = '2030-12-31'; }
+    let url = '/api/reports/page';
+    if (from && to) url += `?from=${from}&to=${to}`;
+    try {
+        const data = await api(url);
+        document.getElementById('prTotal').textContent = data.total || 0;
+        const services = data.by_service || [];
+        document.getElementById('prServiceList').innerHTML = services.length
+            ? services.map(s => `<div style="padding:10px 16px;border-bottom:1px solid #f0f0f0">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                    <div style="font-weight:600;font-size:14px">${esc(s.service_name||'Chưa xác định')}</div>
+                    <span style="font-weight:600;color:var(--gold);white-space:nowrap">${s.count} SĐT</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;word-break:break-all">${esc(s.phones||'')}</div>
+            </div>`).join('')
+            : '<div style="padding:24px;text-align:center;color:var(--text-muted)">Chưa có dữ liệu</div>';
+        const branchs = data.by_branch || [];
+        document.getElementById('prBranchList').innerHTML = branchs.length
+            ? branchs.map(b => `<div style="padding:10px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+                <span style="font-weight:500">${esc(b.branch_name||'Chưa phân')}</span>
+                <span style="font-weight:600;color:var(--gold)">${b.count} KH</span>
+            </div>`).join('')
+            : '<div style="padding:24px;text-align:center;color:var(--text-muted)">Chưa có dữ liệu</div>';
+    } catch(e) { console.error(e); }
+}
+
+// Init
+loadData();
+</script>
+</body>
+</html>
