@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#E84393">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <title>Quản trị - Peony Beauty CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --pink: #E84393;
+            --pink-light: #FD79A8;
+            --green: #00B894;
+            --red: #E17055;
+            --gold: #F39C12;
+            --text: #2D3436;
+            --text2: #636E72;
+            --text3: #B2BEC3;
+            --bg: #FFF5F7;
+            --white: #fff;
+            --shadow: 0 2px 16px rgba(232, 67, 147, 0.06);
+            --radius: 14px
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFF5F7, #FFE8EF, #F8F0FF);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-bottom: 80px
+        }
+
+        /* Nav */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1.5px solid rgba(232, 67, 147, .08);
+            padding: 0 16px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .nav-logo {
+            font-size: .9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #E84393, #FD79A8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .nav-back {
+            padding: 8px 14px;
+            border: 1.5px solid rgba(232, 67, 147, .1);
+            border-radius: 50px;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text2);
+            background: var(--white);
+            text-decoration: none;
+            transition: all .2s
+        }
+
+        .nav-back:active {
+            transform: scale(.95)
+        }
+
+        /* Tabs - bottom for one-hand use */
+        .tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, .96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1.5px solid rgba(232, 67, 147, .08);
+            display: flex;
+            padding: 6px 8px 8px;
+            gap: 4px
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 4px;
+            border: none;
+            background: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: .68rem;
+            font-weight: 700;
+            color: var(--text3);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: all .2s
+        }
+
+        .tab.active {
+            background: rgba(232, 67, 147, .08);
+            color: var(--pink)
+        }
+
+        .tab .ti {
+            font-size: 1.2rem
+        }
+
+        /* Content */
+        .content {
+            padding: 16px
+        }
+
+        .panel {
+            display: none
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeUp .3s ease
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* Section title */
+        .stitle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px
+        }
+
+        .stitle h2 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text)
+        }
+
+        .stitle .count {
+            font-size: .72rem;
+            background: var(--bg);
+            padding: 3px 10px;
+            border-radius: 20px;
+            color: var(--text2);
+            font-weight: 600
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border: 1.5px solid rgba(232, 67, 147, .06);
+            border-radius: var(--radius);
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            transition: all .2s
+        }
+
+        .card:active {
+            transform: scale(.98)
+        }
+
+        /* User card */
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0
+        }
+
+        .user-avatar.admin {
+            background: linear-gradient(135deg, #FFE0EB, #FFC8DD)
+        }
+
+        .user-avatar.truc_page {
+            background: linear-gradient(135deg, #D5F5E3, #A9DFBF)
+        }
+
+        .user-avatar.telesale {
+            background: linear-gradient(135deg, #E0DFFE, #D1C4E9)
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0
+        }
+
+        .user-name {
+            font-size: .88rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .user-meta {
+            font-size: .72rem;
+            color: var(--text3);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 2px
+        }
+
+        .role-badge {
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: .5px
+        }
+
+        .role-badge.admin {
+            background: #FFE0EB;
+            color: #C2185B
+        }
+
+        .role-badge.truc_page {
+            background: #D5F5E3;
+            color: #2E7D32
+        }
+
+        .role-badge.telesale {
+            background: #E0DFFE;
+            color: #5C6BC0
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0
+        }
+
+        .user-actions button {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: .9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .15s
+        }
+
+        .btn-edit {
+            background: #FFF3CD;
+            color: #B87D00
+        }
+
+        .btn-toggle {
+            background: #D5F5E3;
+            color: #00B894
+        }
+
+        .btn-toggle.off {
+            background: #FFF0ED;
+            color: #E17055
+        }
+
+        .btn-del {
+            background: #FDEDEC;
+            color: #E17055
+        }
+
+        .user-actions button:active {
+            transform: scale(.9)
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block
+        }
+
+        .status-dot.on {
+            background: var(--green)
+        }
+
+        .status-dot.off {
+            background: var(--red)
+        }
+
+        /* Log card */
+        .log-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start
+        }
+
+        .log-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0
+        }
+
+        .log-dot.login {
+            background: var(--green)
+        }
+
+        .log-dot.logout {
+            background: var(--text3)
+        }
+
+        .log-dot.booking {
+            background: var(--pink)
+        }
+
+        .log-dot.user {
+            background: var(--gold)
+        }
+
+        .log-dot.error {
+            background: var(--red)
+        }
+
+        .log-body {
+            flex: 1;
+            min-width: 0
+        }
+
+        .log-action {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .log-detail {
+            font-size: .75rem;
+            color: var(--text2);
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .log-time {
+            font-size: .68rem;
+            color: var(--text3);
+            margin-top: 2px;
+            font-variant-numeric: tabular-nums
+        }
+
+        /* FAB - add user */
+        .fab {
+            position: fixed;
+            bottom: 76px;
+            right: 16px;
+            z-index: 99;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E84393, #FD79A8);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(232, 67, 147, .3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s
+        }
+
+        .fab:active {
+            transform: scale(.9)
+        }
+
+        .fab.hide {
+            display: none
+        }
+
+        /* Modal */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(255, 245, 247, .92);
+            backdrop-filter: blur(8px);
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .modal-bg.show {
+            display: flex
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px 32px;
+            width: 100%;
+            max-width: 480px;
+            animation: slideUp .3s ease;
+            max-height: 85vh;
+            overflow-y: auto
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%)
+            }
+
+            to {
+                transform: translateY(0)
+            }
+        }
+
+        .modal h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .modal .field {
+            margin-bottom: 14px
+        }
+
+        .modal .field label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 5px
+        }
+
+        .modal .field input,
+        .modal .field select {
+            width: 100%;
+            padding: 12px 14px;
+            background: #FFF8FA;
+            border: 1.5px solid rgba(232, 67, 147, .1);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: .92rem;
+            color: var(--text)
+        }
+
+        .modal .field input:focus,
+        .modal .field select:focus {
+            outline: none;
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(232, 67, 147, .1)
+        }
+
+        .modal .field select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23636E72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 13px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: .88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .modal-actions button:active {
+            transform: scale(.97)
+        }
+
+        .btn-cancel {
+            background: #F1F1F1;
+            color: var(--text2)
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #E84393, #FD79A8);
+            color: white;
+            box-shadow: 0 4px 16px rgba(232, 67, 147, .2)
+        }
+
+        .btn-confirm-del {
+            background: var(--red);
+            color: white
+        }
+
+        /* Toast */
+        .toast-c {
+            position: fixed;
+            top: 64px;
+            left: 16px;
+            right: 16px;
+            z-index: 300
+        }
+
+        .toast {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: .82rem;
+            font-weight: 600;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .08);
+            animation: fadeUp .3s ease;
+            margin-bottom: 6px;
+            background: white
+        }
+
+        .toast.ok {
+            border-left: 3px solid var(--green);
+            color: var(--green)
+        }
+
+        .toast.err {
+            border-left: 3px solid var(--red);
+            color: var(--red)
+        }
+
+        /* Empty */
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text3)
+        }
+
+        .empty .ei {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px
+        }
+
+        .empty p {
+            font-size: .85rem
+        }
+
+        /* Load more */
+        .load-more {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 1.5px dashed rgba(232, 67, 147, .15);
+            border-radius: 12px;
+            background: none;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--pink);
+            cursor: pointer;
+            margin-top: 8px
+        }
+
+        .load-more:active {
+            background: rgba(232, 67, 147, .04)
+        }
+
+        /* Landing card */
+        .lp-card {
+            padding: 14px;
+        }
+
+        .lp-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .lp-name {
+            font-size: .88rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lp-url {
+            font-size: .68rem;
+            color: var(--text3);
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+
+        .lp-meta-preview {
+            font-size: .72rem;
+            color: var(--text2);
+            line-height: 1.5;
+        }
+
+        .lp-meta-preview .ogkey {
+            color: var(--text3);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: .62rem;
+            letter-spacing: .5px;
+        }
+
+        .lp-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            border-top: 1px solid rgba(232, 67, 147, .06);
+            padding-top: 10px;
+        }
+
+        .lp-actions button {
+            flex: 1;
+            padding: 9px;
+            border: 1.5px solid rgba(232, 67, 147, .1);
+            border-radius: 10px;
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text);
+            transition: all .15s;
+        }
+
+        .lp-actions button:active {
+            transform: scale(.95);
+        }
+
+        .lp-actions .btn-meta {
+            background: #FFF3CD;
+            border-color: #FFE69C;
+            color: #B87D00;
+        }
+
+        .lp-actions .btn-view {
+            background: #D5F5E3;
+            border-color: #A9DFBF;
+            color: #2E7D32;
+        }
+
+        .lp-badge {
+            font-size: .62rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .lp-badge.has {
+            background: #D5F5E3;
+            color: #2E7D32;
+        }
+
+        .lp-badge.no {
+            background: #F1F1F1;
+            color: var(--text3);
+        }
+
+        /* Meta modal textarea */
+        .modal .field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: #FFF8FA;
+            border: 1.5px solid rgba(232, 67, 147, .1);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: .85rem;
+            color: var(--text);
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .modal .field textarea:focus {
+            outline: none;
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(232, 67, 147, .1);
+        }
+
+        /* Analytics */
+        .an-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .an-card {
+            background: var(--white);
+            border: 1.5px solid rgba(232, 67, 147, .06);
+            border-radius: var(--radius);
+            padding: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .an-val {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--pink);
+        }
+
+        .an-label {
+            font-size: .62rem;
+            color: var(--text3);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-top: 2px;
+        }
+
+        .an-section {
+            margin-bottom: 16px;
+        }
+
+        .an-section h3 {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .conv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .78rem;
+        }
+
+        .conv-table th {
+            text-align: left;
+            padding: 8px 6px;
+            font-size: .62rem;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-bottom: 1.5px solid rgba(232, 67, 147, .08);
+            font-weight: 700;
+        }
+
+        .conv-table td {
+            padding: 8px 6px;
+            border-bottom: 1px solid rgba(232, 67, 147, .04);
+        }
+
+        .conv-rate {
+            font-weight: 700;
+        }
+
+        .conv-rate.good {
+            color: var(--green);
+        }
+
+        .conv-rate.mid {
+            color: #B87D00;
+        }
+
+        .conv-rate.low {
+            color: var(--red);
+        }
+
+        .utm-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(232, 67, 147, .04);
+        }
+
+        .utm-name {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .utm-count {
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--pink);
+            background: #FFE0EB;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        .device-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .device-chip {
+            flex: 1;
+            text-align: center;
+            padding: 8px 4px;
+            background: var(--white);
+            border: 1.5px solid rgba(232, 67, 147, .06);
+            border-radius: 10px;
+        }
+
+        .device-chip .dv {
+            font-size: 1rem;
+            display: block;
+        }
+
+        .device-chip .dc {
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .device-chip .dp {
+            font-size: .62rem;
+            color: var(--text3);
+            font-weight: 600;
+        }
+
+        .an-filter {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .an-filter select {
+            padding: 8px 28px 8px 10px;
+            background: var(--bg);
+            border: 1.5px solid rgba(232, 67, 147, .08);
+            border-radius: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: .78rem;
+            color: var(--text);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23636E72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Nav -->
+    <nav class="nav">
+        <span class="nav-logo">🌸 Quản trị</span>
+        <a href="/" class="nav-back">← Về CRM</a>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+        <!-- Users Panel -->
+        <div class="panel active" id="usersPanel">
+            <div class="stitle">
+                <h2>👥 Quản lý User</h2>
+                <span class="count" id="userCount">0 tài khoản</span>
+            </div>
+            <div id="userList"></div>
+        </div>
+
+        <!-- Reports Panel -->
+        <div class="panel" id="reportsPanel">
+            <div class="stitle">
+                <h2>📈 Báo cáo</h2>
+                <select id="reportDays" onchange="loadReports()"
+                    style="padding:6px 10px;border-radius:8px;border:1.5px solid rgba(232,67,147,.12);font-size:.8rem;background:#fff">
+                    <option value="7">7 ngày</option>
+                    <option value="14" selected>14 ngày</option>
+                    <option value="30">30 ngày</option>
+                </select>
+            </div>
+
+            <!-- Trực Page input form (only visible to truc_page & admin) -->
+            <div class="card" id="reportInputCard" style="margin-bottom:12px">
+                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">📱 Nhập báo cáo Trực Page</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+                    <div style="flex:1;min-width:100px">
+                        <label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Ngày báo
+                            cáo</label>
+                        <input type="date" id="rpDate"
+                            style="width:100%;padding:8px 10px;border:1.5px solid rgba(232,67,147,.12);border-radius:8px;font-size:.85rem">
+                    </div>
+                    <div style="flex:1;min-width:100px">
+                        <label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Số liên
+                            hệ</label>
+                        <input type="number" id="rpContacts" min="0" placeholder="VD: 150"
+                            style="width:100%;padding:8px 10px;border:1.5px solid rgba(232,67,147,.12);border-radius:8px;font-size:.85rem">
+                    </div>
+                    <div style="flex:1;min-width:80px">
+                        <label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Ghi
+                            chú</label>
+                        <input type="text" id="rpNotes" placeholder="(tùy chọn)"
+                            style="width:100%;padding:8px 10px;border:1.5px solid rgba(232,67,147,.12);border-radius:8px;font-size:.85rem">
+                    </div>
+                    <button onclick="submitReport()"
+                        style="padding:8px 16px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82rem">📤
+                        Gửi</button>
+                </div>
+            </div>
+
+            <!-- Trực Page Report Table -->
+            <div class="card" style="margin-bottom:12px">
+                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">📱 Báo cáo Trực Page</div>
+                <div style="font-size:.72rem;color:var(--text2);margin-bottom:8px">Tỉ lệ ra số = Số Data (ngày trước) ÷
+                    Tổng liên hệ × 100%</div>
+                <div style="overflow-x:auto">
+                    <table style="width:100%;border-collapse:collapse;font-size:.78rem">
+                        <thead>
+                            <tr style="background:#FFF0F3">
+                                <th
+                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--pink);font-size:.72rem">
+                                    NGÀY</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--pink);font-size:.72rem">
+                                    LIÊN HỆ</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--pink);font-size:.72rem">
+                                    DATA</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--pink);font-size:.72rem">
+                                    TỈ LỆ</th>
+                                <th
+                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--pink);font-size:.72rem">
+                                    NGƯỜI BÁO CÁO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trucPageTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Telesale Report Table -->
+            <div class="card">
+                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">📞 Báo cáo Telesale</div>
+                <div style="font-size:.72rem;color:var(--text2);margin-bottom:8px">Tỉ lệ = Tổng lịch hẹn ÷ Tổng Data ×
+                    100%</div>
+                <div style="overflow-x:auto">
+                    <table style="width:100%;border-collapse:collapse;font-size:.78rem">
+                        <thead>
+                            <tr style="background:#E8F6F3">
+                                <th
+                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--green);font-size:.72rem">
+                                    NGÀY</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
+                                    DATA</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
+                                    LỊCH HẸN</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
+                                    ĐÃ ĐẾN</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
+                                    TỈ LỆ ĐẾN</th>
+                                <th
+                                    style="padding:8px 6px;text-align:center;border-bottom:2px solid var(--green);font-size:.72rem">
+                                    TỈ LỆ HẸN</th>
+                                <th
+                                    style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--green);font-size:.72rem">
+                                    NHÂN VIÊN GỌI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="telesaleTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Panel -->
+        <div class="panel" id="logsPanel">
+            <div class="stitle">
+                <h2>📋 Lịch sử hoạt động</h2>
+                <span class="count" id="logCount">0 bản ghi</span>
+            </div>
+            <div id="logList"></div>
+            <button class="load-more" id="loadMore" onclick="loadMoreLogs()" style="display:none">Tải thêm ↓</button>
+        </div>
+
+        <!-- Landing Pages Panel -->
+        <div class="panel" id="landingPanel">
+            <div class="stitle">
+                <h2>🌐 Quản lý Landing Page</h2>
+                <span class="count" id="lpCount">0 trang</span>
+            </div>
+            <div id="landingList"></div>
+        </div>
+
+        <!-- Analytics Panel -->
+        <div class="panel" id="analyticsPanel">
+            <div class="stitle">
+                <h2>📊 Phân tích</h2>
+            </div>
+            <div class="an-filter">
+                <select id="anDays" onchange="loadAnalytics()">
+                    <option value="7">7 ngày</option>
+                    <option value="14">14 ngày</option>
+                    <option value="30" selected>30 ngày</option>
+                    <option value="90">90 ngày</option>
+                </select>
+                <select id="anService" onchange="loadAnalytics()">
+                    <option value="">Tất cả dịch vụ</option>
+                </select>
+            </div>
+            <div id="analyticsContent">
+                <div class="empty"><span class="ei">📊</span>
+                    <p>Đang tải...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Uncalled Panel -->
+        <div class="panel" id="uncalledPanel">
+            <div class="stitle">
+                <h2>📞 Data chưa gọi</h2>
+                <span class="count" id="uncalledCount">0 khách</span>
+            </div>
+            <div id="uncalledList"></div>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" id="fabBtn" onclick="openCreateModal()">+</button>
+
+    <!-- Bottom Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('users')">
+            <span class="ti">👥</span> Tài khoản
+        </button>
+        <button class="tab" onclick="switchTab('uncalled')">
+            <span class="ti">📞</span> Chưa gọi
+        </button>
+        <button class="tab" onclick="switchTab('landing')">
+            <span class="ti">🌐</span> Landing
+        </button>
+        <button class="tab" onclick="switchTab('reports')">
+            <span class="ti">📈</span> Báo cáo
+        </button>
+        <button class="tab" onclick="switchTab('analytics')">
+            <span class="ti">📊</span> Phân tích
+        </button>
+        <button class="tab" onclick="switchTab('logs')">
+            <span class="ti">📋</span> Lịch sử
+        </button>
+        <button class="tab" onclick="window.location.href='/direct-page'">
+            <span class="ti">💬</span> Trực Page
+        </button>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal-bg" id="userModal">
+        <div class="modal">
+            <h3 id="modalTitle">➕ Thêm tài khoản</h3>
+            <input type="hidden" id="editUserId">
+            <div class="field">
+                <label>Tên hiển thị *</label>
+                <input type="text" id="mDisplayName" placeholder="VD: Nguyễn Thị Hoa" autocomplete="off">
+            </div>
+            <div class="field">
+                <label>Tên đăng nhập *</label>
+                <input type="text" id="mUsername" placeholder="VD: hoa.nguyen hoặc 0901234567" autocomplete="off">
+            </div>
+            <div class="field">
+                <label id="mPassLabel">Mật khẩu *</label>
+                <input type="password" id="mPassword" placeholder="Nhập mật khẩu" autocomplete="new-password">
+            </div>
+            <div class="field">
+                <label>Vai trò *</label>
+                <select id="mRole">
+                    <option value="telesale">📞 Telesale</option>
+                    <option value="truc_page">📱 Trực Page</option>
+                    <option value="admin">👑 Admin</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+                <button class="btn-save" id="saveBtn" onclick="saveUser()">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal-bg" id="deleteModal">
+        <div class="modal" style="text-align:center;padding-top:32px">
+            <div style="font-size:2.5rem;margin-bottom:10px">⚠️</div>
+            <h3 style="justify-content:center">Xác nhận xóa tài khoản?</h3>
+            <p style="font-size:.85rem;color:var(--text2);margin-bottom:20px" id="delUserName"></p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+                <button class="btn-confirm-del" id="confirmDelBtn" onclick="confirmDelete()">Xóa</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-c" id="toastC"></div>
+
+    <script>
+        const API = '';
+        let token = localStorage.getItem('crm_token');
+        let currentUser = JSON.parse(localStorage.getItem('crm_user') || '{}');
+        let deleteUserId = null;
+        let logOffset = 0;
+
+        // Auth check - all authenticated users can access
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        function headers() {
+            return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+        }
+
+        // ==================== TABS ====================
+        const TAB_MAP = { users: 0, uncalled: 1, landing: 2, reports: 3, analytics: 4, logs: 5 };
+        const PANELS = ['usersPanel', 'uncalledPanel', 'landingPanel', 'reportsPanel', 'analyticsPanel', 'logsPanel'];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === TAB_MAP[tab]));
+            PANELS.forEach(p => document.getElementById(p).classList.remove('active'));
+            document.getElementById(PANELS[TAB_MAP[tab]]).classList.add('active');
+            document.getElementById('fabBtn').classList.toggle('hide', tab !== 'users');
+
+            if (tab === 'logs' && document.getElementById('logList').children.length === 0) {
+                logOffset = 0; loadLogs();
+            }
+            if (tab === 'landing' && !landingLoaded) loadLandingPages();
+            if (tab === 'analytics' && !analyticsLoaded) loadAnalytics();
+            if (tab === 'uncalled') loadUncalled();
+            if (tab === 'reports' && !reportsLoaded) loadReports();
+        }
+
+        // Role-based tab visibility
+        (function () {
+            const role = currentUser?.role;
+            if (role !== 'admin') {
+                // Hide admin-only tabs: users(0), landing(2), analytics(4)
+                const tabBtns = document.querySelectorAll('.tabs .tab');
+                [0, 2, 4].forEach(i => { if (tabBtns[i]) tabBtns[i].style.display = 'none'; });
+                // Hide FAB button
+                document.getElementById('fabBtn').style.display = 'none';
+                // Auto-switch to reports tab for non-admin
+                switchTab('reports');
+            }
+        })();
+
+        // ==================== USERS ====================
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/users', { headers: headers() });
+                if (res.status === 401) { window.location.href = '/login'; return; }
+                const users = await res.json();
+                document.getElementById('userCount').textContent = users.length + ' tài khoản';
+                renderUsers(users);
+            } catch (e) { showToast('Lỗi tải tài khoản', 'err'); }
+        }
+
+        const ROLE_MAP = { admin: '👑 Quản trị', truc_page: '📱 Trực Page', telesale: '📞 Telesale' };
+        const ROLE_ICON = { admin: '👑', truc_page: '📱', telesale: '📞' };
+        const ROLE_LABEL = { admin: 'QUẢN TRỊ', truc_page: 'TRỰC PAGE', telesale: 'TELESALE' };
+
+        function renderUsers(users) {
+            const el = document.getElementById('userList');
+            if (!users.length) { el.innerHTML = '<div class="empty"><span class="ei">👥</span><p>Chưa có tài khoản nào</p></div>'; return; }
+
+            el.innerHTML = users.map(u => `
+        <div class="card">
+          <div class="user-row">
+            <div class="user-avatar ${u.role}">${ROLE_ICON[u.role]}</div>
+            <div class="user-info">
+              <div class="user-name">${u.display_name}</div>
+              <div class="user-meta">
+                <span>@${u.username}</span>
+                <span class="role-badge ${u.role}">${ROLE_MAP[u.role]}</span>
+                <span class="status-dot ${u.active ? 'on' : 'off'}"></span>
+              </div>
+            </div>
+            <div class="user-actions">
+              <button class="btn-edit" onclick="openEditModal(${u.id},'${u.username}','${u.display_name}','${u.role}')" title="Sửa">✏️</button>
+              <button class="btn-toggle ${u.active ? '' : 'off'}" onclick="toggleUser(${u.id},${u.active ? 0 : 1})" title="${u.active ? 'Khóa' : 'Mở'}">
+                ${u.active ? '🔓' : '🔒'}
+              </button>
+              ${u.id !== currentUser.id ? `<button class="btn-del" onclick="openDeleteModal(${u.id},'${u.display_name}')" title="Xóa">🗑</button>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        // ==================== MODALS ====================
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = '➕ Thêm tài khoản';
+            document.getElementById('editUserId').value = '';
+            document.getElementById('mDisplayName').value = '';
+            document.getElementById('mUsername').value = '';
+            document.getElementById('mPassword').value = '';
+            document.getElementById('mUsername').disabled = false;
+            document.getElementById('mPassLabel').textContent = 'Mật khẩu *';
+            document.getElementById('mRole').value = 'telesale';
+            document.getElementById('userModal').classList.add('show');
+        }
+
+        function openEditModal(id, username, displayName, role) {
+            document.getElementById('modalTitle').textContent = '✏️ Sửa tài khoản';
+            document.getElementById('editUserId').value = id;
+            document.getElementById('mDisplayName').value = displayName;
+            document.getElementById('mUsername').value = username;
+            document.getElementById('mUsername').disabled = true;
+            document.getElementById('mPassword').value = '';
+            document.getElementById('mPassLabel').textContent = 'Đổi mật khẩu (để trống nếu giữ nguyên)';
+            document.getElementById('mRole').value = role;
+            document.getElementById('userModal').classList.add('show');
+        }
+
+        function closeModal() { document.getElementById('userModal').classList.remove('show'); }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); deleteUserId = null; }
+
+        function openDeleteModal(id, name) {
+            deleteUserId = id;
+            document.getElementById('delUserName').textContent = name;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        // ==================== SAVE USER ====================
+        async function saveUser() {
+            const editId = document.getElementById('editUserId').value;
+            const displayName = document.getElementById('mDisplayName').value.trim();
+            const username = document.getElementById('mUsername').value.trim();
+            const password = document.getElementById('mPassword').value;
+            const role = document.getElementById('mRole').value;
+
+            if (!displayName) { showToast('Vui lòng nhập tên hiển thị', 'err'); return; }
+
+            try {
+                let res;
+                if (editId) {
+                    // Update
+                    const body = { display_name: displayName, role };
+                    if (password) body.password = password;
+                    res = await fetch(`/api/users/${editId}`, { method: 'PATCH', headers: headers(), body: JSON.stringify(body) });
+                } else {
+                    // Create
+                    if (!username || !password) { showToast('Vui lòng nhập đầy đủ thông tin', 'err'); return; }
+                    res = await fetch('/api/users', {
+                        method: 'POST', headers: headers(),
+                        body: JSON.stringify({ username, password, display_name: displayName, role })
+                    });
+                }
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                showToast(data.message, 'ok');
+                closeModal();
+                loadUsers();
+            } catch (e) { showToast(e.message, 'err'); }
+        }
+
+        // ==================== TOGGLE & DELETE ====================
+        async function toggleUser(id, active) {
+            try {
+                const res = await fetch(`/api/users/${id}`, {
+                    method: 'PATCH', headers: headers(),
+                    body: JSON.stringify({ active: !!active })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                showToast(active ? 'Đã mở khóa tài khoản' : 'Đã khóa tài khoản', 'ok');
+                loadUsers();
+            } catch (e) { showToast(e.message, 'err'); }
+        }
+
+        async function confirmDelete() {
+            if (!deleteUserId) return;
+            try {
+                const res = await fetch(`/api/users/${deleteUserId}`, { method: 'DELETE', headers: headers() });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                showToast('Đã xóa tài khoản', 'ok');
+                closeDeleteModal();
+                loadUsers();
+            } catch (e) { showToast(e.message, 'err'); }
+        }
+
+        // ==================== LOGS ====================
+        async function loadLogs(append = false) {
+            try {
+                const res = await fetch(`/api/logs?limit=30&offset=${logOffset}`, { headers: headers() });
+                const data = await res.json();
+                document.getElementById('logCount').textContent = data.total + ' bản ghi';
+                renderLogs(data.logs, append);
+                document.getElementById('loadMore').style.display = (logOffset + 30 < data.total) ? 'block' : 'none';
+            } catch (e) { showToast('Lỗi tải lịch sử', 'err'); }
+        }
+
+        function loadMoreLogs() { logOffset += 30; loadLogs(true); }
+
+        function getLogDotClass(action) {
+            if (action.includes('login')) return 'login';
+            if (action.includes('logout')) return 'logout';
+            if (action.includes('booking')) return 'booking';
+            if (action.includes('user')) return 'user';
+            if (action.includes('failed')) return 'error';
+            return 'booking';
+        }
+
+        const ACTION_LABELS = {
+            login: '🟢 Đăng nhập', logout: '⚪ Đăng xuất', login_failed: '🔴 Đăng nhập thất bại',
+            booking_created: '🌸 Đặt lịch mới', booking_status_updated: '📝 Cập nhật lịch hẹn',
+            booking_deleted: '🗑 Xóa lịch hẹn', user_created: '👤 Tạo tài khoản',
+            user_updated: '✏️ Sửa tài khoản', user_deleted: '🗑 Xóa tài khoản',
+            call_logged: '📞 Ghi cuộc gọi', landing_meta_updated: '🏷️ Cập nhật Meta'
+        };
+
+        function renderLogs(logs, append) {
+            const el = document.getElementById('logList');
+            if (!logs.length && !append) { el.innerHTML = '<div class="empty"><span class="ei">📋</span><p>Chưa có hoạt động nào</p></div>'; return; }
+
+            const html = logs.map(l => {
+                const d = new Date(l.created_at);
+                const timeStr = d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const roleLabel = l.role ? (ROLE_LABEL[l.role] || l.role) : '';
+                return `
+          <div class="card">
+            <div class="log-item">
+              <span class="log-dot ${getLogDotClass(l.action)}"></span>
+              <div class="log-body">
+                <div class="log-action">${ACTION_LABELS[l.action] || l.action}</div>
+                <div class="log-detail">${l.detail || ''}</div>
+                <div class="log-time">${l.username || 'Hệ thống'}${roleLabel ? ' · ' + roleLabel : ''} · ${timeStr}</div>
+              </div>
+            </div>
+          </div>
+        `;
+            }).join('');
+
+            if (append) el.innerHTML += html;
+            else el.innerHTML = html;
+        }
+
+        // ==================== UTILS ====================
+        function showToast(msg, type = 'ok') {
+            const c = document.getElementById('toastC');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function logout() {
+            fetch('/api/logout', { method: 'POST', headers: headers() }).finally(() => {
+                localStorage.removeItem('crm_token');
+                localStorage.removeItem('crm_user');
+                window.location.href = '/login';
+            });
+        }
+
+        // ==================== REPORTS ====================
+        let reportsLoaded = false;
+
+        // Set default report date to today
+        const rpDateEl = document.getElementById('rpDate');
+        if (rpDateEl) rpDateEl.value = new Date().toISOString().split('T')[0];
+
+        // Hide input card for telesale users
+        if (currentUser?.role === 'telesale') {
+            const inputCard = document.getElementById('reportInputCard');
+            if (inputCard) inputCard.style.display = 'none';
+        }
+
+        async function submitReport() {
+            const contacts_count = parseInt(document.getElementById('rpContacts').value);
+            const report_date = document.getElementById('rpDate').value;
+            const notes = document.getElementById('rpNotes').value;
+
+            if (!contacts_count || contacts_count <= 0) {
+                showToast('Vui lòng nhập số liên hệ', 'err'); return;
+            }
+
+            try {
+                const res = await fetch('/api/reports/truc-page', {
+                    method: 'POST',
+                    headers: headers(),
+                    body: JSON.stringify({ contacts_count, report_date, notes })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                showToast(data.message);
+                document.getElementById('rpContacts').value = '';
+                document.getElementById('rpNotes').value = '';
+                loadReports();
+            } catch (e) {
+                showToast(e.message, 'err');
+            }
+        }
+
+        async function loadReports() {
+            try {
+                const days = document.getElementById('reportDays')?.value || 14;
+                const res = await fetch(`/api/reports?days=${days}`, { headers: headers() });
+                if (!res.ok) {
+                    if (res.status === 403) {
+                        document.getElementById('trucPageTable').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text2)">Chỉ Admin mới xem được báo cáo</td></tr>';
+                        document.getElementById('telesaleTable').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text2)">Chỉ Admin mới xem được báo cáo</td></tr>';
+                        return;
+                    }
+                    throw new Error('Lỗi tải báo cáo');
+                }
+                const reports = await res.json();
+
+                // Render Trực Page table
+                const tpBody = document.getElementById('trucPageTable');
+                let tpHtml = '';
+                reports.forEach(day => {
+                    if (day.truc_page.length > 0) {
+                        day.truc_page.forEach((r, i) => {
+                            const rateNum = parseFloat(r.rate);
+                            const rateColor = rateNum >= 5 ? 'var(--green)' : rateNum >= 2 ? 'var(--gold)' : 'var(--red)';
+                            tpHtml += `<tr style="border-bottom:1px solid #f0f0f0">
+                                ${i === 0 ? `<td style="padding:8px 6px;font-weight:600">${day.day_label}</td>` : `<td style="padding:8px 6px"></td>`}
+                                <td style="padding:8px 6px;text-align:center;font-weight:600">${r.contacts_count}</td>
+                                <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--pink)">${r.prev_day_data}</td>
+                                <td style="padding:8px 6px;text-align:center;font-weight:700;color:${rateColor}">${r.rate}%</td>
+                                <td style="padding:8px 6px;font-size:.72rem;color:var(--text2)">${r.display_name || r.username}${r.notes ? ` · ${r.notes}` : ''}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        tpHtml += `<tr style="border-bottom:1px solid #f0f0f0">
+                            <td style="padding:8px 6px;font-weight:600">${day.day_label}</td>
+                            <td colspan="4" style="padding:8px 6px;text-align:center;color:var(--text3);font-size:.72rem">Chưa có báo cáo</td>
+                        </tr>`;
+                    }
+                });
+                tpBody.innerHTML = tpHtml;
+
+                // Render Telesale table
+                const tsBody = document.getElementById('telesaleTable');
+                let tsHtml = '';
+                reports.forEach(day => {
+                    const ts = day.telesale;
+                    const rateNum = parseFloat(ts.rate);
+                    const rateColor = rateNum >= 50 ? 'var(--green)' : rateNum >= 20 ? 'var(--gold)' : 'var(--red)';
+                    const callers = ts.calls.length > 0
+                        ? ts.calls.map(c => `${c.display_name || c.username} (${c.call_count})`).join(', ')
+                        : '—';
+                    const arrRateNum = parseFloat(ts.arrival_rate || 0);
+                    const arrColor = arrRateNum >= 70 ? 'var(--green)' : arrRateNum >= 40 ? 'var(--gold)' : 'var(--red)';
+                    tsHtml += `<tr style="border-bottom:1px solid #f0f0f0">
+                        <td style="padding:8px 6px;font-weight:600">${day.day_label}</td>
+                        <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--pink)">${ts.data_count}</td>
+                        <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--green)">${ts.appointments}</td>
+                        <td style="padding:8px 6px;text-align:center;font-weight:600;color:var(--green)">${ts.arrived_today || 0}</td>
+                        <td style="padding:8px 6px;text-align:center;font-weight:700;color:${arrColor}">${ts.arrival_rate || '0.0'}%</td>
+                        <td style="padding:8px 6px;text-align:center;font-weight:700;color:${rateColor}">${ts.rate}%</td>
+                        <td style="padding:8px 6px;font-size:.72rem;color:var(--text2)">${callers}</td>
+                    </tr>`;
+                });
+                tsBody.innerHTML = tsHtml;
+
+                reportsLoaded = true;
+            } catch (e) {
+                showToast('Lỗi tải báo cáo', 'err');
+            }
+        }
+
+        // ==================== LANDING PAGE META ====================
+        let landingLoaded = false;
+        let analyticsLoaded = false;
+
+        async function loadLandingPages() {
+            try {
+                const res = await fetch('/api/landing-meta', { headers: headers() });
+                const pages = await res.json();
+                document.getElementById('lpCount').textContent = pages.length + ' trang';
+                renderLandingPages(pages);
+                landingLoaded = true;
+            } catch (e) { showToast('Lỗi tải landing pages', 'err'); }
+        }
+
+        function renderLandingPages(pages) {
+            const el = document.getElementById('landingList');
+            el.innerHTML = pages.map(p => {
+                const hasMeta = p.og_title || p.og_description || p.og_image;
+                return `<div class="card lp-card">
+                    <div class="lp-header">
+                        <span class="lp-name">${p.service_icon} ${p.service_name}</span>
+                        <span class="lp-badge ${hasMeta ? 'has' : 'no'}">${hasMeta ? '✅ Có Meta' : '⚠️ Chưa cấu hình'}</span>
+                    </div>
+                    <div class="lp-url">/dat-lich/${p.service_id}</div>
+                    ${hasMeta ? `<div class="lp-meta-preview">
+                        ${p.og_title ? `<div><span class="ogkey">og:title</span> ${p.og_title}</div>` : ''}
+                        ${p.og_description ? `<div><span class="ogkey">og:desc</span> ${p.og_description.substring(0, 80)}...</div>` : ''}
+                        ${p.og_image ? `<div><span class="ogkey">og:image</span> ✅</div>` : ''}
+                    </div>` : ''}
+                    <div class="lp-actions">
+                        <button class="btn-meta" onclick="openMetaModal('${p.service_id}','${p.service_name}')">🏷️ Thẻ Meta</button>
+                        <button class="btn-view" onclick="window.open('/dat-lich/${p.service_id}','_blank')">👁 Xem trang</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Meta Modal
+        function openMetaModal(serviceId, serviceName) {
+            // Create modal if not exists
+            let modal = document.getElementById('metaModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.className = 'modal-bg';
+                modal.id = 'metaModal';
+                modal.innerHTML = `<div class="modal">
+                    <h3 id="metaModalTitle">🏷️ Thẻ Meta Facebook</h3>
+                    <input type="hidden" id="metaServiceId">
+                    <div class="field"><label>og:title *</label><input type="text" id="metaTitle" placeholder="Tiêu đề hiển thị trên Facebook"></div>
+                    <div class="field"><label>og:description</label><textarea id="metaDesc" placeholder="Mô tả ngắn (120-160 ký tự)"></textarea></div>
+                    <div class="field"><label>og:image (URL ảnh)</label><input type="text" id="metaImage" placeholder="https://... (1200x630px tốt nhất)"></div>
+                    <div class="field"><label>og:url</label><input type="text" id="metaUrl" placeholder="URL chính thức"></div>
+                    <div class="field"><label>Facebook App ID</label><input type="text" id="metaFbId" placeholder="(tùy chọn)"></div>
+                    <div class="field"><label>Thẻ head tùy chỉnh</label><textarea id="metaCustom" placeholder="HTML thêm vào <head>"></textarea></div>
+                    <div class="modal-actions">
+                        <button class="btn-cancel" onclick="document.getElementById('metaModal').classList.remove('show')">Hủy</button>
+                        <button class="btn-save" onclick="saveMeta()">💾 Lưu Meta</button>
+                    </div>
+                </div>`;
+                document.body.appendChild(modal);
+            }
+
+            document.getElementById('metaModalTitle').textContent = `🏷️ ${serviceName} — Thẻ Meta`;
+            document.getElementById('metaServiceId').value = serviceId;
+
+            // Load existing data
+            fetch(`/api/landing-meta`, { headers: headers() })
+                .then(r => r.json())
+                .then(pages => {
+                    const p = pages.find(x => x.service_id === serviceId) || {};
+                    document.getElementById('metaTitle').value = p.og_title || '';
+                    document.getElementById('metaDesc').value = p.og_description || '';
+                    document.getElementById('metaImage').value = p.og_image || '';
+                    document.getElementById('metaUrl').value = p.og_url || '';
+                    document.getElementById('metaFbId').value = p.fb_app_id || '';
+                    document.getElementById('metaCustom').value = p.custom_head || '';
+                    modal.classList.add('show');
+                });
+        }
+
+        async function saveMeta() {
+            const serviceId = document.getElementById('metaServiceId').value;
+            try {
+                const res = await fetch(`/api/landing-meta/${serviceId}`, {
+                    method: 'POST', headers: headers(),
+                    body: JSON.stringify({
+                        og_title: document.getElementById('metaTitle').value,
+                        og_description: document.getElementById('metaDesc').value,
+                        og_image: document.getElementById('metaImage').value,
+                        og_url: document.getElementById('metaUrl').value,
+                        fb_app_id: document.getElementById('metaFbId').value,
+                        custom_head: document.getElementById('metaCustom').value
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                showToast('Đã lưu thẻ Meta!', 'ok');
+                document.getElementById('metaModal').classList.remove('show');
+                loadLandingPages();
+            } catch (e) { showToast(e.message, 'err'); }
+        }
+
+        // ==================== ANALYTICS ====================
+        async function loadAnalytics() {
+            const days = document.getElementById('anDays').value;
+            const serviceId = document.getElementById('anService').value;
+            const el = document.getElementById('analyticsContent');
+            el.innerHTML = '<div class="empty"><span class="ei">⏳</span><p>Đang tải...</p></div>';
+
+            try {
+                const params = new URLSearchParams({ days });
+                if (serviceId) params.set('service_id', serviceId);
+                const res = await fetch(`/api/analytics?${params}`, { headers: headers() });
+                const data = await res.json();
+                renderAnalytics(data);
+                analyticsLoaded = true;
+            } catch (e) {
+                el.innerHTML = '<div class="empty"><span class="ei">❌</span><p>Lỗi tải dữ liệu</p></div>';
+            }
+        }
+
+        function renderAnalytics(data) {
+            const el = document.getElementById('analyticsContent');
+            const { overview, conversions, utmSources, utmCampaigns, devices, referrers } = data;
+
+            // Total devices for percentage
+            const totalDeviceViews = devices.reduce((s, d) => s + d.views, 0) || 1;
+            const DEVICE_ICONS = { mobile: '📱', desktop: '💻', tablet: '📟' };
+            const DEVICE_NAMES = { mobile: 'Di động', desktop: 'Máy tính', tablet: 'Máy tính bảng' };
+
+            let html = `
+            <!-- Overview -->
+            <div class="an-grid">
+                <div class="an-card"><div class="an-val">${overview.totalViews}</div><div class="an-label">Lượt xem</div></div>
+                <div class="an-card"><div class="an-val">${overview.totalBookings}</div><div class="an-label">Đặt lịch</div></div>
+                <div class="an-card"><div class="an-val">${overview.uniqueIPs}</div><div class="an-label">IP duy nhất</div></div>
+            </div>
+
+            <!-- Conversion -->
+            <div class="an-section card">
+                <h3>📈 Tỷ lệ chuyển đổi</h3>
+                <table class="conv-table">
+                    <thead><tr><th>Dịch vụ</th><th>Xem</th><th>Đặt lịch</th><th>Tỷ lệ</th></tr></thead>
+                    <tbody>${conversions.map(c => {
+                const rate = parseFloat(c.rate);
+                const cls = rate >= 5 ? 'good' : rate >= 2 ? 'mid' : 'low';
+                return `<tr>
+                            <td>${c.icon} ${c.service_name}</td>
+                            <td>${c.views}</td>
+                            <td>${c.bookings}</td>
+                            <td><span class="conv-rate ${cls}">${c.rate}%</span></td>
+                        </tr>`;
+            }).join('')}</tbody>
+                </table>
+            </div>
+
+            <!-- Devices -->
+            ${devices.length ? `<div class="an-section">
+                <h3>📱 Thiết bị</h3>
+                <div class="device-bar">
+                    ${devices.map(d => `<div class="device-chip">
+                        <span class="dv">${DEVICE_ICONS[d.device_type] || '🔧'}</span>
+                        <span class="dc">${d.views}</span>
+                        <span class="dp">${DEVICE_NAMES[d.device_type] || d.device_type} · ${((d.views / totalDeviceViews) * 100).toFixed(0)}%</span>
+                    </div>`).join('')}
+                </div>
+            </div>` : ''}
+
+            <!-- UTM Sources -->
+            ${utmSources.length ? `<div class="an-section card">
+                <h3>🔗 Nguồn UTM</h3>
+                ${utmSources.map(u => `<div class="utm-row">
+                    <span class="utm-name">${u.utm_source}</span>
+                    <span class="utm-count">${u.views}</span>
+                </div>`).join('')}
+            </div>` : ''}
+
+            <!-- UTM Campaigns -->
+            ${utmCampaigns.length ? `<div class="an-section card">
+                <h3>📢 Chiến dịch</h3>
+                ${utmCampaigns.map(u => `<div class="utm-row">
+                    <span class="utm-name">${u.utm_campaign} <small style="color:var(--text3)">· ${u.utm_source}</small></span>
+                    <span class="utm-count">${u.views}</span>
+                </div>`).join('')}
+            </div>` : ''}
+
+            <!-- Referrers -->
+            ${referrers.length ? `<div class="an-section card">
+                <h3>🌍 Nguồn giới thiệu</h3>
+                ${referrers.slice(0, 10).map(r => {
+                let domain = r.referrer;
+                try { domain = new URL(r.referrer).hostname; } catch (e) { }
+                return `<div class="utm-row">
+                        <span class="utm-name">${domain}</span>
+                        <span class="utm-count">${r.views}</span>
+                    </div>`;
+            }).join('')}
+            </div>` : ''}
+            `;
+
+            el.innerHTML = html;
+        }
+
+        // Populate service filter for analytics
+        fetch('/api/services').then(r => r.json()).then(services => {
+            const sel = document.getElementById('anService');
+            services.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.icon} ${s.name}`;
+                sel.appendChild(opt);
+            });
+        });
+
+        // Init
+        loadUsers();
+
+        // ==================== UNCALLED LEADS ====================
+        async function loadUncalled() {
+            try {
+                const res = await fetch('/api/bookings?uncalled=true&sort=created_at&order=desc', { headers: headers() });
+                const data = await res.json();
+                const bookings = data.bookings;
+                document.getElementById('uncalledCount').textContent = bookings.length + ' khách';
+                renderUncalled(bookings);
+            } catch (e) { showToast('Lỗi tải data chưa gọi', 'err'); }
+        }
+
+        function renderUncalled(bookings) {
+            const el = document.getElementById('uncalledList');
+            if (!bookings.length) {
+                el.innerHTML = '<div class="empty"><span class="ei">✅</span><p>Không có data nào chưa gọi!</p></div>';
+                return;
+            }
+
+            el.innerHTML = bookings.map(b => {
+                const apptDate = new Date(b.appointment_date);
+                const dateStr = apptDate.toLocaleDateString('vi-VN');
+                const timeStr = apptDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                const createdDate = new Date(b.created_at);
+                const createdStr = createdDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const source = b.source === 'manual' ? '✍️ Thủ công' : '🌐 Landing';
+
+                return `<div class="card">
+                    <div class="user-row">
+                        <div class="user-avatar telesale" style="font-size:1.2rem">📞</div>
+                        <div class="user-info">
+                            <div class="user-name">${b.full_name}</div>
+                            <div class="user-meta">
+                                <a href="tel:${b.phone}" style="color:var(--pink);text-decoration:none;font-weight:600">${b.phone}</a>
+                                <span>${source}</span>
+                            </div>
+                            <div class="user-meta" style="margin-top:2px">
+                                <span>📅 ${dateStr} ${timeStr}</span>
+                                <span>· Đặt lúc ${createdStr}</span>
+                            </div>
+                            <div style="font-size:.75rem;color:#636E72;margin-top:2px">${b.service}</div>
+                            ${b.notes ? `<div style="font-size:.72rem;color:#B2BEC3;margin-top:1px">📝 ${b.notes}</div>` : ''}
+                        </div>
+                        <div class="user-actions">
+                            <a href="tel:${b.phone}" class="btn-edit" style="text-decoration:none;display:flex;align-items:center;justify-content:center" title="Gọi ngay">📱</a>
+                            <button class="btn-toggle" onclick="openAdminCallModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}')" title="Ghi cuộc gọi">📝</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Admin Call Modal
+        function openAdminCallModal(bookingId, fullName, phone) {
+            let modal = document.getElementById('adminCallModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.className = 'modal-bg';
+                modal.id = 'adminCallModal';
+                modal.innerHTML = `<div class="modal">
+                    <h3>📞 Ghi nhận cuộc gọi</h3>
+                    <input type="hidden" id="adCallBookingId">
+                    <div id="adCallInfo" style="background:#FFF8FA;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:.85rem;line-height:1.6"></div>
+                    <div class="field">
+                        <label>Ghi chú cuộc gọi</label>
+                        <textarea id="adCallNotes" style="width:100%;padding:12px;background:#FFF8FA;border:1.5px solid rgba(232,67,147,.1);border-radius:10px;font-family:'Inter',sans-serif;font-size:.85rem;color:#2D3436;resize:vertical;min-height:80px" placeholder="VD: Khách hẹn lại tuần sau..."></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-cancel" onclick="document.getElementById('adminCallModal').classList.remove('show')">Hủy</button>
+                        <button class="btn-save" onclick="saveAdminCall()">📞 Ghi cuộc gọi</button>
+                    </div>
+                </div>`;
+                document.body.appendChild(modal);
+            }
+            document.getElementById('adCallBookingId').value = bookingId;
+            document.getElementById('adCallNotes').value = '';
+            document.getElementById('adCallInfo').innerHTML = `<div><strong>${fullName}</strong></div><div>📱 <a href="tel:${phone}">${phone}</a></div>`;
+            modal.classList.add('show');
+        }
+
+        async function saveAdminCall() {
+            const bookingId = document.getElementById('adCallBookingId').value;
+            const notes = document.getElementById('adCallNotes').value.trim();
+            try {
+                const res = await fetch(`/api/bookings/${bookingId}/calls`, {
+                    method: 'POST', headers: headers(),
+                    body: JSON.stringify({ notes })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                showToast(data.message, 'ok');
+                document.getElementById('adminCallModal').classList.remove('show');
+                loadUncalled();
+            } catch (e) { showToast(e.message, 'err'); }
+        }
+    </script>
+</body>
+
+</html>

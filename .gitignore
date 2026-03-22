@@ -1,0 +1,6 @@
+node_modules/
+.env
+data/crm.db-shm
+data/crm.db-wal
+*.bak
+.DS_Store

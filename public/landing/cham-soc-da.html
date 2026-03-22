@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chăm Sóc Da Mặt - Peony Beauty</title>
+  <meta name="description" content="Đặt lịch Chăm Sóc Da Mặt tại Peony Beauty. Trải nghiệm dịch vụ chuyên nghiệp với sản phẩm cao cấp.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/landing.css">
+</head>
+<body>
+  <div class="landing-page">
+    <div class="landing-bg"></div>
+
+    <!-- Header -->
+    <header class="landing-header">
+      <div class="landing-logo"><span>PEONY BEAUTY</span></div>
+    </header>
+
+    <!-- Hero -->
+    <section class="landing-hero">
+      <span class="hero-icon">✨</span>
+      <h1 class="hero-title">Chăm Sóc Da Mặt</h1>
+      <p class="hero-subtitle">Trải nghiệm liệu trình chăm sóc da chuyên sâu, giúp làn da tươi sáng, mịn màng và đầy sức sống.</p>
+    </section>
+
+    <!-- Features -->
+    <section class="landing-features">
+      <div class="feature-card">
+        <span class="feature-icon">🧴</span>
+        <span class="feature-text">Sản phẩm cao cấp</span>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">👩‍⚕️</span>
+        <span class="feature-text">Chuyên gia da liễu</span>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🌿</span>
+        <span class="feature-text">Công nghệ hiện đại</span>
+      </div>
+    </section>
+
+    <!-- Booking Form -->
+    <section class="landing-form-section">
+      <div class="form-card">
+        <div class="form-card-header">
+          <h2 class="form-title">📋 Đặt Lịch Ngay</h2>
+          <p class="form-subtitle">Điền thông tin để đặt lịch hẹn</p>
+        </div>
+
+        <form id="bookingForm" novalidate>
+          <input type="hidden" name="service" value="Chăm sóc da mặt">
+          
+          <div class="form-group">
+            <label class="form-label" for="fullName">Họ và tên *</label>
+            <input class="form-input" type="text" id="fullName" name="full_name" placeholder="Nhập họ và tên" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="phone">Số điện thoại *</label>
+            <input class="form-input" type="tel" id="phone" name="phone" placeholder="0901 234 567" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="appointmentDate">Ngày giờ hẹn *</label>
+            <input class="form-input" type="datetime-local" id="appointmentDate" name="appointment_date" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="notes">Ghi chú (tùy chọn)</label>
+            <input class="form-input" type="text" id="notes" name="notes" placeholder="Loại da, vấn đề da...">
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Đặt Lịch Hẹn</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+      <div class="success-card">
+        <span class="success-icon">🎉</span>
+        <h2 class="success-title">Đặt Lịch Thành Công!</h2>
+        <p class="success-message">Cảm ơn bạn đã đặt lịch tại Peony Beauty. Chúng tôi sẽ liên hệ xác nhận sớm nhất.</p>
+        <div class="success-details" id="successDetails"></div>
+        <button class="btn btn-primary" onclick="location.reload()">Đặt Lịch Khác</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <p>© 2026 Peony Beauty. Mọi quyền được bảo lưu.</p>
+    </footer>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // Set min date to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('appointmentDate').min = now.toISOString().slice(0, 16);
+
+    // Form submission
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          throw new Error(result.error || 'Có lỗi xảy ra');
+        }
+
+        // Show success
+        const details = document.getElementById('successDetails');
+        const apptDate = new Date(data.appointment_date);
+        details.innerHTML = `
+          <div class="success-detail-row">
+            <span class="label">Họ tên</span>
+            <span class="value">${data.full_name}</span>
+          </div>
+          <div class="success-detail-row">
+            <span class="label">Dịch vụ</span>
+            <span class="value">${data.service}</span>
+          </div>
+          <div class="success-detail-row">
+            <span class="label">Ngày hẹn</span>
+            <span class="value">${apptDate.toLocaleDateString('vi-VN')}</span>
+          </div>
+          <div class="success-detail-row">
+            <span class="label">Giờ hẹn</span>
+            <span class="value">${apptDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+        `;
+        document.getElementById('successOverlay').classList.add('active');
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    });
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+  </script>
+</body>
+</html>

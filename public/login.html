@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#E84393">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <title>Đăng nhập - Peony Beauty CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFF5F7, #FFE8EF, #F8F0FF);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased
+        }
+
+        .login-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px 28px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 8px 40px rgba(232, 67, 147, 0.1);
+            border: 1.5px solid rgba(232, 67, 147, 0.08);
+            position: relative;
+            overflow: hidden
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #E84393, #FD79A8, #FDCB6E)
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 28px
+        }
+
+        .brand-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 8px
+        }
+
+        .brand-name {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #E84393, #FD79A8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .brand-sub {
+            font-size: 0.78rem;
+            color: #B2BEC3;
+            margin-top: 4px
+        }
+
+        .field {
+            margin-bottom: 16px
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #636E72;
+            margin-bottom: 5px
+        }
+
+        .field input {
+            width: 100%;
+            padding: 13px 16px;
+            background: #FFF8FA;
+            border: 1.5px solid rgba(232, 67, 147, 0.1);
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: #2D3436;
+            transition: all .2s
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: #E84393;
+            box-shadow: 0 0 0 3px rgba(232, 67, 147, 0.1);
+            background: #fff
+        }
+
+        .field input::placeholder {
+            color: #B2BEC3
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #E84393, #FD79A8);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(232, 67, 147, 0.25);
+            transition: all .3s;
+            margin-top: 6px
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(232, 67, 147, 0.35)
+        }
+
+        .login-btn:active {
+            transform: scale(.98)
+        }
+
+        .login-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none !important
+        }
+
+        .error-msg {
+            display: none;
+            background: #FFF0ED;
+            color: #E17055;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 14px;
+            border-left: 3px solid #E17055
+        }
+
+        .error-msg.show {
+            display: block;
+            animation: shake .3s ease
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+
+            25% {
+                transform: translateX(-6px)
+            }
+
+            75% {
+                transform: translateX(6px)
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-box">
+        <div class="brand">
+            <span class="brand-icon">🌸</span>
+            <div class="brand-name">Peony Beauty</div>
+            <div class="brand-sub">CRM Quản lý</div>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <form id="loginForm" novalidate>
+            <div class="field">
+                <label>Tài khoản</label>
+                <input type="text" id="username" placeholder="Nhập username" autocomplete="username" required autofocus>
+            </div>
+            <div class="field">
+                <label>Mật khẩu</label>
+                <input type="password" id="password" placeholder="Nhập mật khẩu" autocomplete="current-password"
+                    required>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">Đăng nhập</button>
+        </form>
+    </div>
+
+    <script>
+        // Check if already logged in
+        const token = localStorage.getItem('crm_token');
+        if (token) {
+            fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } })
+                .then(r => { if (r.ok) window.location.href = '/'; });
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('errorMsg');
+            btn.disabled = true;
+            btn.textContent = 'Đang đăng nhập...';
+            err.classList.remove('show');
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value.trim(),
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                localStorage.setItem('crm_token', data.token);
+                localStorage.setItem('crm_user', JSON.stringify(data.user));
+                window.location.href = '/';
+            } catch (error) {
+                err.textContent = error.message;
+                err.classList.add('show');
+                btn.disabled = false;
+                btn.textContent = 'Đăng nhập';
+            }
+        });
+    </script>
+</body>
+
+</html>

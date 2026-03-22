@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#E84393">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMBO 6 Buổi Thanh Lọc Da 299K - Peony Beauty</title>
+    <meta name="description"
+        content="Combo 6 buổi thanh lọc da chuẩn y khoa 14 bước chỉ 299K tại Peony Beauty. Chỉ 50K/buổi. Giới hạn 50 khách đầu tiên!">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ========== RESET & BASE ========== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #FFF5F7;
+            color: #2D3436;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ========== VARIABLES ========== */
+        :root {
+            --pink: #E84393;
+            --pink-light: #FD79A8;
+            --pink-pale: #FFE8EF;
+            --gold: #F39C12;
+            --green: #00B894;
+            --red: #E17055;
+            --text: #2D3436;
+            --text2: #636E72;
+            --text3: #B2BEC3;
+            --white: #FFFFFF;
+            --bg: #FFF5F7;
+            --shadow: 0 4px 24px rgba(232, 67, 147, 0.08);
+            --shadow-lg: 0 8px 40px rgba(232, 67, 147, 0.12);
+            --gradient: linear-gradient(135deg, #E84393 0%, #FD79A8 100%);
+            --gradient-hot: linear-gradient(135deg, #FF6B6B 0%, #E84393 50%, #FD79A8 100%);
+            --radius: 16px;
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.04);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(232, 67, 147, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 35px rgba(232, 67, 147, 0.35);
+            }
+        }
+
+        @keyframes countPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.12);
+                color: #FF6B6B;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            70% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .fade-up-d1 {
+            animation: fadeUp 0.6s ease 0.1s both;
+        }
+
+        .fade-up-d2 {
+            animation: fadeUp 0.6s ease 0.2s both;
+        }
+
+        .fade-up-d3 {
+            animation: fadeUp 0.6s ease 0.3s both;
+        }
+
+        .fade-up-d4 {
+            animation: fadeUp 0.6s ease 0.4s both;
+        }
+
+        /* ========== STICKY TOP BAR ========== */
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--gradient-hot);
+            background-size: 200% 200%;
+            animation: shimmer 3s linear infinite;
+            padding: 9px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white;
+            font-size: 0.78rem;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+        }
+
+        .top-bar .fire {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .slot-badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ========== LOGO ========== */
+        .brand {
+            text-align: center;
+            padding: 20px 16px 8px;
+        }
+
+        .brand-name {
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            text-align: center;
+            padding: 16px 20px 20px;
+            position: relative;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            background: var(--gradient-hot);
+            color: white;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            animation: glow 2s ease-in-out infinite, bounceIn 0.6s ease both;
+        }
+
+        .hero h1 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1.25;
+            color: var(--text);
+            margin-bottom: 18px;
+        }
+
+        .hero h1 em {
+            font-style: normal;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Price Card */
+        .price-card {
+            background: var(--white);
+            border: 2px solid var(--pink-pale);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            margin: 0 auto;
+            max-width: 340px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-hot);
+        }
+
+        .price-original {
+            font-size: 0.9rem;
+            color: var(--text3);
+            text-decoration: line-through;
+        }
+
+        .price-main {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 6px;
+            margin: 4px 0 8px;
+        }
+
+        .price-amount {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: var(--gradient-hot);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .price-unit {
+            font-size: 1rem;
+            color: var(--text2);
+            font-weight: 600;
+        }
+
+        .price-per {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #FFF8E7;
+            color: #B87D00;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .price-limit {
+            margin-top: 10px;
+            font-size: 0.78rem;
+            color: var(--text2);
+        }
+
+        .price-limit strong {
+            color: var(--red);
+        }
+
+        /* Social proof */
+        .social-proof {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 16px 6px;
+        }
+
+        .avatars {
+            display: flex;
+        }
+
+        .avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            margin-left: -6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .avatar:first-child {
+            margin-left: 0;
+            background: #FFE0EB;
+        }
+
+        .avatar:nth-child(2) {
+            background: #D5F5E3;
+        }
+
+        .avatar:nth-child(3) {
+            background: #FFF3CD;
+        }
+
+        .avatar:nth-child(4) {
+            background: #E0DFFE;
+        }
+
+        .social-text {
+            font-size: 0.75rem;
+            color: var(--text2);
+        }
+
+        .social-text strong {
+            color: var(--pink);
+        }
+
+        /* ========== PAIN POINTS ========== */
+        .section {
+            padding: 22px 20px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title.red {
+            color: var(--red);
+        }
+
+        .section-title.green {
+            color: var(--green);
+        }
+
+        .pain-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pain-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #FFF0ED;
+            padding: 11px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--red);
+            line-height: 1.45;
+        }
+
+        .pain-item .ic {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .pain-item strong {
+            color: var(--text);
+        }
+
+        /* ========== 14 STEPS ========== */
+        .steps-list {
+            display: grid;
+            gap: 6px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(232, 67, 147, 0.08);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .step:hover {
+            border-color: rgba(232, 67, 147, 0.2);
+            transform: translateX(3px);
+            box-shadow: 0 2px 12px rgba(232, 67, 147, 0.08);
+        }
+
+        .step-n {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .step-txt {
+            font-size: 0.82rem;
+            color: var(--text);
+            font-weight: 500;
+            line-height: 1.35;
+        }
+
+        .step-txt .ic {
+            margin-right: 4px;
+        }
+
+        /* Phase divider */
+        .phase {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0 6px;
+        }
+
+        .phase-line {
+            flex: 1;
+            height: 1px;
+            background: var(--pink-pale);
+        }
+
+        .phase-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--pink);
+            white-space: nowrap;
+            padding: 3px 10px;
+            background: var(--pink-pale);
+            border-radius: 20px;
+        }
+
+        /* ========== URGENCY CARD ========== */
+        .urgency-card {
+            background: linear-gradient(135deg, #FFF0F3, #FFE8EF, #F8F0FF);
+            border: 1.5px solid rgba(232, 67, 147, 0.15);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            margin: 4px 0 0;
+        }
+
+        .urgency-icon {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .urgency-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--pink);
+            margin-bottom: 6px;
+        }
+
+        .urgency-text {
+            font-size: 0.8rem;
+            color: var(--text2);
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .progress-bar {
+            background: rgba(232, 67, 147, 0.1);
+            border-radius: 20px;
+            padding: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 22px;
+            border-radius: 20px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.68rem;
+            font-weight: 700;
+            transition: width 0.8s ease;
+        }
+
+        /* ========== BOOKING FORM ========== */
+        .form-section {
+            padding: 0 20px 24px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: var(--white);
+            border: 1.5px solid rgba(232, 67, 147, 0.12);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-hot);
+        }
+
+        .form-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .form-sub {
+            font-size: 0.78rem;
+            color: var(--text3);
+            margin-bottom: 18px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 5px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 11px 14px;
+            background: #FFF8FA;
+            border: 1.5px solid rgba(232, 67, 147, 0.1);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            color: var(--text);
+            transition: all 0.2s ease;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(232, 67, 147, 0.1);
+            background: white;
+        }
+
+        .field input::placeholder {
+            color: var(--text3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-hot);
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(232, 67, 147, 0.25);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(232, 67, 147, 0.35);
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+            animation: none;
+        }
+
+        .submit-btn .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .submit-btn.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .form-trust {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text3);
+            margin-top: 10px;
+        }
+
+        /* Trust badges row */
+        .trust-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 8px 20px 24px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .trust-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.68rem;
+            color: var(--text2);
+            font-weight: 600;
+        }
+
+        .trust-item .ti {
+            font-size: 1.3rem;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            text-align: center;
+            padding: 16px 20px 100px;
+            font-size: 0.72rem;
+            color: var(--text3);
+        }
+
+        /* ========== FIXED CTA ========== */
+        .fixed-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(232, 67, 147, 0.1);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.5s ease 0.8s both;
+            transform-origin: bottom;
+        }
+
+        .fixed-cta .cta-left {
+            flex: 1;
+        }
+
+        .fixed-cta .cta-price {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: var(--pink);
+        }
+
+        .fixed-cta .cta-price .old {
+            font-size: 0.7rem;
+            color: var(--text3);
+            text-decoration: line-through;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .fixed-cta .cta-slots {
+            font-size: 0.68rem;
+            color: var(--text2);
+        }
+
+        .fixed-cta .cta-btn {
+            padding: 11px 24px;
+            background: var(--gradient-hot);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(232, 67, 147, 0.25);
+            transition: all 0.2s ease;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        .fixed-cta .cta-btn:hover {
+            transform: scale(1.04);
+        }
+
+        /* ========== SUCCESS OVERLAY ========== */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 245, 247, 0.94);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay.active {
+            display: flex;
+        }
+
+        .success-card {
+            background: white;
+            border: 1.5px solid rgba(232, 67, 147, 0.15);
+            border-radius: 20px;
+            padding: 36px 28px;
+            text-align: center;
+            max-width: 380px;
+            margin: 0 20px;
+            box-shadow: var(--shadow-lg);
+            animation: bounceIn 0.5s ease;
+        }
+
+        .success-card .sc-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .success-card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .success-card .sc-msg {
+            font-size: 0.85rem;
+            color: var(--text2);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .success-details {
+            background: #FFF8FA;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 18px;
+            text-align: left;
+            border: 1px solid rgba(232, 67, 147, 0.08);
+        }
+
+        .sd-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.82rem;
+        }
+
+        .sd-row .l {
+            color: var(--text3);
+        }
+
+        .sd-row .v {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .sc-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Toast */
+        .toast-c {
+            position: fixed;
+            top: 60px;
+            right: 16px;
+            z-index: 10000;
+        }
+
+        .toast {
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            animation: fadeUp 0.3s ease;
+            background: white;
+            color: var(--red);
+            border-left: 3px solid var(--red);
+            margin-bottom: 6px;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 380px) {
+            .hero h1 {
+                font-size: 1.3rem;
+            }
+
+            .price-amount {
+                font-size: 2.4rem;
+            }
+
+            .step {
+                padding: 8px 10px;
+            }
+
+            .step-txt {
+                font-size: 0.78rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- STICKY TOP BAR -->
+    <div class="top-bar">
+        <span class="fire">🔥</span>
+        Ưu đãi giới hạn
+        <span class="slot-badge">⏰ Còn <span id="slots1">47</span>/50</span>
+    </div>
+
+    <!-- BRAND -->
+    <div class="brand fade-up">
+        <div class="brand-name">🌸 Peony Beauty</div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero fade-up-d1">
+        <div class="hero-tag">🔥 Deal sốc chưa từng có</div>
+        <h1>Combo 6 Buổi<br><em>Thanh Lọc Da</em><br>Chuẩn Y Khoa 14 Bước</h1>
+
+        <div class="price-card">
+            <div class="price-original">Giá gốc: 1.800.000đ</div>
+            <div class="price-main">
+                <span class="price-amount">299K</span>
+                <span class="price-unit">/ 6 buổi</span>
+            </div>
+            <div class="price-per">✨ Chỉ ~50K/buổi — bằng 1 ly trà sữa</div>
+            <p class="price-limit">⚡ Chỉ áp dụng cho <strong>50 khách đầu tiên</strong></p>
+        </div>
+    </section>
+
+    <!-- SOCIAL PROOF -->
+    <div class="social-proof fade-up-d2">
+        <div class="avatars">
+            <div class="avatar">👩</div>
+            <div class="avatar">👧</div>
+            <div class="avatar">👩‍🦰</div>
+            <div class="avatar">👱‍♀️</div>
+        </div>
+        <span class="social-text"><strong>43 người</strong> đã đăng ký hôm nay</span>
+    </div>
+
+    <!-- PAIN POINTS -->
+    <section class="section fade-up-d2">
+        <h2 class="section-title red">❌ Da bạn đang gặp vấn đề?</h2>
+        <ul class="pain-list">
+            <li class="pain-item">
+                <span class="ic">😫</span>
+                <span>Bít tắc lỗ chân lông, nhiều <strong>mụn cám, mụn đầu đen</strong>?</span>
+            </li>
+            <li class="pain-item">
+                <span class="ic">😔</span>
+                <span>Da <strong>xỉn màu, thiếu sức sống</strong>, đổ dầu không kiểm soát?</span>
+            </li>
+            <li class="pain-item">
+                <span class="ic">🤦‍♀️</span>
+                <span>Dùng mỹ phẩm mãi <strong>không thấm</strong>? Bôi gì cũng không hiệu quả?</span>
+            </li>
+        </ul>
+    </section>
+
+    <!-- 14 STEPS -->
+    <section class="section fade-up-d3">
+        <h2 class="section-title green">✅ Quy trình 14 bước chuẩn Y Khoa</h2>
+
+        <!-- Phase 1: Chuẩn bị -->
+        <div class="phase">
+            <span class="phase-line"></span>
+            <span class="phase-label">Giai đoạn 1 — Chuẩn bị</span>
+            <span class="phase-line"></span>
+        </div>
+        <div class="steps-list">
+            <div class="step">
+                <div class="step-n">1</div>
+                <div class="step-txt"><span class="ic">👩‍⚕️</span> Thăm khám & tư vấn liệu trình phù hợp</div>
+            </div>
+            <div class="step">
+                <div class="step-n">2</div>
+                <div class="step-txt"><span class="ic">💄</span> Tẩy trang sạch sâu lớp bụi bẩn/makeup</div>
+            </div>
+            <div class="step">
+                <div class="step-n">3</div>
+                <div class="step-txt"><span class="ic">🧼</span> Rửa mặt dịu nhẹ, cân bằng da</div>
+            </div>
+            <div class="step">
+                <div class="step-n">4</div>
+                <div class="step-txt"><span class="ic">💨</span> Xông hơi làm mềm da, giãn nở lỗ chân lông</div>
+            </div>
+        </div>
+
+        <!-- Phase 2: Làm sạch -->
+        <div class="phase">
+            <span class="phase-line"></span>
+            <span class="phase-label">Giai đoạn 2 — Làm sạch sâu</span>
+            <span class="phase-line"></span>
+        </div>
+        <div class="steps-list">
+            <div class="step">
+                <div class="step-n">5</div>
+                <div class="step-txt"><span class="ic">🌿</span> Ủ dược mỹ phẩm – mềm cồi mụn & giảm dầu nhờn</div>
+            </div>
+            <div class="step">
+                <div class="step-n">6</div>
+                <div class="step-txt"><span class="ic">🧲</span> Hút sạch bã nhờn & mụn đầu đen</div>
+            </div>
+            <div class="step">
+                <div class="step-n">7</div>
+                <div class="step-txt"><span class="ic">🧴</span> Sát khuẩn bằng nước muối sinh lý NaCl 0.9%</div>
+            </div>
+            <div class="step">
+                <div class="step-n">8</div>
+                <div class="step-txt"><span class="ic">🩺</span> Lấy nhân mụn chuẩn y khoa, hạn chế sưng đau</div>
+            </div>
+        </div>
+
+        <!-- Phase 3: Phục hồi -->
+        <div class="phase">
+            <span class="phase-line"></span>
+            <span class="phase-label">Giai đoạn 3 — Phục hồi & dưỡng</span>
+            <span class="phase-line"></span>
+        </div>
+        <div class="steps-list">
+            <div class="step">
+                <div class="step-n">9</div>
+                <div class="step-txt"><span class="ic">⚡</span> Tia điện tím – se cồi mụn, kháng viêm & diệt khuẩn</div>
+            </div>
+            <div class="step">
+                <div class="step-n">10</div>
+                <div class="step-txt"><span class="ic">🧴</span> Sát khuẩn lần 2 bằng NaCl 0.9%</div>
+            </div>
+            <div class="step">
+                <div class="step-n">11</div>
+                <div class="step-txt"><span class="ic">💧</span> Phun oxy tươi – dưỡng chất tức thì cho da</div>
+            </div>
+            <div class="step">
+                <div class="step-n">12</div>
+                <div class="step-txt"><span class="ic">😌</span> Đắp mặt nạ kháng viêm – làm dịu & mát da</div>
+            </div>
+            <div class="step">
+                <div class="step-n">13</div>
+                <div class="step-txt"><span class="ic">🌈</span> Chiếu Biolight phục hồi da</div>
+            </div>
+            <div class="step">
+                <div class="step-n">14</div>
+                <div class="step-txt"><span class="ic">✨</span> Điện di Antibiotic & Vitamin B5 phục hồi</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- URGENCY -->
+    <section class="section fade-up-d4">
+        <div class="urgency-card">
+            <span class="urgency-icon">⚡</span>
+            <div class="urgency-title">Chỉ còn rất ít slot!</div>
+            <div class="urgency-text">Ưu đãi <strong>299K/6 buổi</strong> cho <strong>50 khách đầu tiên</strong>. Sau đó
+                quay về giá gốc 1.800.000đ.</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width:94%">94% đã đăng ký</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOOKING FORM -->
+    <section class="form-section fade-up-d4" id="formSection">
+        <div class="form-card">
+            <div class="form-title">🎁 ĐĂNG KÝ NHẬN ƯU ĐÃI 299K</div>
+            <div class="form-sub">Điền thông tin — Nhân viên gọi xác nhận trong 5 phút</div>
+
+            <form id="bookingForm" novalidate>
+                <input type="hidden" name="service" value="Thanh lọc da 14 bước">
+                <input type="hidden" name="notes" value="COMBO 6 buổi 299K">
+
+                <div class="field">
+                    <label for="fullName">Họ và tên *</label>
+                    <input type="text" id="fullName" name="full_name" placeholder="VD: Nguyễn Thị Hoa" required>
+                </div>
+
+                <div class="field">
+                    <label for="phone">Số điện thoại *</label>
+                    <input type="tel" id="phone" name="phone" placeholder="VD: 0901 234 567" required>
+                </div>
+
+                <div class="field">
+                    <label for="appointmentDate">Chọn ngày giờ hẹn *</label>
+                    <input type="datetime-local" id="appointmentDate" name="appointment_date" required>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="spinner"></span>
+                    🔥 ĐĂNG KÝ NGAY — 299K / 6 BUỔI
+                </button>
+
+                <div class="form-trust">🔒 Thông tin được bảo mật 100%</div>
+            </form>
+        </div>
+    </section>
+
+    <!-- TRUST BADGES -->
+    <div class="trust-row fade-up-d4">
+        <div class="trust-item"><span class="ti">🏥</span> Chuẩn Y Khoa</div>
+        <div class="trust-item"><span class="ti">👩‍⚕️</span> Bác sĩ da liễu</div>
+        <div class="trust-item"><span class="ti">💯</span> Cam kết hiệu quả</div>
+        <div class="trust-item"><span class="ti">🛡️</span> An toàn</div>
+    </div>
+
+    <!-- LOCATION & FOOTER -->
+    <section class="section" style="padding-bottom: 8px;">
+        <div
+            style="background: var(--white); border: 1.5px solid rgba(232,67,147,0.1); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <div style="padding: 14px 16px;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 4px;">📍 Viện Thẩm
+                    Mỹ Quốc Tế Peony Beauty</div>
+                <div style="font-size: 0.78rem; color: var(--text2); line-height: 1.5;">102 Đ. Số 9, Phường 16, Gò Vấp,
+                    TP. Hồ Chí Minh</div>
+            </div>
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15674.227547897264!2d106.64740421231612!3d10.845182853456793!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175298a7219d4e3%3A0xe503f9e156511f89!2zVmnhu4duIFRo4bqpbSBN4bu5IFF14buRYyBU4bq_IFBlb255IEJlYXV0eSAtIENoaSBOaMOhbmggR8OyIFbhuqVw!5e0!3m2!1svi!2s!4v1772180150975!5m2!1svi!2s"
+                width="100%" height="200" style="border:0; display:block;" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 Peony Beauty · Mọi quyền được bảo lưu</p>
+    </footer>
+
+    <!-- FIXED CTA -->
+    <div class="fixed-cta">
+        <div class="cta-left">
+            <div class="cta-price">299K <span class="old">1.800K</span></div>
+            <div class="cta-slots">Combo 6 buổi · Còn <span id="slots2">47</span> slot</div>
+        </div>
+        <button class="cta-btn"
+            onclick="document.getElementById('formSection').scrollIntoView({behavior:'smooth',block:'center'})">
+            ĐẶT LỊCH NGAY →
+        </button>
+    </div>
+
+    <!-- SUCCESS OVERLAY -->
+    <div class="overlay" id="successOverlay">
+        <div class="success-card">
+            <span class="sc-icon">🎉</span>
+            <h2>Đăng Ký Thành Công!</h2>
+            <p class="sc-msg">Chúc mừng bạn đã giữ slot <strong>COMBO 299K</strong>! Nhân viên sẽ gọi xác nhận trong 5
+                phút.</p>
+            <div class="success-details" id="successDetails"></div>
+            <button class="sc-btn" onclick="location.reload()">Đăng Ký Cho Bạn Bè</button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-c" id="toastC"></div>
+
+    <script>
+        // Min date
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('appointmentDate').min = now.toISOString().slice(0, 16);
+
+        // Slots
+        let slots = 47;
+        const updateSlots = () => {
+            document.getElementById('slots1').textContent = slots;
+            document.getElementById('slots2').textContent = slots;
+            const pct = ((50 - slots) / 50 * 100);
+            const fill = document.getElementById('progressFill');
+            fill.style.width = pct + '%';
+            fill.textContent = Math.round(pct) + '% đã đăng ký';
+        };
+        updateSlots();
+
+        // Form
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+
+            // Generate event_id for FB dedup
+            const eventId = 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+
+            // Add FB tracking data
+            data.event_id = eventId;
+            data.source_url = window.location.href;
+            const cookies = document.cookie.split(';').reduce((a, c) => { const [k, v] = c.trim().split('='); a[k] = v; return a; }, {});
+            if (cookies._fbc) data.fbc = cookies._fbc;
+            if (cookies._fbp) data.fbp = cookies._fbp;
+
+            try {
+                const res = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.error || 'Có lỗi xảy ra');
+
+                // Fire FB Pixel CompleteRegistration (client-side dedup with server)
+                if (typeof fbq !== 'undefined') {
+                    fbq('track', 'CompleteRegistration', {
+                        content_name: data.service,
+                        content_category: 'Beauty Service',
+                        value: 299000,
+                        currency: 'VND'
+                    }, { eventID: eventId });
+                }
+
+                if (slots > 3) { slots--; updateSlots(); }
+
+                const d = new Date(data.appointment_date);
+                document.getElementById('successDetails').innerHTML = `
+          <div class="sd-row"><span class="l">Họ tên</span><span class="v">${data.full_name}</span></div>
+          <div class="sd-row"><span class="l">Combo</span><span class="v" style="color:#E84393">6 buổi — 299K</span></div>
+          <div class="sd-row"><span class="l">Buổi đầu</span><span class="v">${d.toLocaleDateString('vi-VN')}</span></div>
+          <div class="sd-row"><span class="l">Giờ hẹn</span><span class="v">${d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>
+        `;
+                document.getElementById('successOverlay').classList.add('active');
+            } catch (err) {
+                const t = document.createElement('div');
+                t.className = 'toast';
+                t.textContent = err.message;
+                document.getElementById('toastC').appendChild(t);
+                setTimeout(() => t.remove(), 4000);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+
+        // Intersection Observer for fade-in
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.style.opacity = '1';
+                    e.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.step').forEach((el, i) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(10px)';
+            el.style.transition = `all 0.4s ease ${i * 0.04}s`;
+            observer.observe(el);
+        });
+    </script>
+    <script>if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js") }</script>
+</body>
+
+</html>

@@ -1,0 +1,350 @@
+/* ==================== LANDING PAGE - BRIGHT THEME ==================== */
+
+.landing-page {
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    background: var(--bg-page);
+}
+
+/* Background Decorations */
+.landing-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.landing-bg::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -15%;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232, 67, 147, 0.08) 0%, transparent 70%);
+    animation: float 18s ease-in-out infinite;
+}
+
+.landing-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(253, 203, 110, 0.08) 0%, transparent 70%);
+    animation: float 14s ease-in-out infinite reverse;
+}
+
+/* Header */
+.landing-header {
+    padding: 20px 24px;
+    text-align: center;
+}
+
+.landing-logo {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.landing-logo span {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Hero Section */
+.landing-hero {
+    text-align: center;
+    padding: 32px 24px 24px;
+    animation: fadeInUp 0.8s ease;
+}
+
+.hero-icon {
+    font-size: 3.5rem;
+    margin-bottom: 14px;
+    display: block;
+    animation: float 4s ease-in-out infinite;
+}
+
+.hero-title {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    max-width: 440px;
+    margin: 0 auto 20px;
+    line-height: 1.7;
+}
+
+/* Features */
+.landing-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 0 24px 24px;
+    max-width: 520px;
+    margin: 0 auto;
+    animation: fadeInUp 0.8s ease 0.2s backwards;
+}
+
+.feature-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px 10px;
+    text-align: center;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+}
+
+.feature-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.feature-text {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Booking Form */
+.landing-form-section {
+    padding: 0 24px 48px;
+    max-width: 520px;
+    margin: 0 auto;
+    animation: fadeInUp 0.8s ease 0.4s backwards;
+}
+
+.form-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-gradient);
+}
+
+.form-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.form-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 22px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--accent-gradient);
+    background-size: 200% 200%;
+    border: none;
+    border-radius: var(--radius-full);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-accent);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(232, 67, 147, 0.35);
+    animation: gradientShift 3s ease infinite;
+}
+
+.submit-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.submit-btn .spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 8px;
+}
+
+.submit-btn.loading .spinner {
+    display: inline-block;
+}
+
+.submit-btn.loading .btn-text {
+    opacity: 0.8;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success State */
+.success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 245, 247, 0.92);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.success-overlay.active {
+    display: flex;
+}
+
+.success-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-accent);
+    border-radius: var(--radius-xl);
+    padding: 44px 32px;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 24px;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: var(--shadow-lg);
+}
+
+.success-icon {
+    font-size: 3.5rem;
+    margin-bottom: 14px;
+    display: block;
+}
+
+.success-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.success-message {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.success-details {
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 24px;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
+
+.success-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 0.85rem;
+}
+
+.success-detail-row .label {
+    color: var(--text-muted);
+}
+
+.success-detail-row .value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Footer */
+.landing-footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.landing-footer a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.6rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.88rem;
+    }
+
+    .landing-features {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .feature-card {
+        padding: 12px 8px;
+    }
+
+    .form-card {
+        padding: 24px 18px;
+    }
+
+    .success-card {
+        padding: 32px 24px;
+    }
+}
