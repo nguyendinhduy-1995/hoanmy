@@ -1,4 +1,4 @@
-const CACHE_NAME = 'peony-crm-v2';
+const CACHE_NAME = 'hoanmy-crm-v2';
 const STATIC_ASSETS = [
     '/',
     '/css/style.css',

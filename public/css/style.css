@@ -1,9 +1,9 @@
-/* ==================== PEONY BEAUTY - BRIGHT THEME ==================== */
+/* ==================== HOÀN MỸ - BRIGHT THEME ==================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Colors - Light Peony Theme */
+  /* Colors - Light Hoàn Mỹ Theme */
   --bg-primary: #FFF5F7;
   --bg-secondary: #FFFFFF;
   --bg-card: #FFFFFF;
@@ -12,7 +12,7 @@
   --bg-input: #FFF8FA;
   --bg-page: linear-gradient(135deg, #FFF5F7 0%, #FFE8EF 30%, #FFF0F5 60%, #F8F0FF 100%);
 
-  /* Accent - Peony Pink */
+  /* Accent - Hoàn Mỹ Pink */
   --accent-primary: #E84393;
   --accent-secondary: #FD79A8;
   --accent-light: #FFB8D0;

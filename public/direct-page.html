@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hỗ Trợ Trực Page - Peony Beauty CRM</title>
+    <title>Hỗ Trợ Trực Page - Hoàn Mỹ CRM</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -884,7 +884,7 @@
             // Messages HTML
             let msgsHTML = '';
             if (msgs.length > 0) {
-                const pageName = 'Viện Thẩm Mỹ Quốc Tế Peony Beauty';
+                const pageName = 'Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ';
                 msgsHTML = `<div class="msg-list">${msgs.map(m => {
                     const isPage = (m.from?.name || m.from || '').includes(pageName) || (m.from?.id === '720945527779334');
                     const sender = typeof m.from === 'string' ? m.from : (m.from?.name || 'Unknown');

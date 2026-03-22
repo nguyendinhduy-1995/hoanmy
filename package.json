@@ -1,7 +1,7 @@
 {
-  "name": "peonybeauty-crm",
+  "name": "hoanmy-crm",
   "version": "1.0.0",
-  "description": "CRM hệ thống quản lý khách hàng Peony Beauty",
+  "description": "CRM hệ thống quản lý khách hàng Hoàn Mỹ",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

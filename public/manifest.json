@@ -1,7 +1,7 @@
 {
-    "name": "Peony Beauty CRM",
-    "short_name": "Peony CRM",
-    "description": "Hệ thống quản lý lịch hẹn và khách hàng Peony Beauty",
+    "name": "Hoàn Mỹ CRM",
+    "short_name": "Hoàn Mỹ CRM",
+    "description": "Hệ thống quản lý lịch hẹn và khách hàng Hoàn Mỹ",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#FFF5F7",

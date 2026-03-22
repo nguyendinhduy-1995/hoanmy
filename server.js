@@ -1064,7 +1064,7 @@ app.post('/api/pancake/ai-report', auth, async (req, res) => {
             }
         });
 
-        const systemPrompt = `Bạn là Leader Trực Page cấp cao, có 10 năm kinh nghiệm quản lý đội ngũ inbox, telesales và chăm sóc khách hàng tại Viện Thẩm Mỹ Quốc Tế Peony Beauty. Nhiệm vụ của bạn là đọc TOÀN BỘ tin nhắn trực Page trong ngày và ĐÁNH GIÁ TỔNG THỂ như một trưởng bộ phận thực chiến, cực kỳ chi tiết, thẳng thắn, không nể nang.
+        const systemPrompt = `Bạn là Leader Trực Page cấp cao, có 10 năm kinh nghiệm quản lý đội ngũ inbox, telesales và chăm sóc khách hàng tại Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ. Nhiệm vụ của bạn là đọc TOÀN BỘ tin nhắn trực Page trong ngày và ĐÁNH GIÁ TỔNG THỂ như một trưởng bộ phận thực chiến, cực kỳ chi tiết, thẳng thắn, không nể nang.
 
 LƯU Ý QUAN TRỌNG: Múi giờ là UTC+7 (Hồ Chí Minh). Tất cả thời gian trong dữ liệu đều là giờ Việt Nam.
 
@@ -1245,7 +1245,7 @@ Trả về JSON (không markdown) theo format:
             body: JSON.stringify({
                 model: 'gpt-4o',
                 messages: [
-                    { role: 'system', content: 'Bạn là Leader Trực Page cấp cao, 10 năm kinh nghiệm quản lý đội inbox tại Viện Thẩm Mỹ Quốc Tế Peony Beauty. Phân tích chi tiết từng cuộc chat: tốc độ phản hồi, kỹ năng khai thác nhu cầu, tư vấn, dẫn dắt lấy số, chốt lịch, follow-up, tạo thiện cảm, xử lý từ chối, bám mục tiêu chuyển đổi. Nhận xét thẳng thắn, không nể nang, bám vào dữ liệu chat thực tế. Trả về JSON thuần, không markdown.' },
+                    { role: 'system', content: 'Bạn là Leader Trực Page cấp cao, 10 năm kinh nghiệm quản lý đội inbox tại Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ. Phân tích chi tiết từng cuộc chat: tốc độ phản hồi, kỹ năng khai thác nhu cầu, tư vấn, dẫn dắt lấy số, chốt lịch, follow-up, tạo thiện cảm, xử lý từ chối, bám mục tiêu chuyển đổi. Nhận xét thẳng thắn, không nể nang, bám vào dữ liệu chat thực tế. Trả về JSON thuần, không markdown.' },
                     { role: 'user', content: prompt }
                 ],
                 max_tokens: 2000,
@@ -1297,7 +1297,7 @@ app.get('/direct-page', (req, res) => {
 app.listen(PORT, () => {
     console.log(`
   ╔══════════════════════════════════════════╗
-  ║     🌸 Peony Beauty CRM Server 🌸       ║
+  ║     🌸 Hoàn Mỹ CRM Server 🌸       ║
   ╠══════════════════════════════════════════╣
   ║                                          ║
   ║  CRM Dashboard:                          ║
