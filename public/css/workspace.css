@@ -388,6 +388,8 @@ body {
     font-weight: 800;
     color: var(--text);
     line-height: 1.2;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .ws-kpi-change {
