@@ -1150,18 +1150,13 @@ app.get('/direct-page', (req, res) => res.redirect('/page'));
 app.listen(PORT, () => {
     console.log(`
   ══════════════════════════════════════════
-       Hoàn Mỹ CRM Server
+       Hoàn Mỹ CRM Server — PORT ${PORT}
   ══════════════════════════════════════════
 
-  CRM Dashboard:
   → http://localhost:${PORT}/login
   → http://localhost:${PORT}/admin
   → http://localhost:${PORT}/staff
   → http://localhost:${PORT}/page
-
-  Admin: admin / admin123
-  Page Operator: truc_page / 123456
-  Telesales: telesale_cn1~cn5 / 123456
 
   ══════════════════════════════════════════
   `);

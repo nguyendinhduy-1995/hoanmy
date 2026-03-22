@@ -383,48 +383,47 @@ function verifyPassword(password, hash, salt) {
 
 // ==================== SEED USERS ====================
 
-// 3 Admin accounts
+// Admin accounts
 const adminAccounts = [
-  { username: 'admin', display: 'Admin 1', password: 'admin123' },
-  { username: 'admin2', display: 'Admin 2', password: 'admin123' },
-  { username: 'admin3', display: 'Admin 3', password: 'admin123' },
+  { username: 'admin', display: 'Admin', password: 'Admin@123' },
+  { username: 'hoanmy', display: 'Hoàn Mỹ', password: 'hoanmy@123' },
 ];
 adminAccounts.forEach(acc => {
   const exists = db.prepare('SELECT id FROM users WHERE username = ?').get(acc.username);
   if (!exists) {
     const { hash, salt } = hashPassword(acc.password);
     db.prepare('INSERT INTO users (username, password_hash, salt, display_name, role) VALUES (?, ?, ?, ?, ?)').run(acc.username, hash, salt, acc.display, 'admin');
-    console.log(`  ✅ Created admin: ${acc.username} / ${acc.password}`);
+    console.log(`  ✅ Created admin: ${acc.username}`);
   }
 });
 
-// 1 Page Operator
-const pageExists = db.prepare("SELECT id FROM users WHERE username = 'truc_page'").get();
+// Page Operator
+const pageExists = db.prepare("SELECT id FROM users WHERE username = 'trucpage'").get();
 if (!pageExists) {
-  const { hash, salt } = hashPassword('123456');
-  db.prepare('INSERT INTO users (username, password_hash, salt, display_name, role) VALUES (?, ?, ?, ?, ?)').run('truc_page', hash, salt, 'Trực Page', 'truc_page');
-  console.log('  ✅ Created page operator: truc_page / 123456');
+  const { hash, salt } = hashPassword('trucpage@123');
+  db.prepare('INSERT INTO users (username, password_hash, salt, display_name, role) VALUES (?, ?, ?, ?, ?)').run('trucpage', hash, salt, 'Trực Page', 'truc_page');
+  console.log('  ✅ Created page operator: trucpage');
 }
 
 // 5 Telesales (one per branch)
 const branches = db.prepare('SELECT id, name FROM branches ORDER BY id').all();
 const telesaleAccounts = [
-  { username: 'telesale_cn1' },
-  { username: 'telesale_cn2' },
-  { username: 'telesale_cn3' },
-  { username: 'telesale_cn4' },
-  { username: 'telesale_cn5' },
+  { username: 'thuduc', password: 'thuduc@123' },
+  { username: 'lagi', password: 'lagi@123' },
+  { username: 'camranh', password: 'camranh@123' },
+  { username: 'phanrang', password: 'phanrang@123' },
+  { username: 'baoloc', password: 'baoloc@123' },
 ];
 telesaleAccounts.forEach((acc, i) => {
   const exists = db.prepare('SELECT id FROM users WHERE username = ?').get(acc.username);
   if (!exists && branches[i]) {
     const branchShort = branches[i].name.replace('Viện Thẩm Mỹ Hoàn Mỹ - ', '');
     const displayName = `Telesales ${branchShort}`;
-    const { hash, salt } = hashPassword('123456');
+    const { hash, salt } = hashPassword(acc.password);
     db.prepare('INSERT INTO users (username, password_hash, salt, display_name, role, branch_id) VALUES (?, ?, ?, ?, ?, ?)').run(
       acc.username, hash, salt, displayName, 'telesale', branches[i].id
     );
-    console.log(`  ✅ Created telesales: ${acc.username} / 123456 → ${branches[i].name}`);
+    console.log(`  ✅ Created telesales: ${acc.username} → ${branches[i].name}`);
   }
 });
 
