@@ -23,15 +23,15 @@
         <!-- Navigation -->
         <nav class="dashboard-nav">
             <div class="nav-brand">
-                <span class="nav-logo">👑 HOÀN MỸ</span>
+                <span class="nav-logo">HOÀN MỸ</span>
                 <div class="nav-divider"></div>
                 <span class="nav-title">Quản lý lịch hẹn</span>
             </div>
             <div class="nav-actions">
                 <span class="nav-time" id="navTime"></span>
-                <a href="/admin" class="btn btn-ghost btn-sm" id="adminLink" style="display:none">⚙️ Admin</a>
-                <button class="btn btn-primary btn-sm" onclick="loadBookings()">↻</button>
-                <button class="btn btn-ghost btn-sm" onclick="logout()">🚪</button>
+                <a href="/admin" class="btn btn-ghost btn-sm" id="adminLink" style="display:none">Admin</a>
+                <button class="btn btn-ghost btn-sm" onclick="loadBookings()">↻</button>
+                <button class="btn btn-ghost btn-sm" onclick="logout()">Đăng xuất</button>
             </div>
             <script>
                 // Show admin link for all authenticated users
@@ -43,42 +43,42 @@
         <!-- Stats -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
-                <div class="stat-icon total">📊</div>
+                <div class="stat-icon total">Σ</div>
                 <div class="stat-info">
                     <div class="stat-label">Tổng booking</div>
                     <div class="stat-value total-val" id="statTotal">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon today">📅</div>
+                <div class="stat-icon today">T</div>
                 <div class="stat-info">
                     <div class="stat-label">Hẹn hôm nay</div>
                     <div class="stat-value today-val" id="statToday">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon arrived">✅</div>
+                <div class="stat-icon arrived">✓</div>
                 <div class="stat-info">
                     <div class="stat-label">Đã đến</div>
                     <div class="stat-value arrived-val" id="statArrived">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon pending">⏳</div>
+                <div class="stat-icon pending">●</div>
                 <div class="stat-info">
                     <div class="stat-label">Chờ xử lý</div>
                     <div class="stat-value pending-val" id="statPending">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon no-show">❌</div>
+                <div class="stat-icon no-show">✕</div>
                 <div class="stat-info">
                     <div class="stat-label">Không đến</div>
                     <div class="stat-value no-show-val" id="statNoShow">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon uncalled">📞</div>
+                <div class="stat-icon uncalled">☎</div>
                 <div class="stat-info">
                     <div class="stat-label">Chưa gọi</div>
                     <div class="stat-value uncalled-val" id="statUncalled">0</div>
@@ -89,7 +89,7 @@
         <!-- Landing Links (hidden) -->
         <div class="landing-links-section" style="display:none">
             <div class="links-card">
-                <div class="links-title">🔗 Link Landing Pages</div>
+                <div class="links-title">Landing Pages</div>
                 <div class="links-grid" id="landingLinks"></div>
             </div>
         </div>
@@ -98,7 +98,7 @@
         <div class="dashboard-toolbar">
             <div class="toolbar-card">
                 <div class="search-box">
-                    <span class="search-icon">🔍</span>
+                    <span class="search-icon">⌕</span>
                     <input type="text" id="searchInput" placeholder="Tìm tên hoặc SĐT..." oninput="debounceSearch()">
                 </div>
                 <select class="filter-select" id="filterService" onchange="loadBookings()">
@@ -106,9 +106,9 @@
                 </select>
                 <select class="filter-select" id="filterStatus" onchange="loadBookings()">
                     <option value="">Tất cả trạng thái</option>
-                    <option value="pending">⏳ Chờ xử lý</option>
-                    <option value="arrived">✅ Đã đến</option>
-                    <option value="no_show">❌ Không đến</option>
+                    <option value="pending">Chờ xử lý</option>
+                    <option value="arrived">Đã đến</option>
+                    <option value="no_show">Không đến</option>
                 </select>
                 <input type="date" class="filter-date" id="filterDate" onchange="loadBookings()">
                 <button class="btn btn-ghost btn-sm" onclick="clearFilters()">Xóa lọc</button>
@@ -139,7 +139,7 @@
                             <tr>
                                 <td colspan="8">
                                     <div class="empty-state">
-                                        <span class="empty-icon">📋</span>
+                                        <span class="empty-icon">—</span>
                                         <div class="empty-title">Đang tải dữ liệu...</div>
                                     </div>
                                 </td>
@@ -153,7 +153,7 @@
         </div>
         <div class="modal-overlay" id="deleteModal">
             <div class="modal-card">
-                <h3 class="modal-title">⚠️ Xác nhận xóa</h3>
+                <h3 class="modal-title">Xác nhận xóa</h3>
                 <p style="color: var(--text-secondary); font-size: 0.9rem;">Bạn có chắc muốn xóa booking này? Hành động
                     không thể hoàn tác.</p>
                 <div class="modal-actions">
@@ -169,13 +169,13 @@
 
     <!-- FAB: Add Customer -->
     <button class="fab-add-customer" id="fabAddCustomer" onclick="openAddCustomerModal()" title="Nhập khách hàng">
-        ➕
+        +
     </button>
 
     <!-- Manual Customer Modal -->
     <div class="modal-overlay" id="addCustomerModal">
         <div class="modal-card modal-card-lg">
-            <h3 class="modal-title">➕ Nhập khách hàng thủ công</h3>
+            <h3 class="modal-title">Nhập khách hàng</h3>
             <div class="modal-form">
                 <div class="form-group">
                     <label>Họ và tên *</label>
@@ -200,7 +200,7 @@
             </div>
             <div class="modal-actions">
                 <button class="btn btn-ghost" onclick="closeAddCustomerModal()">Hủy</button>
-                <button class="btn btn-primary" onclick="saveManualCustomer()">💾 Lưu</button>
+                <button class="btn btn-primary" onclick="saveManualCustomer()">Lưu</button>
             </div>
         </div>
     </div>
@@ -208,7 +208,7 @@
     <!-- Call Log Modal -->
     <div class="modal-overlay" id="callLogModal">
         <div class="modal-card">
-            <h3 class="modal-title">📞 Ghi nhận cuộc gọi</h3>
+            <h3 class="modal-title">Ghi nhận cuộc gọi</h3>
             <input type="hidden" id="callBookingId">
             <div class="call-booking-info" id="callBookingInfo"></div>
             <div class="modal-form">
@@ -219,7 +219,7 @@
             </div>
             <div class="modal-actions">
                 <button class="btn btn-ghost" onclick="closeCallLogModal()">Hủy</button>
-                <button class="btn btn-primary" onclick="saveCallLog()">📞 Ghi cuộc gọi</button>
+                <button class="btn btn-primary" onclick="saveCallLog()">Ghi cuộc gọi</button>
             </div>
         </div>
     </div>
@@ -227,7 +227,7 @@
     <!-- Call History Modal -->
     <div class="modal-overlay" id="callHistoryModal">
         <div class="modal-card modal-card-lg">
-            <h3 class="modal-title">📋 Lịch sử cuộc gọi</h3>
+            <h3 class="modal-title">Lịch sử cuộc gọi</h3>
             <div id="callHistoryContent"></div>
             <div class="modal-actions" style="justify-content: center;">
                 <button class="btn btn-ghost" onclick="closeCallHistoryModal()">Đóng</button>

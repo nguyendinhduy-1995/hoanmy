@@ -121,7 +121,7 @@ function renderBookingCards(bookings) {
     const tbody = document.getElementById('bookingsTableBody');
 
     if (!bookings.length) {
-        const emptyHTML = `<div class="empty-state"><span class="empty-icon">📋</span><div class="empty-title">Không có dữ liệu</div><div class="empty-text">Thử thay đổi bộ lọc</div></div>`;
+        const emptyHTML = `<div class="empty-state"><span class="empty-icon"></span><div class="empty-title">Không có dữ liệu</div><div class="empty-text">Thử thay đổi bộ lọc</div></div>`;
         if (container) container.innerHTML = emptyHTML;
         if (tbody) tbody.innerHTML = `<tr><td colspan="8">${emptyHTML}</td></tr>`;
         return;
@@ -129,8 +129,8 @@ function renderBookingCards(bookings) {
 
     const statusMap = {
         pending: { label: '⏳ Chờ xử lý', cls: 'pending' },
-        arrived: { label: '✅ Đã đến', cls: 'arrived' },
-        no_show: { label: '❌ Không đến', cls: 'no-show' }
+        arrived: { label: 'Đã đến', cls: 'arrived' },
+        no_show: { label: 'Không đến', cls: 'no-show' }
     };
 
     // Render main card list
@@ -156,10 +156,10 @@ function renderBookingCards(bookings) {
                         <span class="bk-status-badge ${st.cls}">${st.label}</span>
                     </div>
                     <div class="bk-quick-info">
-                        <span class="bk-phone-tag"><a href="tel:${b.phone}" onclick="event.stopPropagation()">📱 ${b.phone}</a></span>
-                        <span class="bk-service-tag">💆 ${b.service || 'Chưa xác định'}</span>
-                        ${hasAppt ? `<span class="bk-appt-tag">📅 ${dateStr} · ${timeStr}</span>` : '<span class="bk-appt-tag empty">📅 Chưa có lịch</span>'}
-                        <span class="bk-call-tag ${callCount === 0 ? 'uncalled' : ''}">📞 ${callCount === 0 ? 'Chưa gọi' : callCount + ' lần'}</span>
+                        <span class="bk-phone-tag"><a href="tel:${b.phone}" onclick="event.stopPropagation()">${b.phone}</a></span>
+                        <span class="bk-service-tag">${b.service || 'Chưa xác định'}</span>
+                        ${hasAppt ? `<span class="bk-appt-tag">${dateStr} · ${timeStr}</span>` : '<span class="bk-appt-tag empty">Chưa có lịch</span>'}
+                        <span class="bk-call-tag ${callCount === 0 ? 'uncalled' : ''}">${callCount === 0 ? 'Chưa gọi' : callCount + ' lần'}</span>
                     </div>
                 </div>
                 <div class="bk-detail-panel" id="detail-${b.id}">
@@ -186,16 +186,16 @@ function renderBookingCards(bookings) {
             const createdStr = new Date(b.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
             const callCount = b.call_count || 0;
             const callBadge = callCount > 0
-                ? `<span class="call-badge" onclick="event.stopPropagation();viewCallHistory(${b.id})" title="Xem lịch sử gọi">📞 ${callCount} lần</span>`
+                ? `<span class="call-badge" onclick="event.stopPropagation();viewCallHistory(${b.id})" title="Xem lịch sử gọi">${callCount} lần</span>`
                 : `<span class="call-badge uncalled">Chưa gọi</span>`;
 
             let actions = '';
             actions += `<button class="btn btn-call-log btn-sm" onclick="event.stopPropagation();openCallLogModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}',${callCount})" title="Ghi cuộc gọi">📞</button>`;
-            if (callCount > 0) actions += `<button class="btn btn-call-history btn-sm" onclick="event.stopPropagation();viewCallHistory(${b.id})" title="Lịch sử gọi">📋</button>`;
-            if (b.status !== 'arrived') actions += `<button class="btn btn-success btn-sm" onclick="event.stopPropagation();updateStatus(${b.id},'arrived')">✅</button>`;
-            if (b.status !== 'no_show') actions += `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();updateStatus(${b.id},'no_show')">❌</button>`;
+            if (callCount > 0) actions += `<button class="btn btn-call-history btn-sm" onclick="event.stopPropagation();viewCallHistory(${b.id})" title="Lịch sử gọi"></button>`;
+            if (b.status !== 'arrived') actions += `<button class="btn btn-success btn-sm" onclick="event.stopPropagation();updateStatus(${b.id},'arrived')">Đã đến</button>`;
+            if (b.status !== 'no_show') actions += `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();updateStatus(${b.id},'no_show')">Không đến</button>`;
             if (b.status !== 'pending') actions += `<button class="btn btn-warning btn-sm" onclick="event.stopPropagation();updateStatus(${b.id},'pending')">↩</button>`;
-            if (canDelete) actions += `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDeleteConfirm(${b.id})">🗑</button>`;
+            if (canDelete) actions += `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDeleteConfirm(${b.id})"></button>`;
 
             return `<tr class="clickable-row ${callCount === 0 && b.status === 'pending' ? 'urgent-row' : ''}" onclick="toggleBookingDetail(${b.id}, event)">
                 <td>${b.id}</td>
@@ -274,7 +274,7 @@ async function loadBookingDetail(bookingId) {
     if (!targetEl) return;
 
     // Show loading
-    targetEl.innerHTML = '<div class="detail-loading">🌸 Đang tải chi tiết...</div>';
+    targetEl.innerHTML = '<div class="detail-loading">Đang tải chi tiết...</div>';
 
     const b = allBookings.find(x => x.id === bookingId);
     if (!b) return;
@@ -297,7 +297,7 @@ async function loadBookingDetail(bookingId) {
     // Call history HTML
     let callHistoryHTML = '';
     if (calls.length === 0) {
-        callHistoryHTML = '<div class="no-calls">📞 Chưa có cuộc gọi nào — hãy gọi ngay!</div>';
+        callHistoryHTML = '<div class="no-calls">Chưa có cuộc gọi nào — hãy gọi ngay!</div>';
     } else {
         callHistoryHTML = '<div class="call-timeline-inline">' + calls.map(c => {
             const d = new Date(c.call_time);
@@ -320,16 +320,16 @@ async function loadBookingDetail(bookingId) {
     statusActions += `<button class="action-btn log-call" onclick="event.stopPropagation();openCallLogModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}',${b.call_count || 0})">
         <span class="action-icon">📝</span> Ghi cuộc gọi
     </button>`;
-    if (b.status !== 'arrived') statusActions += `<button class="action-btn arrived" onclick="event.stopPropagation();updateStatus(${b.id},'arrived')"><span class="action-icon">✅</span> Đã đến</button>`;
-    if (b.status !== 'no_show') statusActions += `<button class="action-btn no-show" onclick="event.stopPropagation();updateStatus(${b.id},'no_show')"><span class="action-icon">❌</span> Không đến</button>`;
+    if (b.status !== 'arrived') statusActions += `<button class="action-btn arrived" onclick="event.stopPropagation();updateStatus(${b.id},'arrived')"><span class="action-icon">Đã đến</span> Đã đến</button>`;
+    if (b.status !== 'no_show') statusActions += `<button class="action-btn no-show" onclick="event.stopPropagation();updateStatus(${b.id},'no_show')"><span class="action-icon">Không đến</span> Không đến</button>`;
     if (b.status !== 'pending') statusActions += `<button class="action-btn pending" onclick="event.stopPropagation();updateStatus(${b.id},'pending')"><span class="action-icon">↩️</span> Chờ xử lý</button>`;
-    if (canDelete) statusActions += `<button class="action-btn delete" onclick="event.stopPropagation();openDeleteConfirm(${b.id})"><span class="action-icon">🗑️</span> Xóa</button>`;
+    if (canDelete) statusActions += `<button class="action-btn delete" onclick="event.stopPropagation();openDeleteConfirm(${b.id})"><span class="action-icon"></span> Xóa</button>`;
     statusActions += '</div>';
 
     targetEl.innerHTML = `
         <div class="detail-content">
             <div class="detail-section customer-info">
-                <div class="detail-section-title">👤 Thông tin khách hàng</div>
+                <div class="detail-section-title">Thông tin khách hàng</div>
                 <div class="detail-grid-info">
                     <div class="info-item">
                         <span class="info-label">Họ tên</span>
@@ -345,7 +345,7 @@ async function loadBookingDetail(bookingId) {
                     </div>
                     <div class="info-item">
                         <span class="info-label">Nguồn</span>
-                        <span class="info-value">${b.source === 'manual' ? '✍️ Nhập tay' : '🌐 Landing Page'}</span>
+                        <span class="info-value">${b.source === 'manual' ? 'Nhập tay' : 'Landing Page'}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Ngày đặt</span>
@@ -356,16 +356,16 @@ async function loadBookingDetail(bookingId) {
                         <span class="info-value">${b.zalo_name || '—'}</span>
                     </div>
                 </div>
-                ${b.notes ? `<div class="detail-notes">📝 <strong>Ghi chú:</strong> ${b.notes}</div>` : ''}
+                ${b.notes ? `<div class="detail-notes"><strong>Ghi chú:</strong> ${b.notes}</div>` : ''}
             </div>
             <div class="detail-section appointment-info">
-                <div class="detail-section-title">📅 Lịch hẹn</div>
+                <div class="detail-section-title">Lịch hẹn</div>
                 ${hasAppt
                     ? `<div class="appt-display"><div class="appt-date">${dateStr}</div><div class="appt-time">${timeStr}</div></div>`
                     : '<div class="no-appt">Chưa có lịch hẹn — cần gọi xác nhận</div>'}
             </div>
             <div class="detail-section call-history-section">
-                <div class="detail-section-title">📞 Lịch sử cuộc gọi (${calls.length} cuộc)</div>
+                <div class="detail-section-title">Lịch sử cuộc gọi (${calls.length} cuộc)</div>
                 ${callHistoryHTML}
             </div>
             ${statusActions}
@@ -519,7 +519,7 @@ function openCallLogModal(bookingId, fullName, phone, callCount) {
     document.getElementById('callNotes').value = '';
     document.getElementById('callBookingInfo').innerHTML = `
         <div><strong>${fullName}</strong></div>
-        <div>📱 <a href="tel:${phone}">${phone}</a></div>
+        <div><a href="tel:${phone}">${phone}</a></div>
         <div>Đây sẽ là cuộc gọi lần <strong>${(callCount || 0) + 1}</strong></div>
     `;
     document.getElementById('callLogModal').classList.add('active');
@@ -595,7 +595,7 @@ async function viewCallHistory(bookingId) {
 
         content.innerHTML = html;
     } catch (e) {
-        content.innerHTML = '<div class="call-empty"><span class="call-empty-icon">❌</span>Lỗi tải dữ liệu</div>';
+        content.innerHTML = '<div class="call-empty"><span class="call-empty-icon">Không đến</span>Lỗi tải dữ liệu</div>';
     }
 }
 

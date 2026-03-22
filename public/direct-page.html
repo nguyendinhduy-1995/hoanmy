@@ -384,10 +384,10 @@
 
 <body>
     <nav class="nav">
-        <span class="nav-logo">💬 Hỗ Trợ Trực Page</span>
+        <span class="nav-logo"> Hỗ Trợ Trực Page</span>
         <div style="display:flex;gap:8px;align-items:center">
             <a href="/" class="nav-back">← CRM</a>
-            <a href="/admin" class="nav-back">⚙️ Admin</a>
+            <a href="/admin" class="nav-back">Admin</a>
         </div>
     </nav>
 
@@ -404,8 +404,8 @@
             </div>
             <select id="filterPhone" onchange="filterConvList()">
                 <option value="">Tất cả</option>
-                <option value="yes">✅ Có SĐT</option>
-                <option value="no">❌ Chưa SĐT</option>
+                <option value="yes"> Có SĐT</option>
+                <option value="no"> Chưa SĐT</option>
             </select>
             <button class="btn-refresh" onclick="loadConversations()">🔄</button>
         </div>
@@ -420,22 +420,22 @@
 
         <!-- Tabs -->
         <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('overview')" id="tabBtnOverview">📊 Báo cáo</button>
-            <button class="tab-btn" onclick="switchTab('ai')" id="tabBtnAi">📋 Đánh giá</button>
-            <button class="tab-btn" onclick="switchTab('conversations')" id="tabBtnConv">💬 Hội thoại</button>
+            <button class="tab-btn active" onclick="switchTab('overview')" id="tabBtnOverview"> Báo cáo</button>
+            <button class="tab-btn" onclick="switchTab('ai')" id="tabBtnAi"> Đánh giá</button>
+            <button class="tab-btn" onclick="switchTab('conversations')" id="tabBtnConv"> Hội thoại</button>
         </div>
 
         <!-- Tab: Overview Report -->
         <div class="tab-content active" id="tab-overview">
             <div id="overviewContent">
-                <div class="loading"><span class="spinner">👑</span><br>Đang tải...</div>
+                <div class="loading"><span class="spinner"></span><br>Đang tải...</div>
             </div>
         </div>
 
         <!-- Tab: Đánh giá & Góp ý -->
         <div class="tab-content" id="tab-ai">
             <button class="ai-report-btn" onclick="generateAIReport()" id="aiReportBtn">
-                📋 Đánh giá và góp ý chi tiết
+                 Đánh giá và góp ý chi tiết
             </button>
             <div id="aiReportStatus" style="display:none;text-align:center;padding:20px;color:var(--text2);font-size:.82rem"></div>
             <div id="aiReportResult"></div>
@@ -444,7 +444,7 @@
         <!-- Tab: Conversations -->
         <div class="tab-content" id="tab-conversations">
             <div class="conv-list" id="convList">
-                <div class="loading"><span class="spinner">👑</span><br>Đang tải hội thoại...</div>
+                <div class="loading"><span class="spinner"></span><br>Đang tải hội thoại...</div>
             </div>
         </div>
     </div>
@@ -533,8 +533,8 @@
         async function loadConversations() {
             const list = document.getElementById('convList');
             const overview = document.getElementById('overviewContent');
-            list.innerHTML = '<div class="loading"><span class="spinner">👑</span><br>Đang tải...</div>';
-            overview.innerHTML = '<div class="loading"><span class="spinner">👑</span><br>Đang tải...</div>';
+            list.innerHTML = '<div class="loading"><span class="spinner"></span><br>Đang tải...</div>';
+            overview.innerHTML = '<div class="loading"><span class="spinner"></span><br>Đang tải...</div>';
 
             try {
                 const range = getDateRange();
@@ -582,7 +582,7 @@
                 buildOverviewReport(range.label);
                 expandedMessages = {};
             } catch (e) {
-                list.innerHTML = '<div class="empty-state"><span class="ei">❌</span><p>Lỗi kết nối</p></div>';
+                list.innerHTML = '<div class="empty-state"><span class="ei"></span><p>Lỗi kết nối</p></div>';
                 overview.innerHTML = list.innerHTML;
                 console.error(e);
             }
@@ -631,7 +631,7 @@
             const el = document.getElementById('overviewContent');
 
             if (!convs.length) {
-                el.innerHTML = '<div class="empty-state"><span class="ei">📊</span><p>Chưa có dữ liệu</p></div>';
+                el.innerHTML = '<div class="empty-state"><span class="ei"></span><p>Chưa có dữ liệu</p></div>';
                 return;
             }
 
@@ -691,7 +691,7 @@
 
             el.innerHTML = `
                 <div class="card">
-                    <div class="section-title">👥 Hiệu suất nhân viên — ${label}</div>
+                    <div class="section-title"> Hiệu suất nhân viên — ${label}</div>
                     <div style="overflow-x:auto">
                         <table class="staff-table">
                             <tr><th>Nhân viên</th><th style="text-align:center">Hội thoại</th><th style="text-align:center">Có SĐT</th><th style="text-align:center">Tỉ lệ SĐT</th><th style="text-align:center">TB phản hồi</th></tr>
@@ -700,7 +700,7 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="section-title">📈 Phễu chuyển đổi</div>
+                    <div class="section-title"> Phễu chuyển đổi</div>
                     <div>${funnelHTML}</div>
                 </div>
                 <p style="text-align:center;font-size:.68rem;color:var(--text3);margin-top:8px">
@@ -724,9 +724,9 @@
             const result = document.getElementById('aiReportResult');
 
             btn.disabled = true;
-            btn.textContent = '⏳ Đang phân tích...';
+            btn.textContent = ' Đang phân tích...';
             status.style.display = 'block';
-            status.innerHTML = `<div class="loading"><span class="spinner">👑</span><br>
+            status.innerHTML = `<div class="loading"><span class="spinner"></span><br>
                 Đang tải ${allConversations.length} cuộc hội thoại và phân tích...<br>
                 <span style="font-size:.72rem;color:var(--text3)">Quá trình có thể mất 30-60 giây</span>
             </div>`;
@@ -747,18 +747,18 @@
                 result.innerHTML = `
                     <div class="ai-report-content">${reportHTML}</div>
                     <div class="ai-report-meta">
-                        📋 Hệ thống đánh giá · ${data.totalConversations} hội thoại · ${data.conversationsWithFullChat} có đầy đủ tin nhắn
+                         Hệ thống đánh giá · ${data.totalConversations} hội thoại · ${data.conversationsWithFullChat} có đầy đủ tin nhắn
                     </div>`;
 
                 status.style.display = 'none';
             } catch (e) {
                 status.style.display = 'none';
-                result.innerHTML = `<div class="empty-state"><span class="ei">❌</span><p>${e.message || 'Lỗi tạo báo cáo'}</p></div>`;
+                result.innerHTML = `<div class="empty-state"><span class="ei"></span><p>${e.message || 'Lỗi tạo báo cáo'}</p></div>`;
                 showToast('Lỗi: ' + (e.message || 'Không thể tạo báo cáo'), 'err');
             } finally {
                 isGeneratingReport = false;
                 btn.disabled = false;
-                btn.textContent = '📋 Đánh giá và góp ý chi tiết';
+                btn.textContent = ' Đánh giá và góp ý chi tiết';
             }
         }
 
@@ -774,7 +774,7 @@
         function renderConvList(convs) {
             const list = document.getElementById('convList');
             if (!convs.length) {
-                list.innerHTML = '<div class="empty-state"><span class="ei">💬</span><p>Không có hội thoại</p></div>';
+                list.innerHTML = '<div class="empty-state"><span class="ei"></span><p>Không có hội thoại</p></div>';
                 return;
             }
 
@@ -802,9 +802,9 @@
                     </div>
                     <div class="conv-snippet">${c.snippet || ''}</div>
                     <div class="conv-tags">
-                        <span class="tag ${c.has_phone ? 'phone-yes' : 'phone-no'}">${c.has_phone ? '✅ SĐT' : '❌ Chưa SĐT'}</span>
-                        <span class="tag msg-count">💬 ${c.message_count || 0}</span>
-                        ${responded ? `<span class="tag responded">✓ ${responded}</span>` : '<span class="tag not-responded">⏳ Chưa rep</span>'}
+                        <span class="tag ${c.has_phone ? 'phone-yes' : 'phone-no'}">${c.has_phone ? ' SĐT' : ' Chưa SĐT'}</span>
+                        <span class="tag msg-count"> ${c.message_count || 0}</span>
+                        ${responded ? `<span class="tag responded">✓ ${responded}</span>` : '<span class="tag not-responded"> Chưa rep</span>'}
                         ${respTimeStr ? `<span class="tag" style="background:var(--blue-light);color:var(--blue)">⏱ ${respTimeStr}</span>` : ''}
                         ${c.ad_ids?.length ? '<span class="tag ad">📢 QC</span>' : ''}
                     </div>
@@ -831,7 +831,7 @@
                 const detailEl = document.getElementById('detail-' + convId);
                 if (detailEl) {
                     const msgContainer = detailEl.querySelector('.msg-list');
-                    if (msgContainer) msgContainer.innerHTML = '<div class="loading" style="padding:10px"><span class="spinner" style="font-size:1rem">👑</span> Đang tải tin nhắn...</div>';
+                    if (msgContainer) msgContainer.innerHTML = '<div class="loading" style="padding:10px"><span class="spinner" style="font-size:1rem"></span> Đang tải tin nhắn...</div>';
                 }
 
                 try {
@@ -932,22 +932,22 @@
 
                 aiHTML = `
                     <div class="ai-inline">
-                        <div class="ai-title">📋 Đánh giá chi tiết
+                        <div class="ai-title"> Đánh giá chi tiết
                             <span style="float:right;font-size:.82rem;color:${scoreColor};font-weight:800">${ai.score}/100</span>
                             <span style="float:right;margin-right:8px">${interestEmoji} ${(ai.interest||'').toUpperCase()}</span>
                         </div>
                         <div class="ai-text">${ai.summary || ''}</div>
                         ${scoringHTML}
                         ${ai.detailAnalysis ? `<div style="margin-top:6px;font-size:.75rem;color:var(--text2);line-height:1.5;padding:6px 8px;background:var(--bg);border-radius:8px">${ai.detailAnalysis}</div>` : ''}
-                        ${ai.issues?.length ? `<div style="margin-top:6px"><strong style="font-size:.72rem;color:var(--red)">⚠️ Vấn đề:</strong><ul style="margin:4px 0 0 14px;font-size:.75rem;color:var(--text2)">${ai.issues.map(i => `<li>${i}</li>`).join('')}</ul></div>` : ''}
+                        ${ai.issues?.length ? `<div style="margin-top:6px"><strong style="font-size:.72rem;color:var(--red)">Vấn đề:</strong><ul style="margin:4px 0 0 14px;font-size:.75rem;color:var(--text2)">${ai.issues.map(i => `<li>${i}</li>`).join('')}</ul></div>` : ''}
                         ${ai.suggestions?.length ? `<div style="margin-top:6px"><strong style="font-size:.72rem;color:var(--green)">💡 Gợi ý:</strong><ul style="margin:4px 0 0 14px;font-size:.75rem;color:var(--text2)">${ai.suggestions.map(s => `<li>${s}</li>`).join('')}</ul></div>` : ''}
                         ${ai.suggestedMessage ? `<div style="margin-top:6px;background:var(--green-light);padding:8px;border-radius:8px;font-size:.78rem">
                             <strong style="font-size:.7rem;color:var(--green)">📝 Tin nhắn gợi ý:</strong><br>${ai.suggestedMessage}
-                            <button class="ai-action-btn primary" onclick="event.stopPropagation();navigator.clipboard.writeText('${ai.suggestedMessage.replace(/'/g, "\\'")}');showToast('Đã sao chép!','ok')" style="margin-top:4px">📋 Copy</button>
+                            <button class="ai-action-btn primary" onclick="event.stopPropagation();navigator.clipboard.writeText('${ai.suggestedMessage.replace(/'/g, "\\'")}');showToast('Đã sao chép!','ok')" style="margin-top:4px"> Copy</button>
                         </div>` : ''}
                     </div>`;
             } else {
-                aiHTML = '<div class="ai-inline"><div class="ai-title">📋 Đánh giá chi tiết</div><div class="loading" style="padding:8px"><span class="spinner" style="font-size:1rem">👑</span> Đang phân tích chi tiết...</div></div>';
+                aiHTML = '<div class="ai-inline"><div class="ai-title"> Đánh giá chi tiết</div><div class="loading" style="padding:8px"><span class="spinner" style="font-size:1rem"></span> Đang phân tích chi tiết...</div></div>';
             }
 
             return `

@@ -885,7 +885,7 @@
 
     <!-- Nav -->
     <nav class="nav">
-        <span class="nav-logo">👑 Quản trị</span>
+        <span class="nav-logo">Quản trị</span>
         <a href="/" class="nav-back">← Về CRM</a>
     </nav>
 
@@ -894,7 +894,7 @@
         <!-- Users Panel -->
         <div class="panel active" id="usersPanel">
             <div class="stitle">
-                <h2>👥 Quản lý User</h2>
+                <h2> Quản lý User</h2>
                 <span class="count" id="userCount">0 tài khoản</span>
             </div>
             <div id="userList"></div>
@@ -903,7 +903,7 @@
         <!-- Reports Panel -->
         <div class="panel" id="reportsPanel">
             <div class="stitle">
-                <h2>📈 Báo cáo</h2>
+                <h2> Báo cáo</h2>
                 <select id="reportDays" onchange="loadReports()"
                     style="padding:6px 10px;border-radius:8px;border:1.5px solid rgba(232,67,147,.12);font-size:.8rem;background:#fff">
                     <option value="7">7 ngày</option>
@@ -914,7 +914,7 @@
 
             <!-- Trực Page input form (only visible to truc_page & admin) -->
             <div class="card" id="reportInputCard" style="margin-bottom:12px">
-                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">📱 Nhập báo cáo Trực Page</div>
+                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px"> Nhập báo cáo Trực Page</div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
                     <div style="flex:1;min-width:100px">
                         <label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Ngày báo
@@ -942,7 +942,7 @@
 
             <!-- Trực Page Report Table -->
             <div class="card" style="margin-bottom:12px">
-                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">📱 Báo cáo Trực Page</div>
+                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px"> Báo cáo Trực Page</div>
                 <div style="font-size:.72rem;color:var(--text2);margin-bottom:8px">Tỉ lệ ra số = Số Data (ngày trước) ÷
                     Tổng liên hệ × 100%</div>
                 <div style="overflow-x:auto">
@@ -973,7 +973,7 @@
 
             <!-- Telesale Report Table -->
             <div class="card">
-                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px">📞 Báo cáo Telesale</div>
+                <div style="font-weight:700;font-size:.88rem;margin-bottom:10px"> Báo cáo Telesale</div>
                 <div style="font-size:.72rem;color:var(--text2);margin-bottom:8px">Tỉ lệ = Tổng lịch hẹn ÷ Tổng Data ×
                     100%</div>
                 <div style="overflow-x:auto">
@@ -1012,7 +1012,7 @@
         <!-- Logs Panel -->
         <div class="panel" id="logsPanel">
             <div class="stitle">
-                <h2>📋 Lịch sử hoạt động</h2>
+                <h2> Lịch sử hoạt động</h2>
                 <span class="count" id="logCount">0 bản ghi</span>
             </div>
             <div id="logList"></div>
@@ -1022,7 +1022,7 @@
         <!-- Landing Pages Panel -->
         <div class="panel" id="landingPanel">
             <div class="stitle">
-                <h2>🌐 Quản lý Landing Page</h2>
+                <h2> Quản lý Landing Page</h2>
                 <span class="count" id="lpCount">0 trang</span>
             </div>
             <div id="landingList"></div>
@@ -1031,7 +1031,7 @@
         <!-- Analytics Panel -->
         <div class="panel" id="analyticsPanel">
             <div class="stitle">
-                <h2>📊 Phân tích</h2>
+                <h2> Phân tích</h2>
             </div>
             <div class="an-filter">
                 <select id="anDays" onchange="loadAnalytics()">
@@ -1045,7 +1045,7 @@
                 </select>
             </div>
             <div id="analyticsContent">
-                <div class="empty"><span class="ei">📊</span>
+                <div class="empty"><span class="ei"></span>
                     <p>Đang tải...</p>
                 </div>
             </div>
@@ -1054,7 +1054,7 @@
         <!-- Uncalled Panel -->
         <div class="panel" id="uncalledPanel">
             <div class="stitle">
-                <h2>📞 Data chưa gọi</h2>
+                <h2> Data chưa gọi</h2>
                 <span class="count" id="uncalledCount">0 khách</span>
             </div>
             <div id="uncalledList"></div>
@@ -1067,32 +1067,32 @@
     <!-- Bottom Tabs -->
     <div class="tabs">
         <button class="tab active" onclick="switchTab('users')">
-            <span class="ti">👥</span> Tài khoản
+            <span class="ti"></span> Tài khoản
         </button>
         <button class="tab" onclick="switchTab('uncalled')">
-            <span class="ti">📞</span> Chưa gọi
+            <span class="ti"></span> Chưa gọi
         </button>
         <button class="tab" onclick="switchTab('landing')">
-            <span class="ti">🌐</span> Landing
+            <span class="ti"></span> Landing
         </button>
         <button class="tab" onclick="switchTab('reports')">
-            <span class="ti">📈</span> Báo cáo
+            <span class="ti"></span> Báo cáo
         </button>
         <button class="tab" onclick="switchTab('analytics')">
-            <span class="ti">📊</span> Phân tích
+            <span class="ti"></span> Phân tích
         </button>
         <button class="tab" onclick="switchTab('logs')">
-            <span class="ti">📋</span> Lịch sử
+            <span class="ti"></span> Lịch sử
         </button>
         <button class="tab" onclick="window.location.href='/direct-page'">
-            <span class="ti">💬</span> Trực Page
+            <span class="ti"></span> Trực Page
         </button>
     </div>
 
     <!-- Create/Edit Modal -->
     <div class="modal-bg" id="userModal">
         <div class="modal">
-            <h3 id="modalTitle">➕ Thêm tài khoản</h3>
+            <h3 id="modalTitle">Thêm tài khoản</h3>
             <input type="hidden" id="editUserId">
             <div class="field">
                 <label>Tên hiển thị *</label>
@@ -1109,9 +1109,9 @@
             <div class="field">
                 <label>Vai trò *</label>
                 <select id="mRole">
-                    <option value="telesale">📞 Telesale</option>
-                    <option value="truc_page">📱 Trực Page</option>
-                    <option value="admin">👑 Admin</option>
+                    <option value="telesale"> Telesale</option>
+                    <option value="truc_page"> Trực Page</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
             <div class="modal-actions">
@@ -1196,13 +1196,13 @@
             } catch (e) { showToast('Lỗi tải tài khoản', 'err'); }
         }
 
-        const ROLE_MAP = { admin: '👑 Quản trị', truc_page: '📱 Trực Page', telesale: '📞 Telesale' };
-        const ROLE_ICON = { admin: '👑', truc_page: '📱', telesale: '📞' };
+        const ROLE_MAP = { admin: 'Quản trị', truc_page: ' Trực Page', telesale: ' Telesale' };
+        const ROLE_ICON = { admin: '', truc_page: '', telesale: '' };
         const ROLE_LABEL = { admin: 'QUẢN TRỊ', truc_page: 'TRỰC PAGE', telesale: 'TELESALE' };
 
         function renderUsers(users) {
             const el = document.getElementById('userList');
-            if (!users.length) { el.innerHTML = '<div class="empty"><span class="ei">👥</span><p>Chưa có tài khoản nào</p></div>'; return; }
+            if (!users.length) { el.innerHTML = '<div class="empty"><span class="ei"></span><p>Chưa có tài khoản nào</p></div>'; return; }
 
             el.innerHTML = users.map(u => `
         <div class="card">
@@ -1230,7 +1230,7 @@
 
         // ==================== MODALS ====================
         function openCreateModal() {
-            document.getElementById('modalTitle').textContent = '➕ Thêm tài khoản';
+            document.getElementById('modalTitle').textContent = 'Thêm tài khoản';
             document.getElementById('editUserId').value = '';
             document.getElementById('mDisplayName').value = '';
             document.getElementById('mUsername').value = '';
@@ -1347,15 +1347,15 @@
 
         const ACTION_LABELS = {
             login: '🟢 Đăng nhập', logout: '⚪ Đăng xuất', login_failed: '🔴 Đăng nhập thất bại',
-            booking_created: '👑 Đặt lịch mới', booking_status_updated: '📝 Cập nhật lịch hẹn',
+            booking_created: 'Đặt lịch mới', booking_status_updated: '📝 Cập nhật lịch hẹn',
             booking_deleted: '🗑 Xóa lịch hẹn', user_created: '👤 Tạo tài khoản',
             user_updated: '✏️ Sửa tài khoản', user_deleted: '🗑 Xóa tài khoản',
-            call_logged: '📞 Ghi cuộc gọi', landing_meta_updated: '🏷️ Cập nhật Meta'
+            call_logged: ' Ghi cuộc gọi', landing_meta_updated: '🏷️ Cập nhật Meta'
         };
 
         function renderLogs(logs, append) {
             const el = document.getElementById('logList');
-            if (!logs.length && !append) { el.innerHTML = '<div class="empty"><span class="ei">📋</span><p>Chưa có hoạt động nào</p></div>'; return; }
+            if (!logs.length && !append) { el.innerHTML = '<div class="empty"><span class="ei"></span><p>Chưa có hoạt động nào</p></div>'; return; }
 
             const html = logs.map(l => {
                 const d = new Date(l.created_at);
@@ -1527,13 +1527,13 @@
                 return `<div class="card lp-card">
                     <div class="lp-header">
                         <span class="lp-name">${p.service_icon} ${p.service_name}</span>
-                        <span class="lp-badge ${hasMeta ? 'has' : 'no'}">${hasMeta ? '✅ Có Meta' : '⚠️ Chưa cấu hình'}</span>
+                        <span class="lp-badge ${hasMeta ? 'has' : 'no'}">${hasMeta ? ' Có Meta' : 'Chưa cấu hình'}</span>
                     </div>
                     <div class="lp-url">/dat-lich/${p.service_id}</div>
                     ${hasMeta ? `<div class="lp-meta-preview">
                         ${p.og_title ? `<div><span class="ogkey">og:title</span> ${p.og_title}</div>` : ''}
                         ${p.og_description ? `<div><span class="ogkey">og:desc</span> ${p.og_description.substring(0, 80)}...</div>` : ''}
-                        ${p.og_image ? `<div><span class="ogkey">og:image</span> ✅</div>` : ''}
+                        ${p.og_image ? `<div><span class="ogkey">og:image</span> </div>` : ''}
                     </div>` : ''}
                     <div class="lp-actions">
                         <button class="btn-meta" onclick="openMetaModal('${p.service_id}','${p.service_name}')">🏷️ Thẻ Meta</button>
@@ -1562,7 +1562,7 @@
                     <div class="field"><label>Thẻ head tùy chỉnh</label><textarea id="metaCustom" placeholder="HTML thêm vào <head>"></textarea></div>
                     <div class="modal-actions">
                         <button class="btn-cancel" onclick="document.getElementById('metaModal').classList.remove('show')">Hủy</button>
-                        <button class="btn-save" onclick="saveMeta()">💾 Lưu Meta</button>
+                        <button class="btn-save" onclick="saveMeta()">Lưu Meta</button>
                     </div>
                 </div>`;
                 document.body.appendChild(modal);
@@ -1613,7 +1613,7 @@
             const days = document.getElementById('anDays').value;
             const serviceId = document.getElementById('anService').value;
             const el = document.getElementById('analyticsContent');
-            el.innerHTML = '<div class="empty"><span class="ei">⏳</span><p>Đang tải...</p></div>';
+            el.innerHTML = '<div class="empty"><span class="ei"></span><p>Đang tải...</p></div>';
 
             try {
                 const params = new URLSearchParams({ days });
@@ -1623,7 +1623,7 @@
                 renderAnalytics(data);
                 analyticsLoaded = true;
             } catch (e) {
-                el.innerHTML = '<div class="empty"><span class="ei">❌</span><p>Lỗi tải dữ liệu</p></div>';
+                el.innerHTML = '<div class="empty"><span class="ei"></span><p>Lỗi tải dữ liệu</p></div>';
             }
         }
 
@@ -1633,7 +1633,7 @@
 
             // Total devices for percentage
             const totalDeviceViews = devices.reduce((s, d) => s + d.views, 0) || 1;
-            const DEVICE_ICONS = { mobile: '📱', desktop: '💻', tablet: '📟' };
+            const DEVICE_ICONS = { mobile: '', desktop: '💻', tablet: '📟' };
             const DEVICE_NAMES = { mobile: 'Di động', desktop: 'Máy tính', tablet: 'Máy tính bảng' };
 
             let html = `
@@ -1646,7 +1646,7 @@
 
             <!-- Conversion -->
             <div class="an-section card">
-                <h3>📈 Tỷ lệ chuyển đổi</h3>
+                <h3> Tỷ lệ chuyển đổi</h3>
                 <table class="conv-table">
                     <thead><tr><th>Dịch vụ</th><th>Xem</th><th>Đặt lịch</th><th>Tỷ lệ</th></tr></thead>
                     <tbody>${conversions.map(c => {
@@ -1664,7 +1664,7 @@
 
             <!-- Devices -->
             ${devices.length ? `<div class="an-section">
-                <h3>📱 Thiết bị</h3>
+                <h3> Thiết bị</h3>
                 <div class="device-bar">
                     ${devices.map(d => `<div class="device-chip">
                         <span class="dv">${DEVICE_ICONS[d.device_type] || '🔧'}</span>
@@ -1676,7 +1676,7 @@
 
             <!-- UTM Sources -->
             ${utmSources.length ? `<div class="an-section card">
-                <h3>🔗 Nguồn UTM</h3>
+                <h3>Nguồn UTM</h3>
                 ${utmSources.map(u => `<div class="utm-row">
                     <span class="utm-name">${u.utm_source}</span>
                     <span class="utm-count">${u.views}</span>
@@ -1737,7 +1737,7 @@
         function renderUncalled(bookings) {
             const el = document.getElementById('uncalledList');
             if (!bookings.length) {
-                el.innerHTML = '<div class="empty"><span class="ei">✅</span><p>Không có data nào chưa gọi!</p></div>';
+                el.innerHTML = '<div class="empty"><span class="ei"></span><p>Không có data nào chưa gọi!</p></div>';
                 return;
             }
 
@@ -1747,11 +1747,11 @@
                 const timeStr = apptDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
                 const createdDate = new Date(b.created_at);
                 const createdStr = createdDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-                const source = b.source === 'manual' ? '✍️ Thủ công' : '🌐 Landing';
+                const source = b.source === 'manual' ? '✍️ Thủ công' : ' Landing';
 
                 return `<div class="card">
                     <div class="user-row">
-                        <div class="user-avatar telesale" style="font-size:1.2rem">📞</div>
+                        <div class="user-avatar telesale" style="font-size:1.2rem"></div>
                         <div class="user-info">
                             <div class="user-name">${b.full_name}</div>
                             <div class="user-meta">
@@ -1759,14 +1759,14 @@
                                 <span>${source}</span>
                             </div>
                             <div class="user-meta" style="margin-top:2px">
-                                <span>📅 ${dateStr} ${timeStr}</span>
+                                <span> ${dateStr} ${timeStr}</span>
                                 <span>· Đặt lúc ${createdStr}</span>
                             </div>
                             <div style="font-size:.75rem;color:#636E72;margin-top:2px">${b.service}</div>
                             ${b.notes ? `<div style="font-size:.72rem;color:#B2BEC3;margin-top:1px">📝 ${b.notes}</div>` : ''}
                         </div>
                         <div class="user-actions">
-                            <a href="tel:${b.phone}" class="btn-edit" style="text-decoration:none;display:flex;align-items:center;justify-content:center" title="Gọi ngay">📱</a>
+                            <a href="tel:${b.phone}" class="btn-edit" style="text-decoration:none;display:flex;align-items:center;justify-content:center" title="Gọi ngay"></a>
                             <button class="btn-toggle" onclick="openAdminCallModal(${b.id},'${b.full_name.replace(/'/g, "\\'")}','${b.phone}')" title="Ghi cuộc gọi">📝</button>
                         </div>
                     </div>
@@ -1782,7 +1782,7 @@
                 modal.className = 'modal-bg';
                 modal.id = 'adminCallModal';
                 modal.innerHTML = `<div class="modal">
-                    <h3>📞 Ghi nhận cuộc gọi</h3>
+                    <h3> Ghi nhận cuộc gọi</h3>
                     <input type="hidden" id="adCallBookingId">
                     <div id="adCallInfo" style="background:#FFFCF5;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:.85rem;line-height:1.6"></div>
                     <div class="field">
@@ -1791,14 +1791,14 @@
                     </div>
                     <div class="modal-actions">
                         <button class="btn-cancel" onclick="document.getElementById('adminCallModal').classList.remove('show')">Hủy</button>
-                        <button class="btn-save" onclick="saveAdminCall()">📞 Ghi cuộc gọi</button>
+                        <button class="btn-save" onclick="saveAdminCall()"> Ghi cuộc gọi</button>
                     </div>
                 </div>`;
                 document.body.appendChild(modal);
             }
             document.getElementById('adCallBookingId').value = bookingId;
             document.getElementById('adCallNotes').value = '';
-            document.getElementById('adCallInfo').innerHTML = `<div><strong>${fullName}</strong></div><div>📱 <a href="tel:${phone}">${phone}</a></div>`;
+            document.getElementById('adCallInfo').innerHTML = `<div><strong>${fullName}</strong></div><div> <a href="tel:${phone}">${phone}</a></div>`;
             modal.classList.add('show');
         }
 
