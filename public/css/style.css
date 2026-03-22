@@ -1,49 +1,49 @@
-/* ==================== HOÀN MỸ - BRIGHT THEME ==================== */
+/* ==================== HOÀN MỸ - GOLD LUXURY THEME ==================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Colors - Light Hoàn Mỹ Theme */
-  --bg-primary: #FFF5F7;
+  /* Colors - Gold Luxury Theme */
+  --bg-primary: #FFFBF0;
   --bg-secondary: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #FFF0F3;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  --bg-input: #FFF8FA;
-  --bg-page: linear-gradient(135deg, #FFF5F7 0%, #FFE8EF 30%, #FFF0F5 60%, #F8F0FF 100%);
+  --bg-card-hover: #FFF8E8;
+  --bg-glass: rgba(255, 255, 255, 0.88);
+  --bg-input: #FFFCF5;
+  --bg-page: linear-gradient(135deg, #FFFBF0 0%, #FFF3D6 30%, #FFF8E8 60%, #FDF5E6 100%);
 
-  /* Accent - Hoàn Mỹ Pink */
-  --accent-primary: #E84393;
-  --accent-secondary: #FD79A8;
-  --accent-light: #FFB8D0;
-  --accent-gradient: linear-gradient(135deg, #E84393 0%, #FD79A8 50%, #FDCB6E 100%);
-  --accent-gradient-soft: linear-gradient(135deg, #FFB8D0 0%, #FFC8DD 50%, #FFE0EB 100%);
-  --accent-glow: rgba(232, 67, 147, 0.15);
+  /* Accent - Luxury Gold */
+  --accent-primary: #B8860B;
+  --accent-secondary: #D4A537;
+  --accent-light: #F0D78C;
+  --accent-gradient: linear-gradient(135deg, #B8860B 0%, #D4A537 50%, #E8C547 100%);
+  --accent-gradient-soft: linear-gradient(135deg, #F0D78C 0%, #F5E6B8 50%, #FFF3D6 100%);
+  --accent-glow: rgba(184, 134, 11, 0.15);
 
   /* Text */
-  --text-primary: #2D3436;
-  --text-secondary: #636E72;
-  --text-muted: #B2BEC3;
+  --text-primary: #2D2B26;
+  --text-secondary: #6B6456;
+  --text-muted: #B5AD9E;
   --text-on-accent: #FFFFFF;
 
   /* Status */
-  --status-pending: #FDCB6E;
-  --status-pending-bg: #FFF8E7;
+  --status-pending: #E8C547;
+  --status-pending-bg: #FFF8E1;
   --status-arrived: #00B894;
   --status-arrived-bg: #E8FFF7;
   --status-no-show: #E17055;
   --status-no-show-bg: #FFF0ED;
 
   /* Borders */
-  --border-color: rgba(232, 67, 147, 0.1);
-  --border-accent: rgba(232, 67, 147, 0.25);
+  --border-color: rgba(184, 134, 11, 0.12);
+  --border-accent: rgba(184, 134, 11, 0.3);
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(232, 67, 147, 0.06);
-  --shadow-md: 0 4px 20px rgba(232, 67, 147, 0.08);
-  --shadow-lg: 0 8px 32px rgba(232, 67, 147, 0.12);
+  --shadow-sm: 0 2px 8px rgba(184, 134, 11, 0.06);
+  --shadow-md: 0 4px 20px rgba(184, 134, 11, 0.08);
+  --shadow-lg: 0 8px 32px rgba(184, 134, 11, 0.12);
   --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.04);
-  --shadow-accent: 0 4px 20px rgba(232, 67, 147, 0.2);
+  --shadow-accent: 0 4px 20px rgba(184, 134, 11, 0.2);
 
   /* Spacing */
   --radius-sm: 10px;
@@ -144,7 +144,7 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(232, 67, 147, 0.3);
+  box-shadow: 0 6px 24px rgba(184, 134, 11, 0.3);
 }
 
 .btn-sm {
@@ -176,7 +176,7 @@ body {
 }
 
 .btn-warning:hover {
-  background: #f0b92b;
+  background: #d4b03a;
 }
 
 .btn-ghost {
@@ -343,7 +343,7 @@ body {
   font-size: 0.95rem;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23636E72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B6456' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
 }
@@ -402,7 +402,7 @@ body {
   border: none;
   font-size: 1.4rem;
   cursor: pointer;
-  box-shadow: 0 6px 24px rgba(232, 67, 147, 0.35);
+  box-shadow: 0 6px 24px rgba(184, 134, 11, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -411,7 +411,7 @@ body {
 
 .fab-add-customer:hover {
   transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 8px 32px rgba(232, 67, 147, 0.45);
+  box-shadow: 0 8px 32px rgba(184, 134, 11, 0.45);
 }
 
 .fab-add-customer:active {
@@ -424,7 +424,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(45, 52, 54, 0.4);
+  background: rgba(45, 43, 38, 0.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   align-items: center;
@@ -504,7 +504,7 @@ body {
 
 .modal-form .form-group select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23636E72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B6456' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   cursor: pointer;

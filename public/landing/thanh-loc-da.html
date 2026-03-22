@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="theme-color" content="#E84393">
+    <meta name="theme-color" content="#B8860B">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icons/icon-192.png">
@@ -31,7 +31,7 @@
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: #FFF5F7;
+            background: #FFFBF0;
             color: #2D3436;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
@@ -40,9 +40,9 @@
 
         /* ========== VARIABLES ========== */
         :root {
-            --pink: #E84393;
-            --pink-light: #FD79A8;
-            --pink-pale: #FFE8EF;
+            --pink: #B8860B;
+            --pink-light: #D4A537;
+            --pink-pale: #FFF3D6;
             --gold: #F39C12;
             --green: #00B894;
             --red: #E17055;
@@ -50,11 +50,11 @@
             --text2: #636E72;
             --text3: #B2BEC3;
             --white: #FFFFFF;
-            --bg: #FFF5F7;
-            --shadow: 0 4px 24px rgba(232, 67, 147, 0.08);
-            --shadow-lg: 0 8px 40px rgba(232, 67, 147, 0.12);
-            --gradient: linear-gradient(135deg, #E84393 0%, #FD79A8 100%);
-            --gradient-hot: linear-gradient(135deg, #FF6B6B 0%, #E84393 50%, #FD79A8 100%);
+            --bg: #FFFBF0;
+            --shadow: 0 4px 24px rgba(184, 134, 11, 0.08);
+            --shadow-lg: 0 8px 40px rgba(184, 134, 11, 0.12);
+            --gradient: linear-gradient(135deg, #B8860B 0%, #D4A537 100%);
+            --gradient-hot: linear-gradient(135deg, #D4A537 0%, #B8860B 50%, #D4A537 100%);
             --radius: 16px;
         }
 
@@ -109,11 +109,11 @@
 
             0%,
             100% {
-                box-shadow: 0 0 20px rgba(232, 67, 147, 0.2);
+                box-shadow: 0 0 20px rgba(184, 134, 11, 0.2);
             }
 
             50% {
-                box-shadow: 0 0 35px rgba(232, 67, 147, 0.35);
+                box-shadow: 0 0 35px rgba(184, 134, 11, 0.35);
             }
         }
 
@@ -126,7 +126,7 @@
 
             50% {
                 transform: scale(1.12);
-                color: #FF6B6B;
+                color: #D4A537;
             }
         }
 
@@ -370,7 +370,7 @@
 
         .avatar:first-child {
             margin-left: 0;
-            background: #FFE0EB;
+            background: #FFF3D6;
         }
 
         .avatar:nth-child(2) {
@@ -459,15 +459,15 @@
             background: var(--white);
             padding: 10px 12px;
             border-radius: 12px;
-            border: 1px solid rgba(232, 67, 147, 0.08);
+            border: 1px solid rgba(184, 134, 11, 0.08);
             transition: all 0.2s ease;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
         }
 
         .step:hover {
-            border-color: rgba(232, 67, 147, 0.2);
+            border-color: rgba(184, 134, 11, 0.2);
             transform: translateX(3px);
-            box-shadow: 0 2px 12px rgba(232, 67, 147, 0.08);
+            box-shadow: 0 2px 12px rgba(184, 134, 11, 0.08);
         }
 
         .step-n {
@@ -523,8 +523,8 @@
 
         /* ========== URGENCY CARD ========== */
         .urgency-card {
-            background: linear-gradient(135deg, #FFF0F3, #FFE8EF, #F8F0FF);
-            border: 1.5px solid rgba(232, 67, 147, 0.15);
+            background: linear-gradient(135deg, #FFF8E8, #FFF3D6, #FDF5E6);
+            border: 1.5px solid rgba(184, 134, 11, 0.15);
             border-radius: var(--radius);
             padding: 20px;
             text-align: center;
@@ -552,7 +552,7 @@
         }
 
         .progress-bar {
-            background: rgba(232, 67, 147, 0.1);
+            background: rgba(184, 134, 11, 0.1);
             border-radius: 20px;
             padding: 2px;
             overflow: hidden;
@@ -580,7 +580,7 @@
 
         .form-card {
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, 0.12);
+            border: 1.5px solid rgba(184, 134, 11, 0.12);
             border-radius: var(--radius);
             padding: 24px 20px;
             box-shadow: var(--shadow-lg);
@@ -626,8 +626,8 @@
         .field input {
             width: 100%;
             padding: 11px 14px;
-            background: #FFF8FA;
-            border: 1.5px solid rgba(232, 67, 147, 0.1);
+            background: #FFFCF5;
+            border: 1.5px solid rgba(184, 134, 11, 0.1);
             border-radius: 10px;
             font-family: 'Inter', sans-serif;
             font-size: 0.92rem;
@@ -638,7 +638,7 @@
         .field input:focus {
             outline: none;
             border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(232, 67, 147, 0.1);
+            box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
             background: white;
         }
 
@@ -658,7 +658,7 @@
             font-size: 0.95rem;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(232, 67, 147, 0.25);
+            box-shadow: 0 4px 20px rgba(184, 134, 11, 0.25);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
@@ -669,7 +669,7 @@
 
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 28px rgba(232, 67, 147, 0.35);
+            box-shadow: 0 6px 28px rgba(184, 134, 11, 0.35);
         }
 
         .submit-btn:active {
@@ -752,7 +752,7 @@
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(232, 67, 147, 0.1);
+            border-top: 1px solid rgba(184, 134, 11, 0.1);
             padding: 10px 16px;
             display: flex;
             align-items: center;
@@ -795,7 +795,7 @@
             font-weight: 800;
             cursor: pointer;
             white-space: nowrap;
-            box-shadow: 0 4px 16px rgba(232, 67, 147, 0.25);
+            box-shadow: 0 4px 16px rgba(184, 134, 11, 0.25);
             transition: all 0.2s ease;
             animation: pulse 2.5s ease-in-out infinite;
         }
@@ -822,7 +822,7 @@
 
         .success-card {
             background: white;
-            border: 1.5px solid rgba(232, 67, 147, 0.15);
+            border: 1.5px solid rgba(184, 134, 11, 0.15);
             border-radius: 20px;
             padding: 36px 28px;
             text-align: center;
@@ -855,12 +855,12 @@
         }
 
         .success-details {
-            background: #FFF8FA;
+            background: #FFFCF5;
             border-radius: 12px;
             padding: 14px;
             margin-bottom: 18px;
             text-align: left;
-            border: 1px solid rgba(232, 67, 147, 0.08);
+            border: 1px solid rgba(184, 134, 11, 0.08);
         }
 
         .sd-row {
@@ -946,7 +946,7 @@
 
     <!-- BRAND -->
     <div class="brand fade-up">
-        <div class="brand-name">🌸 Hoàn Mỹ</div>
+        <div class="brand-name">👑 Hoàn Mỹ</div>
     </div>
 
     <!-- HERO -->
@@ -1249,7 +1249,7 @@
                 const d = new Date(data.appointment_date);
                 document.getElementById('successDetails').innerHTML = `
           <div class="sd-row"><span class="l">Họ tên</span><span class="v">${data.full_name}</span></div>
-          <div class="sd-row"><span class="l">Combo</span><span class="v" style="color:#E84393">6 buổi — 299K</span></div>
+          <div class="sd-row"><span class="l">Combo</span><span class="v" style="color:#B8860B">6 buổi — 299K</span></div>
           <div class="sd-row"><span class="l">Buổi đầu</span><span class="v">${d.toLocaleDateString('vi-VN')}</span></div>
           <div class="sd-row"><span class="l">Giờ hẹn</span><span class="v">${d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>
         `;

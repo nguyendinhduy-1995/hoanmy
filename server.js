@@ -1297,7 +1297,7 @@ app.get('/direct-page', (req, res) => {
 app.listen(PORT, () => {
     console.log(`
   ╔══════════════════════════════════════════╗
-  ║     🌸 Hoàn Mỹ CRM Server 🌸       ║
+  ║     👑 Hoàn Mỹ CRM Server 👑       ║
   ╠══════════════════════════════════════════╣
   ║                                          ║
   ║  CRM Dashboard:                          ║

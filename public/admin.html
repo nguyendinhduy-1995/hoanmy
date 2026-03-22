@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#E84393">
+    <meta name="theme-color" content="#B8860B">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icons/icon-192.png">
@@ -19,23 +19,23 @@
         }
 
         :root {
-            --pink: #E84393;
-            --pink-light: #FD79A8;
+            --pink: #B8860B;
+            --pink-light: #D4A537;
             --green: #00B894;
             --red: #E17055;
             --gold: #F39C12;
             --text: #2D3436;
             --text2: #636E72;
             --text3: #B2BEC3;
-            --bg: #FFF5F7;
+            --bg: #FFFBF0;
             --white: #fff;
-            --shadow: 0 2px 16px rgba(232, 67, 147, 0.06);
+            --shadow: 0 2px 16px rgba(184, 134, 11, 0.06);
             --radius: 14px
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #FFF5F7, #FFE8EF, #F8F0FF);
+            background: linear-gradient(135deg, #FFFBF0, #FFF3D6, #FDF5E6);
             color: var(--text);
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
@@ -50,7 +50,7 @@
             background: rgba(255, 255, 255, .92);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1.5px solid rgba(232, 67, 147, .08);
+            border-bottom: 1.5px solid rgba(184, 134, 11, .08);
             padding: 0 16px;
             height: 56px;
             display: flex;
@@ -61,14 +61,14 @@
         .nav-logo {
             font-size: .9rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #E84393, #FD79A8);
+            background: linear-gradient(135deg, #B8860B, #D4A537);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent
         }
 
         .nav-back {
             padding: 8px 14px;
-            border: 1.5px solid rgba(232, 67, 147, .1);
+            border: 1.5px solid rgba(184, 134, 11, .1);
             border-radius: 50px;
             font-size: .78rem;
             font-weight: 600;
@@ -92,7 +92,7 @@
             background: rgba(255, 255, 255, .96);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-top: 1.5px solid rgba(232, 67, 147, .08);
+            border-top: 1.5px solid rgba(184, 134, 11, .08);
             display: flex;
             padding: 6px 8px 8px;
             gap: 4px
@@ -117,7 +117,7 @@
         }
 
         .tab.active {
-            background: rgba(232, 67, 147, .08);
+            background: rgba(184, 134, 11, .08);
             color: var(--pink)
         }
 
@@ -177,7 +177,7 @@
         /* Cards */
         .card {
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .06);
+            border: 1.5px solid rgba(184, 134, 11, .06);
             border-radius: var(--radius);
             padding: 14px;
             margin-bottom: 10px;
@@ -208,7 +208,7 @@
         }
 
         .user-avatar.admin {
-            background: linear-gradient(135deg, #FFE0EB, #FFC8DD)
+            background: linear-gradient(135deg, #FFF3D6, #F5E6B8)
         }
 
         .user-avatar.truc_page {
@@ -251,7 +251,7 @@
         }
 
         .role-badge.admin {
-            background: #FFE0EB;
+            background: #FFF3D6;
             color: #C2185B
         }
 
@@ -394,12 +394,12 @@
             width: 52px;
             height: 52px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #E84393, #FD79A8);
+            background: linear-gradient(135deg, #B8860B, #D4A537);
             color: white;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(232, 67, 147, .3);
+            box-shadow: 0 4px 20px rgba(184, 134, 11, .3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -476,8 +476,8 @@
         .modal .field select {
             width: 100%;
             padding: 12px 14px;
-            background: #FFF8FA;
-            border: 1.5px solid rgba(232, 67, 147, .1);
+            background: #FFFCF5;
+            border: 1.5px solid rgba(184, 134, 11, .1);
             border-radius: 10px;
             font-family: 'Inter', sans-serif;
             font-size: .92rem;
@@ -488,7 +488,7 @@
         .modal .field select:focus {
             outline: none;
             border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(232, 67, 147, .1)
+            box-shadow: 0 0 0 3px rgba(184, 134, 11, .1)
         }
 
         .modal .field select {
@@ -526,9 +526,9 @@
         }
 
         .btn-save {
-            background: linear-gradient(135deg, #E84393, #FD79A8);
+            background: linear-gradient(135deg, #B8860B, #D4A537);
             color: white;
-            box-shadow: 0 4px 16px rgba(232, 67, 147, .2)
+            box-shadow: 0 4px 16px rgba(184, 134, 11, .2)
         }
 
         .btn-confirm-del {
@@ -588,7 +588,7 @@
             display: block;
             width: 100%;
             padding: 12px;
-            border: 1.5px dashed rgba(232, 67, 147, .15);
+            border: 1.5px dashed rgba(184, 134, 11, .15);
             border-radius: 12px;
             background: none;
             font-family: 'Inter', sans-serif;
@@ -600,7 +600,7 @@
         }
 
         .load-more:active {
-            background: rgba(232, 67, 147, .04)
+            background: rgba(184, 134, 11, .04)
         }
 
         /* Landing card */
@@ -648,14 +648,14 @@
             display: flex;
             gap: 6px;
             margin-top: 10px;
-            border-top: 1px solid rgba(232, 67, 147, .06);
+            border-top: 1px solid rgba(184, 134, 11, .06);
             padding-top: 10px;
         }
 
         .lp-actions button {
             flex: 1;
             padding: 9px;
-            border: 1.5px solid rgba(232, 67, 147, .1);
+            border: 1.5px solid rgba(184, 134, 11, .1);
             border-radius: 10px;
             background: var(--bg);
             cursor: pointer;
@@ -703,8 +703,8 @@
         .modal .field textarea {
             width: 100%;
             padding: 12px 14px;
-            background: #FFF8FA;
-            border: 1.5px solid rgba(232, 67, 147, .1);
+            background: #FFFCF5;
+            border: 1.5px solid rgba(184, 134, 11, .1);
             border-radius: 10px;
             font-family: 'Inter', sans-serif;
             font-size: .85rem;
@@ -716,7 +716,7 @@
         .modal .field textarea:focus {
             outline: none;
             border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(232, 67, 147, .1);
+            box-shadow: 0 0 0 3px rgba(184, 134, 11, .1);
         }
 
         /* Analytics */
@@ -729,7 +729,7 @@
 
         .an-card {
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .06);
+            border: 1.5px solid rgba(184, 134, 11, .06);
             border-radius: var(--radius);
             padding: 12px;
             text-align: center;
@@ -778,13 +778,13 @@
             color: var(--text3);
             text-transform: uppercase;
             letter-spacing: .5px;
-            border-bottom: 1.5px solid rgba(232, 67, 147, .08);
+            border-bottom: 1.5px solid rgba(184, 134, 11, .08);
             font-weight: 700;
         }
 
         .conv-table td {
             padding: 8px 6px;
-            border-bottom: 1px solid rgba(232, 67, 147, .04);
+            border-bottom: 1px solid rgba(184, 134, 11, .04);
         }
 
         .conv-rate {
@@ -808,7 +808,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid rgba(232, 67, 147, .04);
+            border-bottom: 1px solid rgba(184, 134, 11, .04);
         }
 
         .utm-name {
@@ -821,7 +821,7 @@
             font-size: .78rem;
             font-weight: 700;
             color: var(--pink);
-            background: #FFE0EB;
+            background: #FFF3D6;
             padding: 2px 10px;
             border-radius: 12px;
         }
@@ -837,7 +837,7 @@
             text-align: center;
             padding: 8px 4px;
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .06);
+            border: 1.5px solid rgba(184, 134, 11, .06);
             border-radius: 10px;
         }
 
@@ -868,7 +868,7 @@
         .an-filter select {
             padding: 8px 28px 8px 10px;
             background: var(--bg);
-            border: 1.5px solid rgba(232, 67, 147, .08);
+            border: 1.5px solid rgba(184, 134, 11, .08);
             border-radius: 20px;
             font-family: 'Inter', sans-serif;
             font-size: .78rem;
@@ -885,7 +885,7 @@
 
     <!-- Nav -->
     <nav class="nav">
-        <span class="nav-logo">🌸 Quản trị</span>
+        <span class="nav-logo">👑 Quản trị</span>
         <a href="/" class="nav-back">← Về CRM</a>
     </nav>
 
@@ -948,7 +948,7 @@
                 <div style="overflow-x:auto">
                     <table style="width:100%;border-collapse:collapse;font-size:.78rem">
                         <thead>
-                            <tr style="background:#FFF0F3">
+                            <tr style="background:#FFF8E8">
                                 <th
                                     style="padding:8px 6px;text-align:left;border-bottom:2px solid var(--pink);font-size:.72rem">
                                     NGÀY</th>
@@ -1347,7 +1347,7 @@
 
         const ACTION_LABELS = {
             login: '🟢 Đăng nhập', logout: '⚪ Đăng xuất', login_failed: '🔴 Đăng nhập thất bại',
-            booking_created: '🌸 Đặt lịch mới', booking_status_updated: '📝 Cập nhật lịch hẹn',
+            booking_created: '👑 Đặt lịch mới', booking_status_updated: '📝 Cập nhật lịch hẹn',
             booking_deleted: '🗑 Xóa lịch hẹn', user_created: '👤 Tạo tài khoản',
             user_updated: '✏️ Sửa tài khoản', user_deleted: '🗑 Xóa tài khoản',
             call_logged: '📞 Ghi cuộc gọi', landing_meta_updated: '🏷️ Cập nhật Meta'
@@ -1784,10 +1784,10 @@
                 modal.innerHTML = `<div class="modal">
                     <h3>📞 Ghi nhận cuộc gọi</h3>
                     <input type="hidden" id="adCallBookingId">
-                    <div id="adCallInfo" style="background:#FFF8FA;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:.85rem;line-height:1.6"></div>
+                    <div id="adCallInfo" style="background:#FFFCF5;padding:10px 12px;border-radius:10px;margin-bottom:14px;font-size:.85rem;line-height:1.6"></div>
                     <div class="field">
                         <label>Ghi chú cuộc gọi</label>
-                        <textarea id="adCallNotes" style="width:100%;padding:12px;background:#FFF8FA;border:1.5px solid rgba(232,67,147,.1);border-radius:10px;font-family:'Inter',sans-serif;font-size:.85rem;color:#2D3436;resize:vertical;min-height:80px" placeholder="VD: Khách hẹn lại tuần sau..."></textarea>
+                        <textarea id="adCallNotes" style="width:100%;padding:12px;background:#FFFCF5;border:1.5px solid rgba(232,67,147,.1);border-radius:10px;font-family:'Inter',sans-serif;font-size:.85rem;color:#2D3436;resize:vertical;min-height:80px" placeholder="VD: Khách hẹn lại tuần sau..."></textarea>
                     </div>
                     <div class="modal-actions">
                         <button class="btn-cancel" onclick="document.getElementById('adminCallModal').classList.remove('show')">Hủy</button>

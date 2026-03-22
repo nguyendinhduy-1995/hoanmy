@@ -8,8 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --pink: #E84393;
-            --pink-light: #FFE0EB;
+            --pink: #B8860B;
+            --pink-light: #FFF3D6;
             --green: #00B894;
             --green-light: #D5F5E3;
             --gold: #F39C12;
@@ -26,7 +26,7 @@
             --text2: #636E72;
             --text3: #B2BEC3;
             --radius: 14px;
-            --shadow: 0 2px 12px rgba(232, 67, 147, .06);
+            --shadow: 0 2px 12px rgba(184, 134, 11, .06);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,7 +40,7 @@
         }
 
         .nav {
-            background: linear-gradient(135deg, #E84393 0%, #FD79A8 100%);
+            background: linear-gradient(135deg, #B8860B 0%, #D4A537 100%);
             padding: 14px 16px;
             display: flex;
             align-items: center;
@@ -79,7 +79,7 @@
             transition: all .2s;
         }
         .tab-btn.active {
-            background: linear-gradient(135deg, #E84393, #FD79A8);
+            background: linear-gradient(135deg, #B8860B, #D4A537);
             color: #fff;
             box-shadow: 0 2px 8px rgba(232,67,147,.25);
         }
@@ -95,7 +95,7 @@
         }
         .stat-card {
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .06);
+            border: 1.5px solid rgba(184, 134, 11, .06);
             border-radius: var(--radius);
             padding: 12px 8px;
             text-align: center;
@@ -126,7 +126,7 @@
         .filter-bar select, .filter-bar input {
             padding: 8px 12px;
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .1);
+            border: 1.5px solid rgba(184, 134, 11, .1);
             border-radius: 10px;
             font-family: 'Inter', sans-serif;
             font-size: .82rem;
@@ -134,7 +134,7 @@
         }
         .filter-btn {
             padding: 8px 14px;
-            border: 1.5px solid rgba(232, 67, 147, .15);
+            border: 1.5px solid rgba(184, 134, 11, .15);
             border-radius: 10px;
             font-weight: 700;
             font-size: .78rem;
@@ -170,7 +170,7 @@
         /* Cards */
         .card {
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .06);
+            border: 1.5px solid rgba(184, 134, 11, .06);
             border-radius: var(--radius);
             padding: 14px;
             box-shadow: var(--shadow);
@@ -246,7 +246,7 @@
         .conv-list { display: flex; flex-direction: column; gap: 8px; }
         .conv-card {
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .06);
+            border: 1.5px solid rgba(184, 134, 11, .06);
             border-radius: var(--radius);
             padding: 12px;
             box-shadow: var(--shadow);
@@ -314,7 +314,7 @@
         .ai-report-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #E84393, #FD79A8);
+            background: linear-gradient(135deg, #B8860B, #D4A537);
             color: #fff;
             border: none;
             border-radius: 12px;
@@ -330,7 +330,7 @@
 
         .ai-report-content {
             background: var(--white);
-            border: 1.5px solid rgba(232, 67, 147, .1);
+            border: 1.5px solid rgba(184, 134, 11, .1);
             border-radius: var(--radius);
             padding: 16px;
             box-shadow: var(--shadow);
@@ -428,7 +428,7 @@
         <!-- Tab: Overview Report -->
         <div class="tab-content active" id="tab-overview">
             <div id="overviewContent">
-                <div class="loading"><span class="spinner">🌸</span><br>Đang tải...</div>
+                <div class="loading"><span class="spinner">👑</span><br>Đang tải...</div>
             </div>
         </div>
 
@@ -444,7 +444,7 @@
         <!-- Tab: Conversations -->
         <div class="tab-content" id="tab-conversations">
             <div class="conv-list" id="convList">
-                <div class="loading"><span class="spinner">🌸</span><br>Đang tải hội thoại...</div>
+                <div class="loading"><span class="spinner">👑</span><br>Đang tải hội thoại...</div>
             </div>
         </div>
     </div>
@@ -533,8 +533,8 @@
         async function loadConversations() {
             const list = document.getElementById('convList');
             const overview = document.getElementById('overviewContent');
-            list.innerHTML = '<div class="loading"><span class="spinner">🌸</span><br>Đang tải...</div>';
-            overview.innerHTML = '<div class="loading"><span class="spinner">🌸</span><br>Đang tải...</div>';
+            list.innerHTML = '<div class="loading"><span class="spinner">👑</span><br>Đang tải...</div>';
+            overview.innerHTML = '<div class="loading"><span class="spinner">👑</span><br>Đang tải...</div>';
 
             try {
                 const range = getDateRange();
@@ -726,7 +726,7 @@
             btn.disabled = true;
             btn.textContent = '⏳ Đang phân tích...';
             status.style.display = 'block';
-            status.innerHTML = `<div class="loading"><span class="spinner">🌸</span><br>
+            status.innerHTML = `<div class="loading"><span class="spinner">👑</span><br>
                 Đang tải ${allConversations.length} cuộc hội thoại và phân tích...<br>
                 <span style="font-size:.72rem;color:var(--text3)">Quá trình có thể mất 30-60 giây</span>
             </div>`;
@@ -831,7 +831,7 @@
                 const detailEl = document.getElementById('detail-' + convId);
                 if (detailEl) {
                     const msgContainer = detailEl.querySelector('.msg-list');
-                    if (msgContainer) msgContainer.innerHTML = '<div class="loading" style="padding:10px"><span class="spinner" style="font-size:1rem">🌸</span> Đang tải tin nhắn...</div>';
+                    if (msgContainer) msgContainer.innerHTML = '<div class="loading" style="padding:10px"><span class="spinner" style="font-size:1rem">👑</span> Đang tải tin nhắn...</div>';
                 }
 
                 try {
@@ -947,7 +947,7 @@
                         </div>` : ''}
                     </div>`;
             } else {
-                aiHTML = '<div class="ai-inline"><div class="ai-title">📋 Đánh giá chi tiết</div><div class="loading" style="padding:8px"><span class="spinner" style="font-size:1rem">🌸</span> Đang phân tích chi tiết...</div></div>';
+                aiHTML = '<div class="ai-inline"><div class="ai-title">📋 Đánh giá chi tiết</div><div class="loading" style="padding:8px"><span class="spinner" style="font-size:1rem">👑</span> Đang phân tích chi tiết...</div></div>';
             }
 
             return `
