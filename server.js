@@ -1140,6 +1140,11 @@ app.get('/staff/*', (req, res) => res.sendFile(path.join(__dirname, 'public', 's
 app.get('/page', (req, res) => res.sendFile(path.join(__dirname, 'public', 'page.html')));
 app.get('/page/*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'page.html')));
 
+// User guides
+app.get('/huong-dan-admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'huong-dan-admin.html')));
+app.get('/huong-dan-chi-nhanh', (req, res) => res.sendFile(path.join(__dirname, 'public', 'huong-dan-chi-nhanh.html')));
+app.get('/huong-dan-truc-page', (req, res) => res.sendFile(path.join(__dirname, 'public', 'huong-dan-truc-page.html')));
+
 // Legacy redirects
 app.get('/branch', (req, res) => res.redirect('/admin'));
 app.get('/branch/*', (req, res) => res.redirect('/admin'));
