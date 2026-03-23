@@ -364,6 +364,93 @@ app.delete('/api/bookings/:id', auth, requireRole('admin', 'truc_page'), (req, r
     }
 });
 
+// ==================== STAFF LEAD ENTRY ====================
+
+// Create lead from staff/telesale (auto-assign to their branch)
+app.post('/api/bookings/staff', auth, requireRole('telesale'), (req, res) => {
+    try {
+        const { full_name, phone, zalo_id, interest_service, source, notes } = req.body;
+
+        if (!full_name) {
+            return res.status(400).json({ error: 'Vui lòng nhập họ tên' });
+        }
+
+        // Must have at least phone or zalo_id
+        if (!phone && !zalo_id) {
+            return res.status(400).json({ error: 'Vui lòng nhập SĐT hoặc Zalo' });
+        }
+
+        let phoneClean = '';
+        if (phone) {
+            phoneClean = phone.replace(/\s/g, '');
+            const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+            if (!phoneRegex.test(phoneClean)) {
+                return res.status(400).json({ error: 'Số điện thoại không hợp lệ' });
+            }
+        }
+
+        const zaloClean = (zalo_id || '').trim();
+
+        // Duplicate detection by phone (only if phone provided)
+        if (phoneClean) {
+            const existing = db.prepare(`
+                SELECT b.*, br.name as branch_name FROM bookings b
+                LEFT JOIN branches br ON b.branch_id = br.id
+                WHERE b.phone = ? ORDER BY b.created_at DESC LIMIT 1
+            `).get(phoneClean);
+            if (existing) {
+                return res.status(409).json({
+                    error: 'duplicate',
+                    message: `Khách này đã tồn tại ở ${existing.branch_name || 'chưa phân CN'}, trạng thái ${existing.status}`,
+                    existing_lead: existing
+                });
+            }
+        }
+
+        // Duplicate detection by zalo_id (only if zalo provided and no phone)
+        if (!phoneClean && zaloClean) {
+            const existingZalo = db.prepare(`
+                SELECT b.*, br.name as branch_name FROM bookings b
+                LEFT JOIN branches br ON b.branch_id = br.id
+                WHERE b.zalo_id = ? AND b.zalo_id != '' ORDER BY b.created_at DESC LIMIT 1
+            `).get(zaloClean);
+            if (existingZalo) {
+                return res.status(409).json({
+                    error: 'duplicate',
+                    message: `Khách Zalo này đã tồn tại ở ${existingZalo.branch_name || 'chưa phân CN'}, trạng thái ${existingZalo.status}`,
+                    existing_lead: existingZalo
+                });
+            }
+        }
+
+        const branchId = req.user.branchId;
+        if (!branchId) {
+            return res.status(400).json({ error: 'Bạn chưa được gán chi nhánh' });
+        }
+
+        // Use phone or generate placeholder for Zalo-only
+        const phoneForDB = phoneClean || `ZALO_${zaloClean}`;
+
+        const result = db.prepare(`
+            INSERT INTO bookings (full_name, phone, zalo_id, interest_service, source, notes, status, branch_id, assigned_to, assigned_by, assigned_at, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, 'ASSIGNED', ?, ?, ?, datetime('now','localtime'), ?)
+        `).run(
+            full_name.trim(), phoneForDB, zaloClean,
+            interest_service || '', source || 'OTHER', notes || '',
+            branchId, req.user.id, req.user.id, req.user.id
+        );
+
+        const newBooking = db.prepare('SELECT * FROM bookings WHERE id = ?').get(result.lastInsertRowid);
+        logLeadEvent(newBooking.id, req.user.id, req.user.username, 'created', `Tạo KH: ${full_name}${zaloClean ? ' (Zalo: ' + zaloClean + ')' : ''}`, '', 'ASSIGNED');
+        logActivity(req.user.id, req.user.username, req.user.role, 'lead_created_staff', `${full_name} - ${phoneForDB}${zaloClean ? ' - Zalo: ' + zaloClean : ''}`, req.ip);
+
+        res.status(201).json({ message: 'Đã nhập khách hàng!', booking: newBooking });
+    } catch (error) {
+        console.error('Error creating staff lead:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
 // ==================== LEAD ASSIGNMENT ====================
 
 app.post('/api/bookings/:id/assign', auth, (req, res) => {

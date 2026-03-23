@@ -86,6 +86,7 @@ db.exec(`
     first_service_name TEXT DEFAULT '',
     first_revenue INTEGER DEFAULT 0,
     lost_reason TEXT DEFAULT '',
+    zalo_id TEXT DEFAULT '',
     notes TEXT DEFAULT '',
     created_at DATETIME DEFAULT (datetime('now', 'localtime')),
     updated_at DATETIME DEFAULT (datetime('now', 'localtime'))
@@ -283,6 +284,7 @@ safeAddColumn('bookings', 'arrived_at', "DATETIME");
 safeAddColumn('bookings', 'first_service_name', "TEXT DEFAULT ''");
 safeAddColumn('bookings', 'first_revenue', "INTEGER DEFAULT 0");
 safeAddColumn('bookings', 'lost_reason', "TEXT DEFAULT ''");
+safeAddColumn('bookings', 'zalo_id', "TEXT DEFAULT ''");
 safeAddColumn('bookings', 'updated_at', "DATETIME DEFAULT (datetime('now', 'localtime'))");
 
 // Call logs migrations
@@ -427,176 +429,37 @@ telesaleAccounts.forEach((acc, i) => {
   }
 });
 
-// ==================== SAMPLE DATA ====================
-const existingLeads = db.prepare('SELECT COUNT(*) as c FROM bookings').get().c;
-if (existingLeads === 0) {
-  const allUsers = db.prepare('SELECT id, username, role, branch_id FROM users').all();
-  const pageUser = allUsers.find(u => u.role === 'truc_page');
-  const adminUser = allUsers.find(u => u.role === 'admin');
-  const tsUsers = allUsers.filter(u => u.role === 'telesale');
-
-  // Helper: date strings relative to now
-  function daysAgo(n, hour = 10, min = 0) {
-    const d = new Date(); d.setDate(d.getDate() - n); d.setHours(hour, min, 0, 0);
-    return d.toISOString().replace('T', ' ').slice(0, 19);
-  }
-  function today(hour = 10, min = 0) { return daysAgo(0, hour, min); }
-  function yesterday(hour = 10, min = 0) { return daysAgo(1, hour, min); }
-
-  const SERVICES = [
-    'Nâng mũi cấu trúc', 'Cắt mí mắt', 'Tiêm filler', 'Botox', 'Căng chỉ',
-    'Trẻ hóa da', 'Hút mỡ bụng', 'Nâng ngực', 'Tạo hình môi', 'Trị nám',
-    'Laser CO2', 'Peel da', 'Mesotherapy', 'PRP trẻ hóa', 'Cấy mỡ mặt'
+// ==================== DEMO DATA CLEANUP ====================
+// Clean up seeded demo data. Demo leads have initial_note starting with 'Khách hỏi '
+// and were created by the page operator seed account. We keep real data entered by truc_page.
+try {
+  const demoPhones = [
+    '0901234567','0912345678','0923456789','0934567890','0945678901','0956789012','0967890123',
+    '0978901234','0989012345','0990123456','0901111222','0912222333','0923333444','0934444555',
+    '0945555666','0956666777','0967777888','0978888999','0989999000','0990000111','0901112233',
+    '0912223344','0923334455','0934445566','0945556677','0956667788','0967778899','0978889900',
+    '0989990011','0901223344','0912334455','0923445566','0934556677','0945667788','0956778899',
+    '0967889900','0978990011','0989001122','0990112233','0901334455','0912445566','0923556677',
+    '0934667788','0945778899','0956889900','0967990011','0978001122','0989112233','0990223344'
   ];
-  const SOURCES = ['FACEBOOK', 'ZALO', 'TIKTOK', 'HOTLINE', 'WALK_IN', 'LANDING'];
-  const FUNNELS = ['FB Ads Mũi', 'FB Ads Mắt', 'Zalo OA', 'TikTok Ads', 'Google Ads', 'Landing Page', 'Giới thiệu'];
-  const AREAS = ['TP.HCM', 'Bình Dương', 'Đồng Nai', 'Long An', 'Lâm Đồng', 'Bình Thuận', 'Khánh Hòa', 'Ninh Thuận', 'Bà Rịa - Vũng Tàu', 'Tây Ninh'];
-
-  const sampleLeads = [
-    // ── Chi nhánh 1: Thủ Đức ─────────────────
-    // WON (có doanh thu)
-    { name:'Nguyễn Thị Mai', phone:'0901234567', gender:'F', year:1990, area:'TP.HCM', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'HOT', status:'WON', branch:0, daysAgo:5, apptDays:3, arrivedDays:3, revenue:15000000, revenueService:'Nâng mũi cấu trúc', calls:[{outcome:'CONSULTED',days:5},{outcome:'APPOINTMENT_BOOKED',days:4},{outcome:'ARRIVED',days:3},{outcome:'CLOSED_FIRST_REVENUE',days:3}] },
-    { name:'Trần Văn Hùng', phone:'0912345678', gender:'M', year:1985, area:'Bình Dương', source:'ZALO', funnel:'Zalo OA', service:'Hút mỡ bụng', hot:'HOT', status:'WON', branch:0, daysAgo:7, apptDays:4, arrivedDays:4, revenue:25000000, revenueService:'Hút mỡ bụng', calls:[{outcome:'CONSULTED',days:7},{outcome:'APPOINTMENT_BOOKED',days:6},{outcome:'ARRIVED',days:4},{outcome:'CLOSED_FIRST_REVENUE',days:4}] },
-    // ARRIVED (đã đến hôm qua — cần chăm sóc)
-    { name:'Lê Thị Hồng', phone:'0923456789', gender:'F', year:1995, area:'TP.HCM', source:'TIKTOK', funnel:'TikTok Ads', service:'Cắt mí mắt', hot:'HOT', status:'ARRIVED', branch:0, daysAgo:3, apptDays:1, arrivedDays:1, calls:[{outcome:'CONSULTED',days:3},{outcome:'APPOINTMENT_BOOKED',days:2},{outcome:'ARRIVED',days:1}] },
-    { name:'Phạm Minh Tuấn', phone:'0934567890', gender:'M', year:1988, area:'Đồng Nai', source:'FACEBOOK', funnel:'FB Ads Mắt', service:'Tiêm filler', hot:'WARM', status:'ARRIVED', branch:0, daysAgo:4, apptDays:1, arrivedDays:1, calls:[{outcome:'CONSULTED',days:4},{outcome:'APPOINTMENT_BOOKED',days:2},{outcome:'ARRIVED',days:1}] },
-    // APPOINTED (có hẹn hôm nay)
-    { name:'Võ Thị Lan', phone:'0945678901', gender:'F', year:1992, area:'TP.HCM', source:'HOTLINE', funnel:'', service:'Botox', hot:'HOT', status:'APPOINTED', branch:0, daysAgo:2, apptDays:0, calls:[{outcome:'CONSULTED',days:2},{outcome:'APPOINTMENT_BOOKED',days:1}] },
-    { name:'Đặng Quốc Bảo', phone:'0956789012', gender:'M', year:1980, area:'Long An', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'WARM', status:'APPOINTED', branch:0, daysAgo:3, apptDays:0, calls:[{outcome:'CALL_BACK_LATER',days:3},{outcome:'CONSULTED',days:2},{outcome:'APPOINTMENT_BOOKED',days:1}] },
-    // APPOINTED (có hẹn hôm qua nhưng chưa đến — no-show)
-    { name:'Huỳnh Thị Ngọc', phone:'0967890123', gender:'F', year:1993, area:'Bình Dương', source:'ZALO', funnel:'Zalo OA', service:'Căng chỉ', hot:'WARM', status:'APPOINTED', branch:0, daysAgo:4, apptDays:1, calls:[{outcome:'CONSULTED',days:4},{outcome:'APPOINTMENT_BOOKED',days:2}] },
-    // CALLED / FOLLOW_UP
-    { name:'Bùi Văn Đức', phone:'0978901234', gender:'M', year:1987, area:'TP.HCM', source:'TIKTOK', funnel:'TikTok Ads', service:'Trẻ hóa da', hot:'WARM', status:'FOLLOW_UP', branch:0, daysAgo:1, calls:[{outcome:'CARING',days:1}], callbackDays:1 },
-    { name:'Ngô Thị Thảo', phone:'0989012345', gender:'F', year:1998, area:'TP.HCM', source:'FACEBOOK', funnel:'FB Ads Mắt', service:'Cắt mí mắt', hot:'COLD', status:'CALLED', branch:0, daysAgo:0, calls:[{outcome:'CALL_BACK_LATER',days:0}], callbackDays:2 },
-    // NEW
-    { name:'Lý Thanh Tùng', phone:'0990123456', gender:'M', year:1991, area:'Tây Ninh', source:'LANDING', funnel:'Landing Page', service:'Laser CO2', hot:'WARM', status:'NEW', branch:0, daysAgo:0 },
-
-    // ── Chi nhánh 2: Lagi ─────────────────
-    { name:'Trương Thị Bích', phone:'0901111222', gender:'F', year:1994, area:'Bình Thuận', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'HOT', status:'WON', branch:1, daysAgo:6, apptDays:3, arrivedDays:3, revenue:18000000, revenueService:'Nâng mũi cấu trúc', calls:[{outcome:'CONSULTED',days:6},{outcome:'APPOINTMENT_BOOKED',days:5},{outcome:'ARRIVED',days:3},{outcome:'CLOSED_FIRST_REVENUE',days:3}] },
-    { name:'Phan Văn Sơn', phone:'0912222333', gender:'M', year:1982, area:'Bình Thuận', source:'HOTLINE', funnel:'', service:'Cấy mỡ mặt', hot:'HOT', status:'WON', branch:1, daysAgo:4, apptDays:2, arrivedDays:2, revenue:12000000, revenueService:'Cấy mỡ mặt', calls:[{outcome:'CONSULTED',days:4},{outcome:'APPOINTMENT_BOOKED',days:3},{outcome:'ARRIVED',days:2},{outcome:'CLOSED_FIRST_REVENUE',days:2}] },
-    { name:'Đỗ Thị Hạnh', phone:'0923333444', gender:'F', year:1996, area:'Bình Thuận', source:'ZALO', funnel:'Zalo OA', service:'Trị nám', hot:'WARM', status:'ARRIVED', branch:1, daysAgo:3, apptDays:1, arrivedDays:1, calls:[{outcome:'CONSULTED',days:3},{outcome:'APPOINTMENT_BOOKED',days:2},{outcome:'ARRIVED',days:1}] },
-    { name:'Mai Xuân Trường', phone:'0934444555', gender:'M', year:1989, area:'Bình Thuận', source:'TIKTOK', funnel:'TikTok Ads', service:'Botox', hot:'HOT', status:'APPOINTED', branch:1, daysAgo:2, apptDays:0, calls:[{outcome:'CONSULTED',days:2},{outcome:'APPOINTMENT_BOOKED',days:1}] },
-    { name:'Hồ Thị Mỹ Duyên', phone:'0945555666', gender:'F', year:1997, area:'Bình Thuận', source:'FACEBOOK', funnel:'FB Ads Mắt', service:'Cắt mí mắt', hot:'WARM', status:'APPOINTED', branch:1, daysAgo:3, apptDays:1, calls:[{outcome:'CONSULTED',days:3},{outcome:'APPOINTMENT_BOOKED',days:2}] },
-    { name:'Lâm Quốc Việt', phone:'0956666777', gender:'M', year:1986, area:'Bình Thuận', source:'WALK_IN', funnel:'', service:'PRP trẻ hóa', hot:'WARM', status:'FOLLOW_UP', branch:1, daysAgo:1, calls:[{outcome:'CARING',days:1}], callbackDays:0 },
-    { name:'Cao Thị Liên', phone:'0967777888', gender:'F', year:2000, area:'Bình Thuận', source:'LANDING', funnel:'Landing Page', service:'Peel da', hot:'COLD', status:'CALLED', branch:1, daysAgo:0, calls:[{outcome:'NOT_INTERESTED',days:0}] },
-    { name:'Tạ Đình Phú', phone:'0978888999', gender:'M', year:1984, area:'Bình Thuận', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'WARM', status:'NEW', branch:1, daysAgo:0 },
-    { name:'Vương Thị Ngân', phone:'0989999000', gender:'F', year:1993, area:'Bình Thuận', source:'ZALO', funnel:'Zalo OA', service:'Mesotherapy', hot:'WARM', status:'NEW', branch:1, daysAgo:0 },
-    { name:'Đinh Thị Thu', phone:'0990000111', gender:'F', year:1991, area:'Bình Thuận', source:'TIKTOK', funnel:'TikTok Ads', service:'Tiêm filler', hot:'HOT', status:'ASSIGNED', branch:1, daysAgo:0 },
-
-    // ── Chi nhánh 3: Cam Ranh ─────────────────
-    { name:'Nguyễn Thị Thanh Hà', phone:'0901112233', gender:'F', year:1988, area:'Khánh Hòa', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'HOT', status:'WON', branch:2, daysAgo:5, apptDays:2, arrivedDays:2, revenue:20000000, revenueService:'Nâng mũi cấu trúc', calls:[{outcome:'CONSULTED',days:5},{outcome:'APPOINTMENT_BOOKED',days:3},{outcome:'ARRIVED',days:2},{outcome:'CLOSED_FIRST_REVENUE',days:2}] },
-    { name:'Lê Hoàng Nam', phone:'0912223344', gender:'M', year:1990, area:'Khánh Hòa', source:'HOTLINE', funnel:'', service:'Căng chỉ', hot:'HOT', status:'ARRIVED', branch:2, daysAgo:3, apptDays:1, arrivedDays:1, calls:[{outcome:'CONSULTED',days:3},{outcome:'APPOINTMENT_BOOKED',days:2},{outcome:'ARRIVED',days:1}] },
-    { name:'Phạm Thị Kim Oanh', phone:'0923334455', gender:'F', year:1995, area:'Khánh Hòa', source:'ZALO', funnel:'Zalo OA', service:'Tiêm filler', hot:'WARM', status:'APPOINTED', branch:2, daysAgo:2, apptDays:0, calls:[{outcome:'CONSULTED',days:2},{outcome:'APPOINTMENT_BOOKED',days:1}] },
-    { name:'Trần Quang Minh', phone:'0934445566', gender:'M', year:1983, area:'Khánh Hòa', source:'TIKTOK', funnel:'TikTok Ads', service:'Hút mỡ bụng', hot:'HOT', status:'APPOINTED', branch:2, daysAgo:4, apptDays:1, calls:[{outcome:'CONSULTED',days:4},{outcome:'APPOINTMENT_BOOKED',days:2}] },
-    { name:'Võ Thị Phương', phone:'0945556677', gender:'F', year:1997, area:'Khánh Hòa', source:'FACEBOOK', funnel:'FB Ads Mắt', service:'Cắt mí mắt', hot:'WARM', status:'FOLLOW_UP', branch:2, daysAgo:1, calls:[{outcome:'CARING',days:1}], callbackDays:1 },
-    { name:'Đặng Anh Tuấn', phone:'0956667788', gender:'M', year:1992, area:'Khánh Hòa', source:'LANDING', funnel:'Landing Page', service:'Laser CO2', hot:'COLD', status:'CALLED', branch:2, daysAgo:0, calls:[{outcome:'CALL_BACK_LATER',days:0}], callbackDays:3 },
-    { name:'Huỳnh Thị Diệu', phone:'0967778899', gender:'F', year:1999, area:'Khánh Hòa', source:'WALK_IN', funnel:'', service:'Trẻ hóa da', hot:'WARM', status:'NEW', branch:2, daysAgo:0 },
-    { name:'Bùi Minh Đạt', phone:'0978889900', gender:'M', year:1987, area:'Khánh Hòa', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'HOT', status:'NEW', branch:2, daysAgo:0 },
-    // LOST
-    { name:'Ngô Thị Yến', phone:'0989990011', gender:'F', year:1994, area:'Khánh Hòa', source:'TIKTOK', funnel:'TikTok Ads', service:'Botox', hot:'COLD', status:'LOST', branch:2, daysAgo:6, calls:[{outcome:'NOT_INTERESTED',days:6},{outcome:'LOST',days:5}], lostReason:'Không quan tâm' },
-
-    // ── Chi nhánh 4: Phan Rang ─────────────────
-    { name:'Trương Thị Hương', phone:'0901223344', gender:'F', year:1991, area:'Ninh Thuận', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'HOT', status:'WON', branch:3, daysAgo:4, apptDays:2, arrivedDays:2, revenue:16000000, revenueService:'Nâng mũi cấu trúc', calls:[{outcome:'CONSULTED',days:4},{outcome:'APPOINTMENT_BOOKED',days:3},{outcome:'ARRIVED',days:2},{outcome:'CLOSED_FIRST_REVENUE',days:2}] },
-    { name:'Phan Minh Quân', phone:'0912334455', gender:'M', year:1986, area:'Ninh Thuận', source:'ZALO', funnel:'Zalo OA', service:'Cấy mỡ mặt', hot:'HOT', status:'ARRIVED', branch:3, daysAgo:3, apptDays:1, arrivedDays:1, calls:[{outcome:'CONSULTED',days:3},{outcome:'APPOINTMENT_BOOKED',days:2},{outcome:'ARRIVED',days:1}] },
-    { name:'Đỗ Thị Loan', phone:'0923445566', gender:'F', year:1996, area:'Ninh Thuận', source:'HOTLINE', funnel:'', service:'Trị nám', hot:'WARM', status:'APPOINTED', branch:3, daysAgo:2, apptDays:0, calls:[{outcome:'CONSULTED',days:2},{outcome:'APPOINTMENT_BOOKED',days:1}] },
-    { name:'Mai Văn Khoa', phone:'0934556677', gender:'M', year:1984, area:'Ninh Thuận', source:'TIKTOK', funnel:'TikTok Ads', service:'PRP trẻ hóa', hot:'WARM', status:'APPOINTED', branch:3, daysAgo:5, apptDays:1, calls:[{outcome:'CONSULTED',days:5},{outcome:'APPOINTMENT_BOOKED',days:3}] },
-    { name:'Hồ Thị Kim Chi', phone:'0945667788', gender:'F', year:1998, area:'Ninh Thuận', source:'FACEBOOK', funnel:'FB Ads Mắt', service:'Cắt mí mắt', hot:'HOT', status:'FOLLOW_UP', branch:3, daysAgo:1, calls:[{outcome:'CARING',days:1}], callbackDays:0 },
-    { name:'Lâm Đức Trí', phone:'0956778899', gender:'M', year:1989, area:'Ninh Thuận', source:'LANDING', funnel:'Landing Page', service:'Mesotherapy', hot:'COLD', status:'CALLED', branch:3, daysAgo:0, calls:[{outcome:'NO_ANSWER',days:0}] },
-    { name:'Cao Thị Bích Ngọc', phone:'0967889900', gender:'F', year:2001, area:'Ninh Thuận', source:'WALK_IN', funnel:'', service:'Peel da', hot:'WARM', status:'NEW', branch:3, daysAgo:0 },
-    { name:'Tạ Minh Hoàng', phone:'0978990011', gender:'M', year:1985, area:'Ninh Thuận', source:'FACEBOOK', funnel:'', service:'Botox', hot:'WARM', status:'NEW', branch:3, daysAgo:0 },
-    { name:'Vương Thị Tuyết', phone:'0989001122', gender:'F', year:1993, area:'Ninh Thuận', source:'ZALO', funnel:'Zalo OA', service:'Tiêm filler', hot:'HOT', status:'ASSIGNED', branch:3, daysAgo:0 },
-    { name:'Đinh Quốc Anh', phone:'0990112233', gender:'M', year:1990, area:'Ninh Thuận', source:'TIKTOK', funnel:'TikTok Ads', service:'Hút mỡ bụng', hot:'COLD', status:'LOST', branch:3, daysAgo:7, calls:[{outcome:'NOT_INTERESTED',days:7},{outcome:'LOST',days:6}], lostReason:'Giá cao' },
-
-    // ── Chi nhánh 5: Bảo Lộc ─────────────────
-    { name:'Nguyễn Thị Cẩm Tú', phone:'0901334455', gender:'F', year:1992, area:'Lâm Đồng', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Nâng mũi cấu trúc', hot:'HOT', status:'WON', branch:4, daysAgo:6, apptDays:3, arrivedDays:3, revenue:22000000, revenueService:'Nâng mũi cấu trúc', calls:[{outcome:'CONSULTED',days:6},{outcome:'APPOINTMENT_BOOKED',days:5},{outcome:'ARRIVED',days:3},{outcome:'CLOSED_FIRST_REVENUE',days:3}] },
-    { name:'Lê Văn Phúc', phone:'0912445566', gender:'M', year:1987, area:'Lâm Đồng', source:'ZALO', funnel:'Zalo OA', service:'Căng chỉ', hot:'HOT', status:'WON', branch:4, daysAgo:5, apptDays:2, arrivedDays:2, revenue:10000000, revenueService:'Căng chỉ', calls:[{outcome:'CONSULTED',days:5},{outcome:'APPOINTMENT_BOOKED',days:3},{outcome:'ARRIVED',days:2},{outcome:'CLOSED_FIRST_REVENUE',days:2}] },
-    { name:'Phạm Thị Ngọc Ánh', phone:'0923556677', gender:'F', year:1995, area:'Lâm Đồng', source:'HOTLINE', funnel:'', service:'Trẻ hóa da', hot:'WARM', status:'ARRIVED', branch:4, daysAgo:2, apptDays:1, arrivedDays:1, calls:[{outcome:'CONSULTED',days:2},{outcome:'APPOINTMENT_BOOKED',days:1},{outcome:'ARRIVED',days:1}] },
-    { name:'Trần Đức Huy', phone:'0934667788', gender:'M', year:1983, area:'Lâm Đồng', source:'TIKTOK', funnel:'TikTok Ads', service:'Hút mỡ bụng', hot:'HOT', status:'APPOINTED', branch:4, daysAgo:2, apptDays:0, calls:[{outcome:'CONSULTED',days:2},{outcome:'APPOINTMENT_BOOKED',days:1}] },
-    { name:'Võ Thị Kim Thoa', phone:'0945778899', gender:'F', year:1997, area:'Lâm Đồng', source:'FACEBOOK', funnel:'FB Ads Mắt', service:'Cắt mí mắt', hot:'WARM', status:'APPOINTED', branch:4, daysAgo:4, apptDays:1, calls:[{outcome:'CONSULTED',days:4},{outcome:'APPOINTMENT_BOOKED',days:2}] },
-    { name:'Đặng Minh Trung', phone:'0956889900', gender:'M', year:1990, area:'Lâm Đồng', source:'WALK_IN', funnel:'', service:'Laser CO2', hot:'WARM', status:'FOLLOW_UP', branch:4, daysAgo:1, calls:[{outcome:'CARING',days:1}], callbackDays:2 },
-    { name:'Huỳnh Thị Thanh Trúc', phone:'0967990011', gender:'F', year:1999, area:'Lâm Đồng', source:'LANDING', funnel:'Landing Page', service:'Peel da', hot:'COLD', status:'CALLED', branch:4, daysAgo:0, calls:[{outcome:'CALL_BACK_LATER',days:0}], callbackDays:3 },
-    { name:'Bùi Quang Hải', phone:'0978001122', gender:'M', year:1988, area:'Lâm Đồng', source:'FACEBOOK', funnel:'FB Ads Mũi', service:'Cấy mỡ mặt', hot:'HOT', status:'NEW', branch:4, daysAgo:0 },
-    { name:'Ngô Thị Phương Uyên', phone:'0989112233', gender:'F', year:2000, area:'Lâm Đồng', source:'ZALO', funnel:'Zalo OA', service:'Tiêm filler', hot:'WARM', status:'NEW', branch:4, daysAgo:0 },
-    { name:'Lý Hoàng Long', phone:'0990223344', gender:'M', year:1986, area:'Lâm Đồng', source:'TIKTOK', funnel:'TikTok Ads', service:'Botox', hot:'COLD', status:'LOST', branch:4, daysAgo:8, calls:[{outcome:'WRONG_NUMBER',days:8}], lostReason:'Sai số' },
-  ];
-
-  const insertBooking = db.prepare(`INSERT INTO bookings (
-    full_name, phone, gender, birth_year, area, source, funnel_name, interest_service, service,
-    initial_note, hot_level, status, branch_id, assigned_to, assigned_by, assigned_at, created_by,
-    called_count, last_called_at, last_call_outcome, callback_at, care_reminder_at,
-    appointment_at, appointment_date, arrived_at, first_service_name, first_revenue, lost_reason, notes,
-    created_at, updated_at
-  ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
-
-  const insertCall = db.prepare(`INSERT INTO call_logs (booking_id, user_id, username, call_number, outcome, notes, next_call_at, care_reminder_at, call_time) VALUES (?,?,?,?,?,?,?,?,?)`);
-  const insertRevenue = db.prepare(`INSERT INTO revenues (booking_id, branch_id, telesales_id, amount, service_name, notes, created_by, created_at) VALUES (?,?,?,?,?,?,?,?)`);
-  const insertEvent = db.prepare(`INSERT INTO lead_events (booking_id, user_id, username, type, note, old_value, new_value, created_at) VALUES (?,?,?,?,?,?,?,?)`);
-
-  const seedAll = db.transaction(() => {
-    sampleLeads.forEach(l => {
-      const br = branches[l.branch];
-      const ts = tsUsers.find(u => u.branch_id === br.id);
-      const isAssigned = l.status !== 'NEW';
-      const createdAt = daysAgo(l.daysAgo, 8 + Math.floor(Math.random() * 4), Math.floor(Math.random() * 60));
-      const assignedAt = isAssigned ? daysAgo(l.daysAgo, 9, 0) : null;
-      const apptAt = l.apptDays !== undefined ? daysAgo(l.apptDays, 14, 0) : null;
-      const arrivedAt = l.arrivedDays !== undefined ? daysAgo(l.arrivedDays, 15, 0) : null;
-      const callbackAt = l.callbackDays !== undefined ? daysAgo(-l.callbackDays, 9, 0) : null;
-      const careAt = l.arrivedDays === 1 ? today(9, 0) : null;
-      const lastCall = l.calls ? l.calls[l.calls.length - 1] : null;
-
-      const info = insertBooking.run(
-        l.name, l.phone, l.gender, l.year, l.area, l.source, l.funnel, l.service, l.service,
-        `Khách hỏi ${l.service}`, l.hot, l.status, br.id,
-        isAssigned && ts ? ts.id : null, isAssigned ? (pageUser ? pageUser.id : adminUser.id) : null, assignedAt, pageUser ? pageUser.id : adminUser.id,
-        l.calls ? l.calls.length : 0,
-        lastCall ? daysAgo(lastCall.days, 10, 30) : null,
-        lastCall ? lastCall.outcome : '',
-        callbackAt, careAt,
-        apptAt, apptAt ? apptAt.slice(0, 10) : '',
-        arrivedAt,
-        l.revenueService || '', l.revenue || 0, l.lostReason || '',
-        l.calls && l.calls.length > 0 ? `Gọi ${l.calls.length} lần` : '',
-        createdAt, lastCall ? daysAgo(lastCall.days, 10, 30) : createdAt
-      );
-      const bookingId = info.lastInsertRowid;
-
-      // Insert call logs
-      if (l.calls && ts) {
-        l.calls.forEach((c, ci) => {
-          const callNotes = {
-            'CONSULTED': 'Đã tư vấn, khách quan tâm',
-            'APPOINTMENT_BOOKED': `Hẹn ${l.service}`,
-            'ARRIVED': 'Khách đã đến',
-            'CLOSED_FIRST_REVENUE': `Đóng doanh thu ${l.service}`,
-            'CARING': 'Chăm sóc thêm',
-            'CALL_BACK_LATER': 'Khách hẹn gọi lại',
-            'NOT_INTERESTED': 'Không quan tâm',
-            'NO_ANSWER': 'Không nghe máy',
-            'WRONG_NUMBER': 'Sai số',
-            'LOST': l.lostReason || 'Mất khách'
-          };
-          insertCall.run(
-            bookingId, ts.id, ts.username || '', ci + 1, c.outcome,
-            callNotes[c.outcome] || '', null, null, daysAgo(c.days, 10 + ci, 15 * ci)
-          );
-        });
-      }
-
-      // Insert revenue
-      if (l.revenue && ts) {
-        insertRevenue.run(bookingId, br.id, ts.id, l.revenue, l.revenueService || l.service, '', adminUser ? adminUser.id : 1, daysAgo(l.arrivedDays, 16, 0));
-      }
-
-      // Insert events
-      insertEvent.run(bookingId, pageUser ? pageUser.id : 1, pageUser ? pageUser.username : 'admin', 'CREATED', `Thêm khách ${l.name}`, '', 'NEW', createdAt);
-      if (isAssigned && ts) {
-        insertEvent.run(bookingId, pageUser ? pageUser.id : 1, pageUser ? pageUser.username : 'admin', 'ASSIGNED', `Phân cho ${ts.username}`, 'NEW', 'ASSIGNED', assignedAt);
+  const demoCount = db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE phone IN (${demoPhones.map(() => '?').join(',')})`).get(...demoPhones).c;
+  if (demoCount > 0) {
+    const cleanupTx = db.transaction(() => {
+      // Get demo booking IDs
+      const demoIds = db.prepare(`SELECT id FROM bookings WHERE phone IN (${demoPhones.map(() => '?').join(',')})`).all(...demoPhones).map(r => r.id);
+      if (demoIds.length > 0) {
+        const idPlaceholders = demoIds.map(() => '?').join(',');
+        db.prepare(`DELETE FROM call_logs WHERE booking_id IN (${idPlaceholders})`).run(...demoIds);
+        db.prepare(`DELETE FROM lead_events WHERE booking_id IN (${idPlaceholders})`).run(...demoIds);
+        db.prepare(`DELETE FROM revenues WHERE booking_id IN (${idPlaceholders})`).run(...demoIds);
+        db.prepare(`DELETE FROM bookings WHERE id IN (${idPlaceholders})`).run(...demoIds);
+        console.log(`  ✅ Cleaned ${demoIds.length} demo leads and related data`);
       }
     });
-  });
-  seedAll();
-  console.log(`  ✅ Seeded ${sampleLeads.length} sample leads with calls, revenues, events`);
+    cleanupTx();
+  }
+} catch (e) {
+  console.error('  ⚠️ Demo cleanup error:', e.message);
 }
 
 module.exports = db;

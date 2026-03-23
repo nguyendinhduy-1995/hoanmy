@@ -58,6 +58,10 @@
                 <h1 class="ws-topbar-title" id="pageTitle">Khách hàng</h1>
             </div>
             <div class="ws-topbar-right">
+                <button class="ws-btn ws-btn-primary" onclick="openAddLeadModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nhập khách
+                </button>
                 <button class="ws-btn" onclick="loadData()" title="Làm mới">↻</button>
                 <button class="ws-btn ws-btn-danger" onclick="logout()">Đăng xuất</button>
             </div>
@@ -306,6 +310,68 @@
     </div>
 </div>
 
+<!-- Add Lead Modal -->
+<div class="ws-modal-overlay" id="addLeadModal">
+    <div class="ws-modal" style="max-width:480px">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title">✍️ Nhập khách hàng</h3>
+            <button class="ws-modal-close" onclick="closeAddLeadModal()">&times;</button>
+        </div>
+        <div class="ws-modal-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="ws-field" style="grid-column:1/-1">
+                    <label>Họ tên *</label>
+                    <input type="text" id="addLeadName" placeholder="Nhập họ tên khách hàng">
+                </div>
+                <div class="ws-field" style="grid-column:1/-1">
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span>Liên hệ *</span>
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:400;font-size:13px">
+                            <input type="checkbox" id="addLeadZaloToggle" onchange="toggleZaloMode()">
+                            <span style="color:#0068FF">📱 Chỉ có Zalo</span>
+                        </label>
+                    </label>
+                    <div id="phoneField">
+                        <input type="tel" id="addLeadPhone" placeholder="0912345678">
+                    </div>
+                    <div id="zaloField" style="display:none">
+                        <input type="text" id="addLeadZalo" placeholder="Nhập Zalo (SĐT Zalo hoặc tên Zalo)">
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">💡 Nhập SĐT Zalo hoặc tên Zalo của khách</div>
+                    </div>
+                </div>
+                <div class="ws-field">
+                    <label>Dịch vụ quan tâm</label>
+                    <input type="text" id="addLeadService" placeholder="VD: Triệt lông, Chăm sóc da...">
+                </div>
+                <div class="ws-field">
+                    <label>Kênh nguồn</label>
+                    <select id="addLeadSource">
+                        <option value="FACEBOOK">Facebook</option>
+                        <option value="ZALO">Zalo</option>
+                        <option value="TIKTOK">TikTok</option>
+                        <option value="HOTLINE">Hotline</option>
+                        <option value="WALK_IN">Khách vãng lai</option>
+                        <option value="OTHER">Khác</option>
+                    </select>
+                </div>
+                <div class="ws-field" style="grid-column:1/-1">
+                    <label>Ghi chú</label>
+                    <textarea id="addLeadNotes" rows="2" placeholder="Nhu cầu, nội dung chat tóm tắt..."></textarea>
+                </div>
+            </div>
+            <!-- Duplicate warning -->
+            <div id="addLeadDupWarning" style="display:none;margin-top:12px;padding:12px;background:#FFF3E0;border-radius:8px;border:1px solid #FFB74D">
+                <div style="font-weight:600;color:#E65100;margin-bottom:4px">⚠️ Khách đã tồn tại</div>
+                <div id="addLeadDupDetail" style="font-size:13px;color:#333"></div>
+            </div>
+        </div>
+        <div class="ws-modal-footer">
+            <button class="ws-btn" onclick="closeAddLeadModal()">Hủy</button>
+            <button class="ws-btn ws-btn-primary" id="btnSubmitAddLead" onclick="submitAddLead()">Nhập khách</button>
+        </div>
+    </div>
+</div>
+
 <script>
 const TOKEN = localStorage.getItem('crm_token');
 const USER = JSON.parse(localStorage.getItem('crm_user') || '{}');
@@ -449,7 +515,8 @@ function renderLeads() {
             <div style="flex:1;min-width:0">
                 <div style="font-weight:600;font-size:15px">${esc(l.full_name)}</div>
                 <div style="font-size:13px;color:var(--text-muted)">
-                    <a href="tel:${l.phone}" style="color:var(--blue);text-decoration:none" onclick="event.stopPropagation()">${esc(l.phone)}</a>
+                    ${l.phone && l.phone.startsWith('ZALO_') ? '<span style="color:#0068FF">📱 Zalo: ' + esc(l.zalo_id || l.phone.replace('ZALO_','')) + '</span>' : '<a href="tel:' + l.phone + '" style="color:var(--blue);text-decoration:none" onclick="event.stopPropagation()">' + esc(l.phone) + '</a>'}
+                    ${l.zalo_id && !l.phone.startsWith('ZALO_') ? ' · <span style="color:#0068FF">Zalo: ' + esc(l.zalo_id) + '</span>' : ''}
                     ${l.interest_service ? ' · ' + esc(l.interest_service) : ''}
                 </div>
                 <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
@@ -801,6 +868,65 @@ async function loadReports() {
 function showToast(msg, type = 'success') {
     const t = document.createElement('div'); t.className = 'ws-toast ' + type; t.textContent = msg;
     document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+}
+
+// ==================== ADD LEAD MODAL ====================
+function openAddLeadModal() {
+    ['addLeadName','addLeadPhone','addLeadZalo','addLeadService','addLeadNotes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('addLeadSource').value = 'FACEBOOK';
+    document.getElementById('addLeadZaloToggle').checked = false;
+    document.getElementById('phoneField').style.display = 'block';
+    document.getElementById('zaloField').style.display = 'none';
+    document.getElementById('addLeadDupWarning').style.display = 'none';
+    document.getElementById('btnSubmitAddLead').style.display = '';
+    document.getElementById('addLeadModal').classList.add('show');
+}
+function closeAddLeadModal() { document.getElementById('addLeadModal').classList.remove('show'); }
+
+function toggleZaloMode() {
+    const isZalo = document.getElementById('addLeadZaloToggle').checked;
+    document.getElementById('phoneField').style.display = isZalo ? 'none' : 'block';
+    document.getElementById('zaloField').style.display = isZalo ? 'block' : 'none';
+    if (isZalo) {
+        document.getElementById('addLeadPhone').value = '';
+    } else {
+        document.getElementById('addLeadZalo').value = '';
+    }
+}
+
+async function submitAddLead() {
+    const name = document.getElementById('addLeadName').value.trim();
+    const isZalo = document.getElementById('addLeadZaloToggle').checked;
+    const phone = isZalo ? '' : document.getElementById('addLeadPhone').value.trim();
+    const zalo_id = isZalo ? document.getElementById('addLeadZalo').value.trim() : '';
+    const interest_service = document.getElementById('addLeadService').value.trim();
+    const source = document.getElementById('addLeadSource').value;
+    const notes = document.getElementById('addLeadNotes').value.trim();
+
+    if (!name) { showToast('Vui lòng nhập họ tên', 'error'); return; }
+    if (!phone && !zalo_id) { showToast(isZalo ? 'Vui lòng nhập Zalo' : 'Vui lòng nhập SĐT', 'error'); return; }
+
+    try {
+        const res = await fetch('/api/bookings/staff', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_name: name, phone, zalo_id, interest_service, source, notes })
+        });
+        const json = await res.json();
+
+        if (res.status === 409 && json.error === 'duplicate') {
+            document.getElementById('addLeadDupDetail').innerHTML = esc(json.message);
+            document.getElementById('addLeadDupWarning').style.display = 'block';
+            return;
+        }
+        if (!res.ok) { showToast(json.error || 'Lỗi', 'error'); return; }
+
+        showToast('Đã nhập khách hàng!');
+        closeAddLeadModal();
+        loadData();
+    } catch (e) {
+        showToast('Lỗi nhập khách', 'error');
+    }
 }
 
 // Init
