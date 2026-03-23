@@ -323,21 +323,17 @@
                     <label>Họ tên *</label>
                     <input type="text" id="addLeadName" placeholder="Nhập họ tên khách hàng">
                 </div>
-                <div class="ws-field" style="grid-column:1/-1">
-                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                        <span>Liên hệ *</span>
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:400;font-size:13px">
-                            <input type="checkbox" id="addLeadZaloToggle" onchange="toggleZaloMode()">
-                            <span style="color:#0068FF">📱 Chỉ có Zalo</span>
-                        </label>
-                    </label>
-                    <div id="phoneField">
-                        <input type="tel" id="addLeadPhone" placeholder="0912345678">
+                <div class="ws-field">
+                    <label>SĐT *</label>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <input type="tel" id="addLeadPhone" placeholder="0912345678" style="flex:1">
+                        <button type="button" id="zaloToggleBtn" onclick="toggleZaloMode()" style="white-space:nowrap;padding:6px 10px;border:1px solid #0068FF;border-radius:6px;background:#fff;color:#0068FF;font-size:12px;cursor:pointer;font-weight:500">Zalo</button>
                     </div>
-                    <div id="zaloField" style="display:none">
-                        <input type="text" id="addLeadZalo" placeholder="Nhập Zalo (SĐT Zalo hoặc tên Zalo)">
-                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">💡 Nhập SĐT Zalo hoặc tên Zalo của khách</div>
-                    </div>
+                    <input type="hidden" id="addLeadZaloToggle" value="0">
+                </div>
+                <div class="ws-field" id="zaloField" style="display:none">
+                    <label>Zalo *</label>
+                    <input type="text" id="addLeadZalo" placeholder="SĐT hoặc tên Zalo">
                 </div>
                 <div class="ws-field">
                     <label>Dịch vụ quan tâm</label>
@@ -874,9 +870,11 @@ function showToast(msg, type = 'success') {
 function openAddLeadModal() {
     ['addLeadName','addLeadPhone','addLeadZalo','addLeadService','addLeadNotes'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('addLeadSource').value = 'FACEBOOK';
-    document.getElementById('addLeadZaloToggle').checked = false;
-    document.getElementById('phoneField').style.display = 'block';
+    document.getElementById('addLeadZaloToggle').value = '0';
+    document.getElementById('addLeadPhone').parentElement.parentElement.style.display = '';
     document.getElementById('zaloField').style.display = 'none';
+    const btn = document.getElementById('zaloToggleBtn');
+    btn.style.background = '#fff'; btn.style.color = '#0068FF';
     document.getElementById('addLeadDupWarning').style.display = 'none';
     document.getElementById('btnSubmitAddLead').style.display = '';
     document.getElementById('addLeadModal').classList.add('show');
@@ -884,19 +882,28 @@ function openAddLeadModal() {
 function closeAddLeadModal() { document.getElementById('addLeadModal').classList.remove('show'); }
 
 function toggleZaloMode() {
-    const isZalo = document.getElementById('addLeadZaloToggle').checked;
-    document.getElementById('phoneField').style.display = isZalo ? 'none' : 'block';
-    document.getElementById('zaloField').style.display = isZalo ? 'block' : 'none';
+    const toggle = document.getElementById('addLeadZaloToggle');
+    const isZalo = toggle.value === '0'; // flipping
+    toggle.value = isZalo ? '1' : '0';
+    const btn = document.getElementById('zaloToggleBtn');
+    const phoneWrap = document.getElementById('addLeadPhone').parentElement.parentElement;
+    const zaloWrap = document.getElementById('zaloField');
     if (isZalo) {
+        phoneWrap.style.display = 'none';
+        zaloWrap.style.display = '';
+        btn.style.background = '#0068FF'; btn.style.color = '#fff';
         document.getElementById('addLeadPhone').value = '';
     } else {
+        phoneWrap.style.display = '';
+        zaloWrap.style.display = 'none';
+        btn.style.background = '#fff'; btn.style.color = '#0068FF';
         document.getElementById('addLeadZalo').value = '';
     }
 }
 
 async function submitAddLead() {
     const name = document.getElementById('addLeadName').value.trim();
-    const isZalo = document.getElementById('addLeadZaloToggle').checked;
+    const isZalo = document.getElementById('addLeadZaloToggle').value === '1';
     const phone = isZalo ? '' : document.getElementById('addLeadPhone').value.trim();
     const zalo_id = isZalo ? document.getElementById('addLeadZalo').value.trim() : '';
     const interest_service = document.getElementById('addLeadService').value.trim();
