@@ -236,20 +236,20 @@
                 </div>
             </div>
             <!-- Manual callback reminder -->
-            <div class="ws-field" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                    <input type="checkbox" id="manualCallbackCheck" onchange="toggleManualCallback()">
-                    <span>📌 Đặt nhắc gọi lại thủ công</span>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+                <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;user-select:none" id="callbackToggleLabel">
+                    <input type="checkbox" id="manualCallbackCheck" onchange="toggleManualCallback()" style="margin:0;accent-color:#0068FF">
+                    <span>📌 Nhắc gọi lại</span>
                 </label>
-            </div>
-            <div id="manualCallbackFields" style="display:none">
-                <div class="ws-field">
-                    <label>Ngày giờ nhắc gọi lại</label>
-                    <input type="datetime-local" id="manualCallbackAt">
-                </div>
-                <div class="ws-field">
-                    <label>Ghi chú nhắc gọi</label>
-                    <input type="text" id="manualCallbackNote" placeholder="Ví dụ: Gọi lại hỏi về giá triệt lông">
+                <div id="manualCallbackFields" style="display:none;margin-top:8px">
+                    <div style="display:flex;gap:8px;align-items:flex-end">
+                        <div class="ws-field" style="flex:1;margin:0">
+                            <input type="datetime-local" id="manualCallbackAt" style="font-size:13px">
+                        </div>
+                        <div class="ws-field" style="flex:1;margin:0">
+                            <input type="text" id="manualCallbackNote" placeholder="Ghi chú nhắc..." style="font-size:13px">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -554,7 +554,12 @@ function openCallModal(id) {
 function closeCallModal() { document.getElementById('callModal').classList.remove('show'); }
 
 function toggleManualCallback() {
-    document.getElementById('manualCallbackFields').style.display = document.getElementById('manualCallbackCheck').checked ? 'block' : 'none';
+    const el = document.getElementById('manualCallbackFields');
+    const checked = document.getElementById('manualCallbackCheck').checked;
+    el.style.display = checked ? 'block' : 'none';
+    const lbl = document.getElementById('callbackToggleLabel');
+    lbl.style.borderColor = checked ? '#0068FF' : 'var(--border)';
+    lbl.style.background = checked ? '#EBF5FF' : '';
 }
 
 function onOutcomeChange() {
