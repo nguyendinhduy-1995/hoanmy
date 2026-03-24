@@ -169,6 +169,12 @@
                     <button class="ws-btn date-filter-btn" onclick="setPageReportRange('week')" data-prrange="week">Tuần</button>
                     <button class="ws-btn date-filter-btn" onclick="setPageReportRange('month')" data-prrange="month">Tháng</button>
                     <button class="ws-btn date-filter-btn" onclick="setPageReportRange('all')" data-prrange="all">Tất cả</button>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                        <input type="date" id="prFrom" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <span style="color:var(--text-muted)">→</span>
+                        <input type="date" id="prTo" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                        <button class="ws-btn ws-btn-primary" onclick="setPageReportRange('custom')" style="font-size:12px;padding:5px 10px">Lọc</button>
+                    </div>
                 </div>
                 <div class="ws-kpi-grid" style="margin-bottom:12px">
                     <div class="ws-kpi-card ws-kpi-accent"><div class="ws-kpi-label">Tổng số điện thoại nhập</div><div class="ws-kpi-value" id="prTotal">—</div></div>
@@ -696,6 +702,7 @@ async function loadPageReports() {
     else if (pageReportRange === 'week') { const d = new Date(now); d.setDate(d.getDate()-d.getDay()+1); const e = new Date(d); e.setDate(e.getDate()+6); from = fmtDate(d); to = fmtDate(e); }
     else if (pageReportRange === 'month') { from = fmtDate(new Date(now.getFullYear(),now.getMonth(),1)); to = fmtDate(new Date(now.getFullYear(),now.getMonth()+1,0)); }
     else if (pageReportRange === 'all') { from = '2020-01-01'; to = '2030-12-31'; }
+    else if (pageReportRange === 'custom') { from = document.getElementById('prFrom').value; to = document.getElementById('prTo').value; }
     let url = '/api/reports/page';
     if (from && to) url += `?from=${from}&to=${to}`;
     try {
