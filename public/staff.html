@@ -846,7 +846,7 @@ async function loadAppointments() {
         container.innerHTML = appts.map(a => {
             const color = STATUS_COLORS[a.status] || '#333';
             const dt = a.appointment_at ? new Date(a.appointment_at) : null;
-            return `<div class="ws-lead-card" onclick="openCallModal(${a.id})">
+            return `<div class="ws-lead-card" onclick="openApptDetail(${a.id})">
                 <div style="flex:1;min-width:0">
                     <div style="font-weight:600">${HOT[a.hot_level]||''} ${esc(a.full_name)}</div>
                     <div style="font-size:13px;color:var(--text-muted)">
@@ -861,6 +861,19 @@ async function loadAppointments() {
             </div>`;
         }).join('');
     } catch (e) { console.error(e); }
+}
+
+async function openApptDetail(id) {
+    let l = leads.find(x => x.id === id);
+    if (!l) {
+        try {
+            const data = await api('/api/bookings?limit=9999');
+            const all = data.bookings || [];
+            l = all.find(x => x.id === id);
+            if (l && !leads.find(x => x.id === id)) leads.push(l);
+        } catch(e) {}
+    }
+    if (l) { openDetail(id); }
 }
 
 // ==================== REPORTS ====================
