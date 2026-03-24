@@ -422,6 +422,8 @@ const OUTCOME_LABELS = {
     APPOINTMENT_BOOKED:'Đã đặt lịch', ARRIVED:'Đã đến', CLOSED_FIRST_REVENUE:'Chốt doanh thu', LOST:'Mất khách'
 };
 
+const HOT = { HOT:'🔥', WARM:'☀️', COLD:'❄️' };
+
 // ==================== DATA ====================
 let leads = [];
 let stats = {};
@@ -507,7 +509,8 @@ function renderLeads() {
         if (l.status === 'APPOINTED') actions += ` <button class="ws-action-btn ws-action-assign" onclick="event.stopPropagation();openArrivedModal(${l.id})">✅ Đã đến</button>`;
         if (l.status === 'ARRIVED') actions += ` <button class="ws-action-btn ws-action-assign" onclick="event.stopPropagation();openRevenueModal(${l.id})">💰 Doanh thu</button>`;
 
-        return `<div class="ws-lead-card" onclick="openCallModal(${l.id})">
+        const uncalledStyle = (!l.called_count) ? 'border-left:3px solid #E53935;background:rgba(229,57,53,0.06)' : '';
+        return `<div class="ws-lead-card" onclick="openCallModal(${l.id})" style="${uncalledStyle}">
             <div style="flex:1;min-width:0">
                 <div style="font-weight:600;font-size:15px">${esc(l.full_name)}</div>
                 <div style="font-size:13px;color:var(--text-muted)">
