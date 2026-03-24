@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#9E7C0C">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <title>API Documentation — Hoàn Mỹ CRM</title>
+    <link rel="stylesheet" href="/css/workspace.css">
+    <style>
+        .api-section { margin-bottom: 24px; }
+        .api-section h2 { font-size: 18px; padding: 12px 16px; margin: 0; border-bottom: 2px solid var(--gold); color: var(--gold); display: flex; align-items: center; gap: 8px; }
+        .api-card { border-bottom: 1px solid var(--border); padding: 14px 16px; cursor: pointer; transition: background 0.15s; }
+        .api-card:hover { background: rgba(158,124,12,0.04); }
+        .api-card.open { background: rgba(158,124,12,0.06); }
+        .api-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .api-method { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; min-width: 50px; text-align: center; }
+        .method-GET { background: #E3F2FD; color: #1565C0; }
+        .method-POST { background: #E8F5E9; color: #2E7D32; }
+        .method-PATCH { background: #FFF3E0; color: #E65100; }
+        .method-PUT { background: #FFF3E0; color: #E65100; }
+        .method-DELETE { background: #FFEBEE; color: #C62828; }
+        .api-url { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 600; color: var(--text-primary); word-break: break-all; }
+        .api-desc { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .api-auth { font-size: 11px; padding: 1px 6px; border-radius: 3px; font-weight: 500; }
+        .auth-required { background: #FCE4EC; color: #C62828; }
+        .auth-public { background: #E8F5E9; color: #2E7D32; }
+        .auth-admin { background: #F3E5F5; color: #7B1FA2; }
+        .api-detail { display: none; margin-top: 12px; padding: 12px; background: #1a1a2e; border-radius: 8px; color: #e0e0e0; font-size: 12px; line-height: 1.6; overflow-x: auto; }
+        .api-detail.show { display: block; }
+        .api-detail pre { margin: 0; white-space: pre-wrap; word-break: break-word; }
+        .api-detail .label { color: var(--gold); font-weight: 600; display: block; margin-top: 8px; margin-bottom: 2px; }
+        .api-detail .label:first-child { margin-top: 0; }
+        .api-detail code { color: #80cbc4; }
+        .guide-card { padding: 16px; margin-bottom: 12px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); }
+        .guide-card h3 { margin: 0 0 8px; font-size: 15px; }
+        .guide-card p, .guide-card li { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+        .guide-card pre { background: #1a1a2e; color: #e0e0e0; padding: 12px; border-radius: 8px; font-size: 12px; overflow-x: auto; margin: 8px 0; }
+        .guide-card code { color: #80cbc4; }
+        .copy-btn { background: var(--gold); color: #fff; border: none; padding: 3px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-left: 8px; }
+        .copy-btn:hover { opacity: 0.85; }
+        .search-api { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--card-bg); color: var(--text-primary); margin-bottom: 16px; }
+        .search-api:focus { outline: none; border-color: var(--gold); }
+        .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 500; background: #E3F2FD; color: #1565C0; margin-left: 4px; }
+    </style>
+</head>
+<body>
+<div class="ws-layout">
+    <aside class="ws-sidebar" id="sidebar">
+        <div class="ws-brand">
+            <div class="ws-brand-name">Viện Thẩm Mỹ Quốc Tế Hoàn Mỹ</div>
+            <div class="ws-brand-sub">API Docs</div>
+        </div>
+        <nav class="ws-nav">
+            <button class="ws-nav-item active" data-page="docs" onclick="switchSection('docs')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Danh sách API
+            </button>
+            <button class="ws-nav-item" data-page="guide" onclick="switchSection('guide')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                Hướng dẫn đấu API
+            </button>
+            <button class="ws-nav-item" data-page="webhook" onclick="switchSection('webhook')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                Webhook & Tích hợp
+            </button>
+        </nav>
+        <div class="ws-sidebar-footer">
+            <div style="padding:12px;text-align:center">
+                <a href="/admin" class="ws-btn ws-btn-primary" style="width:100%;display:block;text-decoration:none;text-align:center">← Quay lại Admin</a>
+            </div>
+        </div>
+    </aside>
+    <div class="ws-sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <main class="ws-main">
+        <header class="ws-topbar">
+            <div class="ws-topbar-left">
+                <button class="ws-hamburger" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <h1 class="ws-topbar-title" id="pageTitle">📡 API Documentation</h1>
+            </div>
+            <div class="ws-topbar-right">
+                <span style="font-size:12px;color:var(--text-muted)">Base URL: <strong id="baseUrl"></strong></span>
+            </div>
+        </header>
+
+        <div class="ws-content">
+            <!-- API DOCS -->
+            <div id="section-docs" class="ws-page active">
+                <input type="text" class="search-api" id="apiSearch" placeholder="🔍 Tìm kiếm API (VD: bookings, login, revenue...)" oninput="filterAPIs()">
+
+                <!-- AUTH -->
+                <div class="api-section" data-group="auth">
+                    <h2>🔐 Xác thực (Authentication)</h2>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="login đăng nhập xác thực">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/login</span>
+                            <span class="api-auth auth-public">Public</span>
+                        </div>
+                        <div class="api-desc">Đăng nhập, nhận token xác thực</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{
+  "username": "admin",
+  "password": "matkhau123"
+}</code>
+
+<span class="label">📤 Response (200):</span><code>{
+  "token": "abc123...",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "displayName": "Admin",
+    "role": "admin",        // admin | truc_page | telesale
+    "branchId": null
+  }
+}</code>
+
+<span class="label">⚠️ Lỗi (401):</span><code>{ "error": "Mật khẩu không đúng" }</code>
+
+<span class="label">💡 Ghi chú:</span>Token có hạn 24 giờ. Gửi token trong header cho mọi request sau:
+<code>Authorization: Bearer &lt;token&gt;</code></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="logout đăng xuất">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/logout</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Đăng xuất, xóa session</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "message": "Đã đăng xuất" }</code></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="me thông tin tài khoản">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/me</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Lấy thông tin user đang đăng nhập</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "id": 1, "username": "admin", "displayName": "Admin", "role": "admin", "branchId": null }</code></pre></div>
+                    </div>
+                </div>
+
+                <!-- LEADS -->
+                <div class="api-section" data-group="leads">
+                    <h2>👥 Khách hàng (Leads)</h2>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="bookings danh sách khách hàng leads lấy">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/bookings</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Lấy danh sách khách hàng (scoped theo role)</div>
+                        <div class="api-detail"><pre><span class="label">📥 Query Params:</span><code>?status=NEW&amp;search=Khánh&amp;sort=created_at&amp;order=desc
+&amp;branch_id=1&amp;source=FACEBOOK&amp;hot_level=HOT&amp;uncalled=true</code>
+
+<span class="label">📤 Response:</span><code>{
+  "bookings": [
+    {
+      "id": 1, "full_name": "Khánh Vy", "phone": "0915412540",
+      "source": "FACEBOOK", "status": "ASSIGNED", "hot_level": "WARM",
+      "branch_id": 1, "branch_name": "CN Cam Ranh",
+      "called_count": 0, "interest_service": "CSD299K",
+      "created_at": "2026-03-24 07:26:31", ...
+    }
+  ],
+  "stats": {
+    "total": 161, "new": 5, "assigned": 20, "called": 30,
+    "today": 3, "callbacks_due": 2, ...
+  }
+}</code>
+
+<span class="label">💡 Scoping:</span>- <strong>admin</strong>: Xem tất cả
+- <strong>truc_page</strong>: Xem tất cả
+- <strong>telesale</strong>: Chỉ xem KH thuộc chi nhánh của mình</pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="bookings public landing tạo khách đặt lịch">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings</span>
+                            <span class="api-auth auth-public">Public</span>
+                            <span class="tag">Landing Page</span>
+                        </div>
+                        <div class="api-desc">Đặt lịch từ landing page (public, không cần auth)</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{
+  "full_name": "Nguyễn Văn A",      // * bắt buộc
+  "phone": "0912345678",             // * bắt buộc
+  "service": "Triệt lông",           // * bắt buộc
+  "appointment_date": "2026-03-25",  // * bắt buộc
+  "notes": "Ghi chú thêm"
+}</code>
+
+<span class="label">📤 Response (201):</span><code>{ "message": "Đặt lịch thành công!", "booking": { ... } }</code>
+
+<span class="label">💡 Dùng cho:</span>Form đặt lịch trên landing page. Source tự động = "LANDING", status = "NEW".</pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="manual tạo nhập khách hàng trực page">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings/manual</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Nhập data khách hàng (Trực Page / Admin). Có check trùng SĐT.</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{
+  "full_name": "Nguyễn Văn A",    // * bắt buộc
+  "phone": "0912345678",           // * bắt buộc
+  "interest_service": "Triệt lông",
+  "source": "FACEBOOK",            // FACEBOOK|ZALO|TIKTOK|HOTLINE|WALK_IN|OTHER
+  "funnel_name": "FB_T3_CSD",
+  "hot_level": "WARM",             // HOT|WARM|COLD
+  "initial_note": "Chat hỏi giá",
+  "branch_id": 1                   // Nếu có → auto phân chi nhánh
+}</code>
+
+<span class="label">📤 Trùng SĐT (409):</span><code>{ "error": "duplicate", "message": "Lead đã tồn tại...", "existing_lead": { ... } }</code></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="manual force tạo bỏ qua trùng">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings/manual/force</span>
+                            <span class="api-auth auth-admin">Admin/Page</span>
+                        </div>
+                        <div class="api-desc">Tạo lead mới bỏ qua check trùng SĐT</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span>Giống <code>/api/bookings/manual</code>
+
+<span class="label">💡 Chỉ admin hoặc trực page có quyền dùng.</span></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="staff telesale nhập khách">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings/staff</span>
+                            <span class="api-auth auth-required">Telesale</span>
+                        </div>
+                        <div class="api-desc">Nhập khách từ Telesales (auto-assign vào chi nhánh của họ)</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{
+  "full_name": "Nguyễn Văn A",   // * bắt buộc
+  "phone": "0912345678",          // * (hoặc zalo_id)
+  "zalo_id": "zalo_name",         // * (hoặc phone)
+  "interest_service": "CSD",
+  "source": "FACEBOOK",
+  "notes": "Ghi chú"
+}</code>
+
+<span class="label">💡 Ghi chú:</span>- Tối thiểu phải có phone HOẶC zalo_id
+- Auto phân vào chi nhánh của telesale
+- Nếu chỉ có Zalo → phone = "ZALO_zaloname"</pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="update cập nhật lead sửa">
+                        <div class="api-header">
+                            <span class="api-method method-PATCH">PATCH</span>
+                            <span class="api-url">/api/bookings/:id</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Cập nhật thông tin khách hàng</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body (partial):</span><code>{
+  "full_name": "...", "phone": "...", "status": "CALLED",
+  "hot_level": "HOT", "notes": "Ghi chú mới",
+  "interest_service": "...", "lost_reason": "..."
+}</code>
+
+<span class="label">Các field cho phép:</span><code>full_name, phone, gender, birth_year, area, source, funnel_name,
+interest_service, service, initial_note, hot_level, status, notes,
+lost_reason, appointment_date</code></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="delete xóa lead">
+                        <div class="api-header">
+                            <span class="api-method method-DELETE">DELETE</span>
+                            <span class="api-url">/api/bookings/:id</span>
+                            <span class="api-auth auth-admin">Admin/Page</span>
+                        </div>
+                        <div class="api-desc">Xóa khách hàng</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "message": "Đã xóa thành công" }</code></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="assign phân chi nhánh">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings/:id/assign</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Phân khách vào chi nhánh</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{ "branch_id": 1 }</code>
+
+<span class="label">💡 Auto-assign telesale:</span>Tự tìm telesale active thuộc chi nhánh đó để gán.
+Nếu status = NEW → chuyển thành ASSIGNED.</pre></div>
+                    </div>
+                </div>
+
+                <!-- CALLS -->
+                <div class="api-section" data-group="calls">
+                    <h2>📞 Cuộc gọi (Call Tracking)</h2>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="calls ghi cuộc gọi tạo">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings/:id/calls</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Ghi nhận cuộc gọi + tự động chuyển trạng thái</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{
+  "outcome": "APPOINTMENT_BOOKED",  // * bắt buộc
+  "notes": "Đã tư vấn xong",
+  "next_call_at": "2026-03-25T10:00",
+  "care_reminder_at": "2026-03-26T09:00",
+  "appointment_at": "2026-03-25T14:00"   // bắt buộc nếu outcome = APPOINTMENT_BOOKED
+}</code>
+
+<span class="label">Outcome hợp lệ:</span><code>NO_ANSWER, WRONG_NUMBER, NOT_INTERESTED, CALL_BACK_LATER,
+CARING, CONSULTED, APPOINTMENT_BOOKED, ARRIVED,
+CLOSED_FIRST_REVENUE, LOST</code>
+
+<span class="label">🔄 Auto status transition:</span><code>NO_ANSWER → CALLED        CALL_BACK_LATER → FOLLOW_UP
+APPOINTMENT_BOOKED → APPOINTED   ARRIVED → ARRIVED
+CLOSED_FIRST_REVENUE → WON       LOST → LOST</code>
+
+<span class="label">💡 Không bao giờ hạ cấp trạng thái.</span> VD: APPOINTED → sẽ không bị chuyển về CALLED.</pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="calls lịch sử cuộc gọi">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/bookings/:id/calls</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Lấy lịch sử cuộc gọi của 1 lead</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "calls": [ { "call_number": 1, "outcome": "NO_ANSWER", "notes": "...", "call_time": "..." } ] }</code></pre></div>
+                    </div>
+                </div>
+
+                <!-- ARRIVED & REVENUE -->
+                <div class="api-section" data-group="revenue">
+                    <h2>💰 Đến & Doanh thu</h2>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="arrived khách đến">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings/:id/arrived</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Xác nhận khách đã đến (chuyển status → ARRIVED)</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{ "first_service_name": "Chăm sóc da" }</code></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="revenue doanh thu nhập">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/bookings/:id/revenue</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Ghi nhận doanh thu (chuyển status → WON)</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{
+  "amount": 500000,             // * bắt buộc, > 0
+  "service_name": "Triệt lông",
+  "notes": "Thanh toán tiền mặt"
+}</code></pre></div>
+                    </div>
+
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="revenue lịch sử doanh thu">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/bookings/:id/revenue</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Lấy lịch sử doanh thu của 1 lead</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>[ { "amount": 500000, "service_name": "...", "created_at": "..." } ]</code></pre></div>
+                    </div>
+                </div>
+
+                <!-- EVENTS -->
+                <div class="api-section" data-group="events">
+                    <h2>📋 Sự kiện Lead</h2>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="events sự kiện lịch sử">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/bookings/:id/events</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Lấy timeline sự kiện (tạo, gọi, phân, đổi status...)</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "events": [
+  { "type": "created", "note": "Tạo lead: Khánh Vy", "old_value": "", "new_value": "ASSIGNED", "created_at": "..." },
+  { "type": "call_logged", "note": "Gọi lần 1: NO_ANSWER", ... }
+] }</code></pre></div>
+                    </div>
+                </div>
+
+                <!-- REMINDERS -->
+                <div class="api-section" data-group="reminders">
+                    <h2>🔔 Nhắc nhở (Reminders)</h2>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="reminders nhắc gọi lại chăm sóc">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/reminders</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Lấy danh sách nhắc gọi lại + chăm sóc (đến hạn hôm nay)</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "callbacks": [ ... ], "care_reminders": [ ... ] }</code></pre></div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="care arrived chăm sóc sau đến">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/reminders/care-after-arrived</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Khách đến hôm qua → cần chăm sóc (9h sáng)</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "leads": [ ... ], "date": "2026-03-23", "reminder_time": "09:00" }</code></pre></div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="no-show hẹn chưa đến">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/reminders/no-show-yesterday</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Khách hẹn hôm qua nhưng chưa đến (10h sáng)</div>
+                        <div class="api-detail"><pre><span class="label">📤 Response:</span><code>{ "leads": [ ... ], "date": "2026-03-23", "reminder_time": "10:00" }</code></pre></div>
+                    </div>
+                </div>
+
+                <!-- USERS -->
+                <div class="api-section" data-group="users">
+                    <h2>👤 Quản lý tài khoản</h2>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="users danh sách tài khoản">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/users</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Lấy danh sách tất cả users</div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="users tạo tài khoản">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/users</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Tạo tài khoản mới</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{
+  "username": "nhanvien01",      // * bắt buộc
+  "password": "matkhau123",      // * bắt buộc
+  "display_name": "Nhân viên 1", // * bắt buộc
+  "role": "telesale",            // * admin | truc_page | telesale
+  "branch_id": 1
+}</code></pre></div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="users sửa cập nhật tài khoản">
+                        <div class="api-header">
+                            <span class="api-method method-PATCH">PATCH</span>
+                            <span class="api-url">/api/users/:id</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Sửa thông tin user (display_name, role, password, active, branch_id)</div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="users xóa tài khoản">
+                        <div class="api-header">
+                            <span class="api-method method-DELETE">DELETE</span>
+                            <span class="api-url">/api/users/:id</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Xóa tài khoản (không thể xóa chính mình)</div>
+                    </div>
+                </div>
+
+                <!-- BRANCHES -->
+                <div class="api-section" data-group="branches">
+                    <h2>🏢 Chi nhánh</h2>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="branches chi nhánh danh sách">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/branches</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Danh sách chi nhánh active</div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="branches tạo chi nhánh">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/branches</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Tạo chi nhánh mới</div>
+                        <div class="api-detail"><pre><span class="label">📥 Request Body:</span><code>{ "name": "CN Nha Trang", "code": "NT", "address": "...", "phone": "..." }</code></pre></div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="branches sửa chi nhánh">
+                        <div class="api-header">
+                            <span class="api-method method-PATCH">PATCH</span>
+                            <span class="api-url">/api/branches/:id</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Cập nhật chi nhánh (name, code, address, phone, active)</div>
+                    </div>
+                </div>
+
+                <!-- DASHBOARD & REPORTS -->
+                <div class="api-section" data-group="reports">
+                    <h2>📊 Dashboard & Báo cáo</h2>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="dashboard admin tổng quan">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/dashboard/admin</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Dashboard tổng quan: KPI, so sánh chi nhánh, staff, nguồn, phễu</div>
+                        <div class="api-detail"><pre><span class="label">📥 Query Params:</span><code>?from=2026-03-01&amp;to=2026-03-24</code>
+
+<span class="label">📤 Response:</span><code>{
+  "overview": { "total_leads": 161, "leads_today": 3, "total_revenue": 5000000, ... },
+  "branches": [ { "name": "CN Cam Ranh", "total_leads": 80, "revenue": 3000000, ... } ],
+  "staff": [ { "display_name": "Nhân viên A", "total_leads": 40, ... } ],
+  "sources": [ { "source": "FACEBOOK", "count": 100, ... } ],
+  "funnels": [ { "funnel_name": "FB_T3", "count": 50, ... } ]
+}</code></pre></div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="reports page trực page báo cáo">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/reports/page</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Báo cáo Trực Page: SĐT nhập theo dịch vụ + chi nhánh</div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="reports branch telesale báo cáo chi nhánh">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/reports/branch</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Báo cáo Chi nhánh/Telesale: hẹn, đến, doanh thu theo dịch vụ</div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="reports trực page ghi báo cáo">
+                        <div class="api-header">
+                            <span class="api-method method-POST">POST</span>
+                            <span class="api-url">/api/reports/truc-page</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Ghi báo cáo hàng ngày (Trực Page)</div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="export csv excel xuất">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/bookings/export</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Xuất file CSV toàn bộ dữ liệu lead</div>
+                        <div class="api-detail"><pre><span class="label">📥 Query Params:</span><code>?from=2026-03-01&amp;to=2026-03-24&amp;status=WON&amp;branch_id=1</code>
+
+<span class="label">📤 Response:</span>File CSV download (UTF-8 BOM)</pre></div>
+                    </div>
+                </div>
+
+                <!-- APPOINTMENTS & LOGS -->
+                <div class="api-section" data-group="other">
+                    <h2>📅 Lịch hẹn & Nhật ký</h2>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="appointments lịch hẹn">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/appointments</span>
+                            <span class="api-auth auth-required">Auth</span>
+                        </div>
+                        <div class="api-desc">Lấy lịch hẹn (lọc theo ngày, chi nhánh)</div>
+                        <div class="api-detail"><pre><span class="label">📥 Query Params:</span><code>?from=2026-03-24&amp;to=2026-03-30&amp;branch_id=1</code></pre></div>
+                    </div>
+                    <div class="api-card" onclick="toggleDetail(this)" data-search="logs nhật ký hoạt động">
+                        <div class="api-header">
+                            <span class="api-method method-GET">GET</span>
+                            <span class="api-url">/api/logs</span>
+                            <span class="api-auth auth-admin">Admin</span>
+                        </div>
+                        <div class="api-desc">Nhật ký hoạt động hệ thống</div>
+                        <div class="api-detail"><pre><span class="label">📥 Query Params:</span><code>?limit=100&amp;offset=0</code>
+
+<span class="label">📤 Response:</span><code>{ "logs": [ { "action": "login", "username": "admin", "detail": "...", "created_at": "..." } ], "total": 500 }</code></pre></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GUIDE -->
+            <div id="section-guide" class="ws-page" style="display:none">
+                <div class="guide-card">
+                    <h3>1️⃣ Xác thực (Authentication)</h3>
+                    <p>Mọi API (trừ <code>/api/bookings</code> POST public và <code>/api/login</code>) đều cần gửi token trong header:</p>
+                    <pre>Authorization: Bearer &lt;token_nhận_từ_login&gt;</pre>
+                    <p><strong>Bước 1:</strong> Gọi <code>POST /api/login</code> với username + password → nhận <code>token</code></p>
+                    <p><strong>Bước 2:</strong> Mọi request sau đều gửi header <code>Authorization: Bearer token</code></p>
+                    <p><strong>Bước 3:</strong> Token hết hạn sau 24h, server trả 401 → gọi login lại</p>
+                </div>
+
+                <div class="guide-card">
+                    <h3>2️⃣ Đấu Facebook Lead Ads → CRM</h3>
+                    <p>Khi có lead từ Facebook, gửi POST request tới CRM:</p>
+                    <pre>POST https://hoanmy.emarketervietnam.vn/api/bookings
+Content-Type: application/json
+
+{
+  "full_name": "{{full_name}}",
+  "phone": "{{phone_number}}",
+  "service": "{{campaign_name}}",
+  "appointment_date": "{{lead_created_time}}",
+  "notes": "Facebook Lead Ads - {{ad_name}}"
+}</pre>
+                    <p>✅ API này là <strong>Public</strong>, không cần token. Source tự động = <code>LANDING</code>.</p>
+                    <p>💡 Dùng Zapier, Make.com, hoặc n8n để tự động hóa.</p>
+                </div>
+
+                <div class="guide-card">
+                    <h3>3️⃣ Đấu từ Pancake / Botcake</h3>
+                    <p>Cấu hình webhook trên Pancake:</p>
+                    <ol>
+                        <li>Vào <strong>Pancake → Cài đặt → Webhook</strong></li>
+                        <li>Tạo webhook mới, URL: <code id="webhookUrl1"></code></li>
+                        <li>Method: <strong>POST</strong></li>
+                        <li>Mapping fields: <code>full_name</code>, <code>phone</code>, <code>service</code>, <code>appointment_date</code></li>
+                    </ol>
+                    <pre>// Ví dụ payload từ Pancake:
+{
+  "full_name": "Nguyễn Văn A",
+  "phone": "0912345678",
+  "service": "Triệt lông nách",
+  "appointment_date": "2026-03-25",
+  "notes": "Từ Pancake"
+}</pre>
+                </div>
+
+                <div class="guide-card">
+                    <h3>4️⃣ Đấu từ Landing Page tùy chỉnh</h3>
+                    <p>Dùng JavaScript fetch API trong form đặt lịch:</p>
+                    <pre>fetch('https://hoanmy.emarketervietnam.vn/api/bookings', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    full_name: document.getElementById('name').value,
+    phone: document.getElementById('phone').value,
+    service: document.getElementById('service').value,
+    appointment_date: new Date().toISOString().slice(0,10),
+    notes: 'Từ landing page tùy chỉnh'
+  })
+})
+.then(r => r.json())
+.then(data => alert(data.message))
+.catch(err => alert('Có lỗi xảy ra'));</pre>
+                </div>
+
+                <div class="guide-card">
+                    <h3>5️⃣ Đấu từ n8n / Zapier / Make</h3>
+                    <p><strong>n8n workflow:</strong></p>
+                    <ol>
+                        <li>Trigger: Facebook Lead Ads / Webhook / Schedule</li>
+                        <li>HTTP Request node → POST tới CRM</li>
+                        <li>URL: <code id="webhookUrl2"></code></li>
+                        <li>Body: map fields tương ứng</li>
+                    </ol>
+                    <p><strong>Nếu cần Auth</strong> (để dùng API nâng cao):</p>
+                    <pre>// Bước 1: Login
+POST /api/login → nhận token
+
+// Bước 2: Dùng token
+POST /api/bookings/manual
+Headers: { "Authorization": "Bearer token_vừa_nhận" }
+Body: { "full_name": "...", "phone": "...", "source": "FACEBOOK", ... }</pre>
+                </div>
+
+                <div class="guide-card">
+                    <h3>6️⃣ Trạng thái Lead (Status Flow)</h3>
+                    <pre>NEW → ASSIGNED → CALLED → FOLLOW_UP → APPOINTED → ARRIVED → WON
+                                                                    ↘ LOST
+
+NEW       = Mới tạo (từ landing page)
+ASSIGNED  = Đã phân chi nhánh
+CALLED    = Đã gọi (không nghe / đã tư vấn)
+FOLLOW_UP = Đang chăm sóc / hẹn gọi lại
+APPOINTED = Có lịch hẹn đến
+ARRIVED   = Khách đã đến cơ sở
+WON       = Có doanh thu
+LOST      = Mất khách</pre>
+                </div>
+            </div>
+
+            <!-- WEBHOOK -->
+            <div id="section-webhook" class="ws-page" style="display:none">
+                <div class="guide-card">
+                    <h3>🔌 Endpoint nhận data từ bên ngoài (Public)</h3>
+                    <p>Dùng endpoint này để nhận data từ Facebook, Pancake, Zalo OA, hoặc bất kỳ hệ thống nào:</p>
+                    <pre>POST <span id="webhookUrl3"></span>/api/bookings
+Content-Type: application/json</pre>
+                    <p><strong>Không cần xác thực.</strong> Data tự động vào hệ thống với status = <code>NEW</code>.</p>
+                </div>
+
+                <div class="guide-card">
+                    <h3>📋 Bảng mapping fields</h3>
+                    <div style="overflow-x:auto">
+                        <table style="width:100%;font-size:13px;border-collapse:collapse">
+                            <thead>
+                                <tr style="background:rgba(158,124,12,0.1)">
+                                    <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border)">Field</th>
+                                    <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border)">Bắt buộc</th>
+                                    <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border)">Mô tả</th>
+                                    <th style="padding:8px;text-align:left;border-bottom:2px solid var(--border)">Ví dụ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)"><code>full_name</code></td><td>✅</td><td>Họ tên KH</td><td>Nguyễn Văn A</td></tr>
+                                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)"><code>phone</code></td><td>✅</td><td>SĐT (0xxx hoặc +84xxx)</td><td>0912345678</td></tr>
+                                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)"><code>service</code></td><td>✅</td><td>Dịch vụ quan tâm</td><td>Triệt lông</td></tr>
+                                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)"><code>appointment_date</code></td><td>✅</td><td>Ngày hẹn (YYYY-MM-DD)</td><td>2026-03-25</td></tr>
+                                <tr><td style="padding:6px 8px;border-bottom:1px solid var(--border)"><code>notes</code></td><td>❌</td><td>Ghi chú thêm</td><td>Từ Facebook</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="guide-card">
+                    <h3>🧪 Test nhanh bằng cURL</h3>
+                    <pre id="curlExample">curl -X POST https://hoanmy.emarketervietnam.vn/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "full_name": "Test Khách",
+    "phone": "0999888777",
+    "service": "Test Service",
+    "appointment_date": "2026-03-25",
+    "notes": "Test từ cURL"
+  }'</pre>
+                    <button class="copy-btn" onclick="copyText(document.getElementById('curlExample').textContent)">📋 Copy</button>
+                </div>
+
+                <div class="guide-card">
+                    <h3>⚠️ Lưu ý quan trọng</h3>
+                    <ul>
+                        <li>SĐT phải bắt đầu bằng <code>0</code> hoặc <code>+84</code>, 10-11 chữ số</li>
+                        <li>API trả <code>400</code> nếu thiếu field bắt buộc</li>
+                        <li>API trả <code>401</code> nếu token hết hạn → gọi login lại</li>
+                        <li>API trả <code>403</code> nếu không đủ quyền (role)</li>
+                        <li>API trả <code>409</code> nếu SĐT trùng (khi dùng <code>/api/bookings/manual</code>)</li>
+                        <li>Tất cả response đều là JSON, mã UTF-8</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const TOKEN = localStorage.getItem('crm_token');
+const USER = JSON.parse(localStorage.getItem('crm_user') || '{}');
+if (!TOKEN) window.location.href = '/login';
+if (USER.role && USER.role !== 'admin') window.location.href = '/login';
+
+const baseUrl = window.location.origin;
+document.getElementById('baseUrl').textContent = baseUrl;
+document.querySelectorAll('#webhookUrl1,#webhookUrl2').forEach(el => el.textContent = baseUrl + '/api/bookings');
+const wu3 = document.getElementById('webhookUrl3');
+if (wu3) wu3.textContent = baseUrl;
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+
+function switchSection(section) {
+    document.querySelectorAll('.ws-page').forEach(p => p.style.display = 'none');
+    document.getElementById('section-' + section).style.display = 'block';
+    document.querySelectorAll('.ws-nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector(`[data-page="${section}"]`).classList.add('active');
+    const titles = { docs: '📡 API Documentation', guide: '📖 Hướng dẫn đấu API', webhook: '🔌 Webhook & Tích hợp' };
+    document.getElementById('pageTitle').textContent = titles[section] || '';
+    closeSidebar();
+}
+
+function toggleDetail(card) {
+    const detail = card.querySelector('.api-detail');
+    if (detail) {
+        detail.classList.toggle('show');
+        card.classList.toggle('open');
+    }
+}
+
+function filterAPIs() {
+    const q = document.getElementById('apiSearch').value.toLowerCase();
+    document.querySelectorAll('.api-card').forEach(card => {
+        const search = (card.getAttribute('data-search') || '') + ' ' + card.textContent;
+        card.style.display = search.toLowerCase().includes(q) ? '' : 'none';
+    });
+    document.querySelectorAll('.api-section').forEach(sec => {
+        const visible = sec.querySelectorAll('.api-card:not([style*="display: none"])').length;
+        sec.style.display = visible > 0 ? '' : 'none';
+    });
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'ws-toast success';
+        toast.textContent = 'Đã copy!';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    });
+}
+</script>
+</body>
+</html>

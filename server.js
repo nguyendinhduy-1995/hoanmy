@@ -1231,6 +1231,7 @@ app.get('/page/*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pa
 app.get('/huong-dan-admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'huong-dan-admin.html')));
 app.get('/huong-dan-chi-nhanh', (req, res) => res.sendFile(path.join(__dirname, 'public', 'huong-dan-chi-nhanh.html')));
 app.get('/huong-dan-truc-page', (req, res) => res.sendFile(path.join(__dirname, 'public', 'huong-dan-truc-page.html')));
+app.get('/api-docs', (req, res) => res.sendFile(path.join(__dirname, 'public', 'api-docs.html')));
 
 // Legacy redirects
 app.get('/branch', (req, res) => res.redirect('/admin'));

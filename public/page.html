@@ -341,6 +341,7 @@ function switchPage(page) {
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(n) { return Number(n || 0).toLocaleString('vi-VN'); }
+function fmtDt(s) { if (!s) return '—'; const d = new Date(String(s).replace(' ', 'T') + (String(s).includes('+') || String(s).includes('Z') ? '' : '+07:00')); return isNaN(d) ? s : d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }); }
 
 const STATUS_LABELS = {
     NEW: '<span class="ws-badge" style="background:#E3F2FD;color:#1565C0">Mới</span>',
@@ -489,7 +490,7 @@ async function openDetail(id) {
         const events = evRes.events || [];
         const calls = clRes.calls || [];
         eventsHtml = events.length ? events.map(e => `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
-            <div style="display:flex;justify-content:space-between"><strong>${esc(e.type)}</strong><small style="color:var(--text-muted)">${new Date(e.created_at).toLocaleString('vi-VN')}</small></div>
+            <div style="display:flex;justify-content:space-between"><strong>${esc(e.type)}</strong><small style="color:var(--text-muted)">${fmtDt(e.created_at)}</small></div>
             <div style="font-size:13px;color:#555">${esc(e.note)}${e.old_value || e.new_value ? ` <span style="color:var(--text-muted)">${esc(e.old_value)} → ${esc(e.new_value)}</span>` : ''}</div>
             <div style="font-size:12px;color:var(--text-muted)">${esc(e.user_display_name || e.username || '')}</div>
         </div>`).join('') : '<div style="padding:8px;color:var(--text-muted)">Chưa có sự kiện</div>';
@@ -497,7 +498,7 @@ async function openDetail(id) {
         callsHtml = calls.length ? calls.map(c => `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
             <div style="display:flex;justify-content:space-between"><strong>Gọi #${c.call_number}</strong> <small>${c.outcome}</small></div>
             <div style="font-size:13px">${esc(c.notes)}</div>
-            <div style="font-size:12px;color:var(--text-muted)">${esc(c.username)} — ${new Date(c.call_time).toLocaleString('vi-VN')}</div>
+            <div style="font-size:12px;color:var(--text-muted)">${esc(c.username)} — ${fmtDt(c.call_time)}</div>
         </div>`).join('') : '<div style="padding:8px;color:var(--text-muted)">Chưa có cuộc gọi</div>';
     } catch (e) { eventsHtml = '<div style="color:red">Lỗi tải dữ liệu</div>'; }
 
@@ -512,7 +513,7 @@ async function openDetail(id) {
             <div><small style="color:var(--text-muted)">Chi nhánh</small><div>${b.branch_name ? esc(b.branch_name) : '<span style="color:var(--orange)">Chưa phân</span>'}</div></div>
             <div><small style="color:var(--text-muted)">Trạng thái</small><div>${STATUS_LABELS[b.status] || b.status}</div></div>
             <div><small style="color:var(--text-muted)">DT lần đầu</small><div>${b.first_revenue > 0 ? '<strong style="color:var(--gold)">' + fmt(b.first_revenue) + 'đ</strong>' : '—'}</div></div>
-            <div><small style="color:var(--text-muted)">Ngày tạo</small><div>${new Date(b.created_at).toLocaleString('vi-VN')}</div></div>
+            <div><small style="color:var(--text-muted)">Ngày tạo</small><div>${fmtDt(b.created_at)}</div></div>
         </div>
         ${b.initial_note ? '<div style="margin-bottom:16px"><small style="color:var(--text-muted)">Ghi chú chat</small><div style="background:#f9f9f9;padding:8px;border-radius:6px;font-size:13px">' + esc(b.initial_note) + '</div></div>' : ''}
         <h4 style="margin:16px 0 8px;font-size:14px">📞 Lịch sử gọi (${b.called_count || 0})</h4>
@@ -658,13 +659,13 @@ async function loadPageAppts() {
         const container = document.getElementById('pageApptList');
         if (!appts.length) { container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Không có lịch hẹn</div></div>'; return; }
         container.innerHTML = appts.map(a => {
-            const dt = a.appointment_at ? new Date(a.appointment_at) : null;
+
             const color = ({APPOINTED:'#2E7D32',ARRIVED:'#00695C',WON:'#F57F17'})[a.status] || '#333';
             return `<div class="ws-lead-card" onclick="openPageApptDetail(${a.id})">
                 <div style="flex:1;min-width:0">
                     <div style="font-weight:600">${esc(a.full_name)}</div>
                     <div style="font-size:13px;color:var(--text-muted)"><a href="tel:${a.phone}" style="color:var(--blue)" onclick="event.stopPropagation()">${esc(a.phone)}</a> ${a.interest_service ? ' · '+esc(a.interest_service):''}</div>
-                    <div style="font-size:12px;color:var(--text-muted)">📅 ${dt?dt.toLocaleDateString('vi-VN')+' '+dt.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'—'} · ${esc(a.branch_name||'')}</div>
+                    <div style="font-size:12px;color:var(--text-muted)">📅 ${a.appointment_at ? fmtDt(a.appointment_at) : '—'} · ${esc(a.branch_name||'')}</div>
                 </div>
                 <span style="padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;background:${color}15;color:${color}">${({APPOINTED:'Có hẹn',ARRIVED:'Đã đến',WON:'Có doanh thu'})[a.status]||a.status}</span>
             </div>`;
