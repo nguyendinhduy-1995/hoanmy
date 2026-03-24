@@ -184,6 +184,18 @@
     </main>
 </div>
 
+<!-- Lead Detail Drawer -->
+<div class="ws-modal-overlay" id="detailDrawer">
+    <div class="ws-modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title">Chi tiết khách hàng</h3>
+            <button class="ws-modal-close" onclick="closeDetail()">&times;</button>
+        </div>
+        <div class="ws-modal-body" id="detailBody" style="font-size:14px">
+        </div>
+    </div>
+</div>
+
 <!-- Call Modal -->
 <div class="ws-modal-overlay" id="callModal">
     <div class="ws-modal" style="max-width:500px">
@@ -406,6 +418,7 @@ function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function fmt(n) { return Number(n || 0).toLocaleString('vi-VN'); }
 function pad(d) { return String(d).padStart(2,'0'); }
 function fmtDate(dt) { return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`; }
+function fmtDt(s) { if (!s) return '—'; const d = new Date(String(s).replace(' ', 'T') + (String(s).includes('+') || String(s).includes('Z') ? '' : '+07:00')); return isNaN(d) ? s : d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }); }
 
 const STATUS_LABELS = {
     NEW:'Mới', ASSIGNED:'Đã phân', CALLED:'Đã gọi', FOLLOW_UP:'Chăm sóc',
@@ -500,7 +513,7 @@ function renderLeads() {
         return;
     }
 
-    container.innerHTML = list.map(l => {
+    container.innerHTML = list.map((l, idx) => {
         const color = STATUS_COLORS[l.status] || '#333';
         const statusLabel = STATUS_LABELS[l.status] || l.status;
         const lastOutcome = l.last_call_outcome ? (OUTCOME_LABELS[l.last_call_outcome] || l.last_call_outcome) : '';
@@ -510,7 +523,7 @@ function renderLeads() {
         if (l.status === 'ARRIVED') actions += ` <button class="ws-action-btn ws-action-assign" onclick="event.stopPropagation();openRevenueModal(${l.id})">💰 Doanh thu</button>`;
 
         const uncalledStyle = (!l.called_count) ? 'border-left:3px solid #E53935;background:rgba(229,57,53,0.06)' : '';
-        return `<div class="ws-lead-card" onclick="openCallModal(${l.id})" style="${uncalledStyle}">
+        return `<div class="ws-lead-card" onclick="openDetail(${l.id})" style="${uncalledStyle}">
             <div style="flex:1;min-width:0">
                 <div style="font-weight:600;font-size:15px">${esc(l.full_name)}</div>
                 <div style="font-size:13px;color:var(--text-muted)">
@@ -534,6 +547,62 @@ function renderLeads() {
 }
 
 // ==================== CALL MODAL ====================
+// ==================== LEAD DETAIL ====================
+async function openDetail(id) {
+    const l = leads.find(x => x.id === id);
+    if (!l) return;
+
+    const statusLabel = STATUS_LABELS[l.status] || l.status;
+    const statusColor = STATUS_COLORS[l.status] || '#333';
+    const hotEmoji = HOT[l.hot_level] || '';
+
+    let callsHtml = '<div style="color:var(--text-muted);padding:8px;font-size:13px">Đang tải...</div>';
+    let eventsHtml = callsHtml;
+    try {
+        const [clRes, evRes] = await Promise.all([api(`/api/bookings/${id}/calls`), api(`/api/bookings/${id}/events`)]);
+        const calls = clRes.calls || [];
+        const events = evRes.events || [];
+
+        callsHtml = calls.length ? calls.map(c => `<div style="padding:8px 0;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong style="font-size:13px">📞 Gọi lần ${c.call_number}</strong>
+                <span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:${STATUS_COLORS[c.outcome] || '#757575'}15;color:${STATUS_COLORS[c.outcome] || '#757575'}">${OUTCOME_LABELS[c.outcome] || c.outcome}</span>
+            </div>
+            ${c.notes ? '<div style="font-size:13px;margin-top:4px;color:#555">' + esc(c.notes) + '</div>' : ''}
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(c.username || '')} — ${fmtDt(c.call_time)}</div>
+        </div>`).join('') : '<div style="padding:12px;color:var(--text-muted);text-align:center;font-size:13px">Chưa có cuộc gọi nào</div>';
+
+        eventsHtml = events.length ? events.map(e => `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;justify-content:space-between"><strong style="font-size:12px">${esc(e.type)}</strong><small style="color:var(--text-muted)">${fmtDt(e.created_at)}</small></div>
+            <div style="font-size:12px;color:#555">${esc(e.note)}${e.old_value || e.new_value ? ' <span style="color:var(--text-muted)">' + esc(e.old_value) + ' → ' + esc(e.new_value) + '</span>' : ''}</div>
+        </div>`).join('') : '<div style="padding:12px;color:var(--text-muted);text-align:center;font-size:13px">Chưa có sự kiện</div>';
+    } catch (e) { callsHtml = '<div style="color:red;padding:8px">Lỗi tải dữ liệu</div>'; eventsHtml = callsHtml; }
+
+    document.getElementById('detailBody').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div><small style="color:var(--text-muted)">Họ tên</small><div><strong>${esc(l.full_name)}</strong></div></div>
+            <div><small style="color:var(--text-muted)">SĐT</small><div>${l.phone && l.phone.startsWith('ZALO_') ? '<span style="color:#0068FF">📱 Zalo: ' + esc(l.zalo_id || l.phone.replace('ZALO_','')) + '</span>' : '<a href="tel:' + l.phone + '" style="color:var(--blue)">' + esc(l.phone) + '</a>'}</div></div>
+            <div><small style="color:var(--text-muted)">Trạng thái</small><div><span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;background:${statusColor}15;color:${statusColor}">${statusLabel}</span></div></div>
+            <div><small style="color:var(--text-muted)">Dịch vụ</small><div>${esc(l.interest_service || l.service || '') || '—'}</div></div>
+            ${l.appointment_at ? '<div><small style="color:var(--text-muted)">Ngày hẹn</small><div>📅 ' + fmtDt(l.appointment_at) + '</div></div>' : ''}
+            ${l.first_revenue > 0 ? '<div><small style="color:var(--text-muted)">Doanh thu</small><div><strong style="color:var(--gold)">' + fmt(l.first_revenue) + 'đ</strong></div></div>' : ''}
+            ${l.zalo_id && !l.phone.startsWith('ZALO_') ? '<div><small style="color:var(--text-muted)">Zalo</small><div style="color:#0068FF">' + esc(l.zalo_id) + '</div></div>' : ''}
+        </div>
+        ${l.notes ? '<div style="margin-bottom:12px"><small style="color:var(--text-muted)">Ghi chú</small><div style="background:#FFF8E1;padding:8px 12px;border-radius:6px;font-size:13px;border-left:3px solid var(--gold)">' + esc(l.notes) + '</div></div>' : ''}
+        <div style="display:flex;gap:6px;margin-bottom:16px">
+            <button class="ws-btn ws-btn-primary" onclick="closeDetail();openCallModal(${l.id})" style="flex:1">📞 Ghi cuộc gọi</button>
+            ${l.status === 'APPOINTED' ? '<button class="ws-btn" onclick="closeDetail();openArrivedModal(' + l.id + ')" style="flex:1;background:#E8F5E9;color:#2E7D32;border-color:#2E7D32">✅ Đã đến</button>' : ''}
+            ${l.status === 'ARRIVED' ? '<button class="ws-btn" onclick="closeDetail();openRevenueModal(' + l.id + ')" style="flex:1;background:#FFF8E1;color:#F57F17;border-color:#F57F17">💰 Doanh thu</button>' : ''}
+        </div>
+        <h4 style="margin:0 0 8px;font-size:14px">📞 Lịch sử cuộc gọi (${l.called_count || 0})</h4>
+        <div style="max-height:250px;overflow-y:auto;margin-bottom:16px;border:1px solid #f0f0f0;border-radius:8px;padding:0 12px">${callsHtml}</div>
+        <h4 style="margin:0 0 8px;font-size:14px">📋 Lịch sử sự kiện</h4>
+        <div style="max-height:200px;overflow-y:auto;border:1px solid #f0f0f0;border-radius:8px;padding:0 12px">${eventsHtml}</div>
+    `;
+    document.getElementById('detailDrawer').classList.add('show');
+}
+function closeDetail() { document.getElementById('detailDrawer').classList.remove('show'); }
+
 let callLeadId = null;
 
 function openCallModal(id) {
