@@ -715,7 +715,10 @@ async function loadPageReports() {
             ? services.map((s, i) => {
                 const color = svcColors[i % svcColors.length];
                 const pct = Math.round((s.count / maxCount) * 100);
-                const phones = (s.phones || '').split(',').map(p => p.trim()).filter(Boolean);
+                const contacts = (s.contacts || '').split('||').map(c => c.trim()).filter(Boolean).map(c => {
+                    const [name, phone] = c.split('::');
+                    return { name: name || '', phone: phone || name || '' };
+                });
                 return `<div style="padding:14px 16px;border-bottom:1px solid #f0f0f0">
                     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
                         <div style="display:flex;align-items:center;gap:8px">
@@ -727,7 +730,7 @@ async function loadPageReports() {
                     <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:10px;overflow:hidden">
                         <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .3s"></div>
                     </div>
-                    <div style="display:flex;flex-wrap:wrap;gap:6px">${phones.map(p => `<a href="tel:${p}" style="display:inline-block;padding:4px 10px;background:#f5f5f5;border-radius:16px;font-size:12px;color:var(--blue);text-decoration:none;border:1px solid #e8e8e8;transition:all .15s" onmouseover="this.style.background='#e3f2fd';this.style.borderColor='#90caf9'" onmouseout="this.style.background='#f5f5f5';this.style.borderColor='#e8e8e8'">📞 ${esc(p)}</a>`).join('')}</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px">${contacts.map(c => `<a href="tel:${c.phone}" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f5f5f5;border-radius:16px;font-size:12px;color:#333;text-decoration:none;border:1px solid #e8e8e8;transition:all .15s" onmouseover="this.style.background='#e3f2fd';this.style.borderColor='#90caf9'" onmouseout="this.style.background='#f5f5f5';this.style.borderColor='#e8e8e8'"><strong>${esc(c.name)}</strong> <span style="color:var(--blue)">📞 ${esc(c.phone)}</span></a>`).join('')}</div>
                 </div>`;
             }).join('')
             : '<div style="padding:24px;text-align:center;color:var(--text-muted)">Chưa có dữ liệu</div>';

@@ -1050,7 +1050,7 @@ app.get('/api/reports/page', auth, (req, res) => {
         // Group by service
         const byService = db.prepare(`
             SELECT interest_service as service_name, COUNT(*) as count,
-                GROUP_CONCAT(phone, ', ') as phones
+                GROUP_CONCAT(full_name || '::' || phone, '||') as contacts
             FROM bookings
             WHERE DATE(created_at) BETWEEN ? AND ?
             GROUP BY interest_service ORDER BY count DESC
