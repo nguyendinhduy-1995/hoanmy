@@ -1069,6 +1069,25 @@ app.get('/api/reports/page', auth, (req, res) => {
             GROUP BY b.branch_id ORDER BY count DESC
         `).all(dateFrom, dateTo);
 
+        // Service detail per branch
+        const branchServices = db.prepare(`
+            SELECT br.name as branch_name, COALESCE(br.code,'') as branch_code,
+                b.interest_service as service_name, COUNT(*) as count,
+                GROUP_CONCAT(b.full_name || '::' || b.phone, '||') as contacts
+            FROM bookings b LEFT JOIN branches br ON b.branch_id = br.id
+            WHERE DATE(b.created_at) BETWEEN ? AND ?
+            GROUP BY b.branch_id, b.interest_service ORDER BY br.name, count DESC
+        `).all(dateFrom, dateTo);
+
+        // Group services by branch
+        const branchMap = {};
+        for (const row of branchServices) {
+            const key = row.branch_name || 'Chưa phân';
+            if (!branchMap[key]) branchMap[key] = [];
+            branchMap[key].push({ service_name: row.service_name, count: row.count, contacts: row.contacts });
+        }
+        byBranch.forEach(b => { b.services = branchMap[b.branch_name || 'Chưa phân'] || []; });
+
         res.json({ by_service: byService, total: total.total, by_branch: byBranch, from: dateFrom, to: dateTo });
     } catch (error) {
         console.error('Page report error:', error);
