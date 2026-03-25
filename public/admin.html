@@ -138,10 +138,12 @@
                     <div style="padding:12px 16px">
                         <div class="ws-filter-bar" style="margin-bottom:12px;gap:8px">
                             <span style="font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap">📊 Thời gian:</span>
-                            <button class="ws-btn date-filter-btn active" onclick="setAdminPRRange('today')" data-aprrange="today">Hôm nay</button>
-                            <button class="ws-btn date-filter-btn" onclick="setAdminPRRange('week')" data-aprrange="week">Tuần</button>
-                            <button class="ws-btn date-filter-btn" onclick="setAdminPRRange('month')" data-aprrange="month">Tháng</button>
-                            <button class="ws-btn date-filter-btn" onclick="setAdminPRRange('all')" data-aprrange="all">Tất cả</button>
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                                <button class="ws-btn date-filter-btn active" onclick="setAdminPRRange('today')" data-aprrange="today">Hôm nay</button>
+                                <button class="ws-btn date-filter-btn" onclick="setAdminPRRange('week')" data-aprrange="week">Tuần</button>
+                                <button class="ws-btn date-filter-btn" onclick="setAdminPRRange('month')" data-aprrange="month">Tháng</button>
+                                <button class="ws-btn date-filter-btn" onclick="setAdminPRRange('all')" data-aprrange="all">Tất cả</button>
+                            </div>
                             <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
                                 <input type="date" id="aprFrom" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
                                 <span style="color:var(--text-muted)">→</span>
@@ -149,7 +151,7 @@
                                 <button class="ws-btn ws-btn-primary" onclick="setAdminPRRange('custom')" style="font-size:12px;padding:5px 10px">Lọc</button>
                             </div>
                         </div>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+                        <div class="apr-kpi-grid">
                             <div class="ws-kpi-card ws-kpi-accent"><div class="ws-kpi-label">📱 Tổng SĐT nhập</div><div class="ws-kpi-value" id="aprTotal">—</div></div>
                             <div class="ws-kpi-card" style="border-left:3px solid #1565C0"><div class="ws-kpi-label">📋 Số dịch vụ</div><div class="ws-kpi-value" id="aprSvcCount">—</div></div>
                             <div class="ws-kpi-card" style="border-left:3px solid #2E7D32"><div class="ws-kpi-label">🏢 Chi nhánh</div><div class="ws-kpi-value" id="aprBrCount">—</div></div>

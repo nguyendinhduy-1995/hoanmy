@@ -361,6 +361,13 @@ body {
     margin-bottom: 24px;
 }
 
+.apr-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
 .ws-kpi-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -953,7 +960,10 @@ body {
     .date-filter-btn { font-size: 11px; padding: 6px 10px; }
 
     /* Source/funnel grid: single column */
-    [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    .dash-source-grid { grid-template-columns: 1fr !important; }
+
+    /* Page report KPI grid: 2 columns on mobile */
+    .apr-kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
 
     /* Toast: full width */
     .ws-toast { left: 12px; right: 12px; bottom: 12px; max-width: none; text-align: center; }
