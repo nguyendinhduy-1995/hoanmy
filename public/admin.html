@@ -422,17 +422,22 @@ async function loadDashboard() {
         }).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted)">Không có dữ liệu</div>';
 
         // Staff cards
-        document.getElementById('staffCompare').innerHTML = (d.staff || []).map(s => `<div style="padding:12px 16px;border-bottom:1px solid #f0f0f0">
+        document.getElementById('staffCompare').innerHTML = (d.staff || []).map(s => {
+            const callRate = s.total_leads > 0 ? ((s.called / s.total_leads) * 100).toFixed(0) : 0;
+            const apptRate = s.total_leads > 0 ? ((s.appointed / s.total_leads) * 100).toFixed(0) : 0;
+            const arrRate = s.appointed > 0 ? ((s.arrived / s.appointed) * 100).toFixed(0) : 0;
+            return `<div style="padding:12px 16px;border-bottom:1px solid #f0f0f0">
             <div style="font-weight:600;margin-bottom:2px">${esc(s.display_name)}</div>
             <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${esc(s.branch_name || s.branch_code || '—')}</div>
             <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--text-secondary)">
                 <span>KH: <strong>${s.total_leads}</strong></span>
-                <span>Gọi: <strong>${s.called}</strong></span>
-                <span>Hẹn: <strong>${s.appointed}</strong></span>
-                <span>Đến: <strong>${s.arrived}</strong></span>
+                <span>Gọi: <strong>${s.called}</strong> <small style="color:${callRate>=70?'var(--green)':callRate>=40?'var(--orange)':'var(--red)'}">(${callRate}%)</small></span>
+                <span>Hẹn: <strong>${s.appointed}</strong> <small style="color:${apptRate>=30?'var(--green)':apptRate>=15?'var(--orange)':'var(--red)'}">(${apptRate}%)</small></span>
+                <span>Đến: <strong>${s.arrived}</strong> <small style="color:${arrRate>=70?'var(--green)':arrRate>=40?'var(--orange)':'var(--red)'}">(${arrRate}%)</small></span>
                 <span style="color:var(--gold);font-weight:600">💰 ${fmt(s.revenue)}đ</span>
             </div>
-        </div>`).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted)">Không có dữ liệu</div>';
+        </div>`;
+        }).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted)">Không có dữ liệu</div>';
 
         // Source list
         document.getElementById('sourceList').innerHTML = (d.sources || []).map(s => `<div style="padding:8px 16px;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center">
