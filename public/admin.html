@@ -77,10 +77,12 @@
                 <!-- Date Range Filter -->
                 <div class="ws-filter-bar" style="margin-bottom:12px">
                     <span style="font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap">📅 Thời gian:</span>
-                    <button class="ws-btn date-filter-btn active" onclick="setDateRange('today')" data-range="today">Hôm nay</button>
-                    <button class="ws-btn date-filter-btn" onclick="setDateRange('7d')" data-range="7d">Tuần</button>
-                    <button class="ws-btn date-filter-btn" onclick="setDateRange('month')" data-range="month">Tháng</button>
-                    <button class="ws-btn date-filter-btn" onclick="setDateRange('all')" data-range="all">Tất cả</button>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                        <button class="ws-btn date-filter-btn active" onclick="setDateRange('today')" data-range="today">Hôm nay</button>
+                        <button class="ws-btn date-filter-btn" onclick="setDateRange('7d')" data-range="7d">Tuần</button>
+                        <button class="ws-btn date-filter-btn" onclick="setDateRange('month')" data-range="month">Tháng</button>
+                        <button class="ws-btn date-filter-btn" onclick="setDateRange('all')" data-range="all">Tất cả</button>
+                    </div>
                     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
                         <input type="date" id="dashFrom" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
                         <span style="color:var(--text-muted)">→</span>
