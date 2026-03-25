@@ -1134,8 +1134,21 @@ app.get('/api/reports/branch', auth, (req, res) => {
         const appointRate = totalLeads > 0 ? ((totalAppointed / totalLeads) * 100).toFixed(1) : '0.0';
         const arrivalRate = totalAppointed > 0 ? ((totalArrived / totalAppointed) * 100).toFixed(1) : '0.0';
 
+        // By funnel
+        const byFunnel = db.prepare(`
+            SELECT COALESCE(NULLIF(b.funnel_name, ''), 'Chưa xác định') as funnel_name,
+                COUNT(*) as total_leads,
+                SUM(CASE WHEN b.status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END) as appointed,
+                SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN 1 ELSE 0 END) as arrived,
+                COALESCE(SUM(b.first_revenue), 0) as revenue
+            FROM bookings b
+            WHERE DATE(b.created_at) BETWEEN ? AND ?${branchFilter}
+            GROUP BY funnel_name ORDER BY revenue DESC
+        `).all(...params);
+
         res.json({
             by_service: byService,
+            by_funnel: byFunnel,
             summary: { total_leads: totalLeads, total_called: totalCalled, total_appointed: totalAppointed, total_arrived: totalArrived, total_revenue: totalRevenue, total_calls: totalCalls, call_rate: callRate, appoint_rate: appointRate, arrival_rate: arrivalRate },
             from: dateFrom, to: dateTo
         });
