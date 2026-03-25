@@ -920,9 +920,10 @@ app.get('/api/dashboard/admin', auth, requireRole('admin'), (req, res) => {
         // Funnel breakdown
         const funnelStats = db.prepare(`
             SELECT funnel_name, COUNT(*) as count,
+                SUM(CASE WHEN status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END) as appointed,
                 SUM(CASE WHEN status IN ('ARRIVED','WON') THEN 1 ELSE 0 END) as arrived,
                 COALESCE(SUM(first_revenue), 0) as revenue
-            FROM bookings WHERE funnel_name != ''${dateFilter} GROUP BY funnel_name ORDER BY count DESC
+            FROM bookings WHERE funnel_name != ''${dateFilter} GROUP BY funnel_name ORDER BY revenue DESC
         `).all();
 
         // Page operator KPIs
