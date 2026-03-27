@@ -9,6 +9,7 @@ const { hashPassword, verifyPassword } = db;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const DEFAULT_BOOKINGS_LIMIT = 500;
 
 // Helper: get Vietnam (UTC+7) date string 'YYYY-MM-DD'
 function vnDateStr(d) {
@@ -118,6 +119,9 @@ app.post('/api/login', (req, res) => {
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
         db.prepare('INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expiresAt);
         db.prepare("UPDATE users SET last_login = datetime('now', 'localtime') WHERE id = ?").run(user.id);
+
+        // Cleanup expired sessions on each login
+        db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now', 'localtime')").run();
         logActivity(user.id, user.username, user.role, 'login', 'Đăng nhập thành công', req.ip);
 
         res.json({
@@ -144,7 +148,7 @@ app.get('/api/me', auth, (req, res) => res.json(req.user));
 // List leads (scoped by role)
 app.get('/api/bookings', auth, (req, res) => {
     try {
-        const { status, search, sort, order, branch_id, source, hot_level, uncalled } = req.query;
+        const { status, search, sort, order, branch_id, source, hot_level, uncalled, limit, offset } = req.query;
 
         let query = `SELECT b.*,
             br.name as branch_name,
@@ -180,9 +184,15 @@ app.get('/api/bookings', auth, (req, res) => {
         const sortOrder = order === 'asc' ? 'ASC' : 'DESC';
         query += ` ORDER BY ${sortField} ${sortOrder}`;
 
+        // Pagination
+        const queryLimit = Math.min(Math.max(Number(limit) || DEFAULT_BOOKINGS_LIMIT, 1), 10000);
+        const queryOffset = Math.max(Number(offset) || 0, 0);
+        query += ' LIMIT ? OFFSET ?';
+        params.push(queryLimit, queryOffset);
+
         const bookings = db.prepare(query).all(...params);
 
-        // Stats scoped same way
+        // Stats — single consolidated query instead of 12 separate ones
         let scopeWhere = '';
         const scopeParams = [];
         if (req.user.role === 'telesale' && req.user.branchId) {
@@ -191,19 +201,36 @@ app.get('/api/bookings', auth, (req, res) => {
         }
 
         const today = vnDateStr(new Date());
+        const statsRow = db.prepare(`
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'NEW' THEN 1 ELSE 0 END) as new_count,
+                SUM(CASE WHEN status = 'ASSIGNED' THEN 1 ELSE 0 END) as assigned,
+                SUM(CASE WHEN status = 'CALLED' THEN 1 ELSE 0 END) as called,
+                SUM(CASE WHEN status = 'FOLLOW_UP' THEN 1 ELSE 0 END) as follow_up,
+                SUM(CASE WHEN status = 'APPOINTED' THEN 1 ELSE 0 END) as appointed,
+                SUM(CASE WHEN status = 'ARRIVED' THEN 1 ELSE 0 END) as arrived,
+                SUM(CASE WHEN status = 'WON' THEN 1 ELSE 0 END) as won,
+                SUM(CASE WHEN status = 'LOST' THEN 1 ELSE 0 END) as lost,
+                SUM(CASE WHEN DATE(created_at) = ? THEN 1 ELSE 0 END) as today_count,
+                SUM(CASE WHEN callback_at IS NOT NULL AND DATE(callback_at) <= ? AND status NOT IN ('WON','LOST') THEN 1 ELSE 0 END) as callbacks_due,
+                SUM(CASE WHEN care_reminder_at IS NOT NULL AND DATE(care_reminder_at) <= ? AND status NOT IN ('WON','LOST') THEN 1 ELSE 0 END) as care_due
+            FROM bookings WHERE 1=1${scopeWhere}
+        `).get(today, today, today, ...scopeParams);
+
         const stats = {
-            total: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE 1=1${scopeWhere}`).get(...scopeParams).c,
-            new: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'NEW'${scopeWhere}`).get(...scopeParams).c,
-            assigned: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'ASSIGNED'${scopeWhere}`).get(...scopeParams).c,
-            called: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'CALLED'${scopeWhere}`).get(...scopeParams).c,
-            follow_up: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'FOLLOW_UP'${scopeWhere}`).get(...scopeParams).c,
-            appointed: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'APPOINTED'${scopeWhere}`).get(...scopeParams).c,
-            arrived: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'ARRIVED'${scopeWhere}`).get(...scopeParams).c,
-            won: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'WON'${scopeWhere}`).get(...scopeParams).c,
-            lost: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'LOST'${scopeWhere}`).get(...scopeParams).c,
-            today: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE DATE(created_at) = ?${scopeWhere}`).get(today, ...scopeParams).c,
-            callbacks_due: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE callback_at IS NOT NULL AND DATE(callback_at) <= ?${scopeWhere}`).get(today, ...scopeParams).c,
-            care_due: db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE care_reminder_at IS NOT NULL AND DATE(care_reminder_at) <= ?${scopeWhere}`).get(today, ...scopeParams).c,
+            total: statsRow.total,
+            new: statsRow.new_count,
+            assigned: statsRow.assigned,
+            called: statsRow.called,
+            follow_up: statsRow.follow_up,
+            appointed: statsRow.appointed,
+            arrived: statsRow.arrived,
+            won: statsRow.won,
+            lost: statsRow.lost,
+            today: statsRow.today_count,
+            callbacks_due: statsRow.callbacks_due,
+            care_due: statsRow.care_due,
         };
 
         res.json({ bookings, stats });
@@ -863,68 +890,101 @@ app.get('/api/dashboard/admin', auth, requireRole('admin'), (req, res) => {
     try {
         const today = vnDateStr(new Date());
         const { from, to } = req.query;
-        const dateFilter = (from && to) ? ` AND DATE(created_at) BETWEEN '${from}' AND '${to}'` : '';
-        const revDateFilter = (from && to) ? ` AND DATE(r.created_at) BETWEEN '${from}' AND '${to}'` : '';
-        const bkDateFilter = (from && to) ? ` AND DATE(b.created_at) BETWEEN '${from}' AND '${to}'` : '';
+        const hasDateRange = from && to;
 
-        // Overview KPIs
-        const totalLeads = db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE 1=1${dateFilter}`).get().c;
-        const leadsToday = db.prepare("SELECT COUNT(*) as c FROM bookings WHERE DATE(created_at) = ?").get(today).c;
-        const totalCalled = db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE called_count > 0${dateFilter}`).get().c;
-        const totalAppointed = db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status IN ('APPOINTED','ARRIVED','WON')${dateFilter}`).get().c;
-        const totalArrived = db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status IN ('ARRIVED','WON')${dateFilter}`).get().c;
-        const totalWon = db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'WON'${dateFilter}`).get().c;
-        const totalLost = db.prepare(`SELECT COUNT(*) as c FROM bookings WHERE status = 'LOST'${dateFilter}`).get().c;
-        const totalRevenue = db.prepare(`SELECT COALESCE(SUM(amount), 0) as t FROM revenues r WHERE 1=1${revDateFilter.replace('r.', '')}`).get().t;
+        // Overview KPIs — single consolidated query with parameterized dates
+        let overviewSql = `
+            SELECT
+                COUNT(*) as total_leads,
+                SUM(CASE WHEN DATE(created_at) = ? THEN 1 ELSE 0 END) as leads_today,
+                SUM(CASE WHEN called_count > 0 THEN 1 ELSE 0 END) as total_called,
+                SUM(CASE WHEN status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END) as total_appointed,
+                SUM(CASE WHEN status IN ('ARRIVED','WON') THEN 1 ELSE 0 END) as total_arrived,
+                SUM(CASE WHEN status = 'WON' THEN 1 ELSE 0 END) as total_won,
+                SUM(CASE WHEN status = 'LOST' THEN 1 ELSE 0 END) as total_lost
+            FROM bookings WHERE 1=1`;
+        const overviewParams = [today];
+        if (hasDateRange) {
+            overviewSql += ' AND DATE(created_at) BETWEEN ? AND ?';
+            overviewParams.push(from, to);
+        }
+        const ov = db.prepare(overviewSql).get(...overviewParams);
+
+        // Revenue — single query
+        let revSql = 'SELECT COALESCE(SUM(amount), 0) as total FROM revenues WHERE 1=1';
+        const revParams = [];
+        if (hasDateRange) { revSql += ' AND DATE(created_at) BETWEEN ? AND ?'; revParams.push(from, to); }
+        const totalRevenue = db.prepare(revSql).get(...revParams).total;
         const revenueToday = db.prepare("SELECT COALESCE(SUM(amount), 0) as t FROM revenues WHERE DATE(created_at) = ?").get(today).t;
 
         // Rates
-        const callRate = totalLeads > 0 ? ((totalCalled / totalLeads) * 100).toFixed(1) : '0.0';
+        const totalLeads = ov.total_leads;
+        const totalAppointed = ov.total_appointed;
+        const totalArrived = ov.total_arrived;
+        const callRate = totalLeads > 0 ? ((ov.total_called / totalLeads) * 100).toFixed(1) : '0.0';
         const appointmentRate = totalLeads > 0 ? ((totalAppointed / totalLeads) * 100).toFixed(1) : '0.0';
         const arrivalRate = totalAppointed > 0 ? ((totalArrived / totalAppointed) * 100).toFixed(1) : '0.0';
         const avgRevenuePerArrival = totalArrived > 0 ? Math.round(totalRevenue / totalArrived) : 0;
 
-        // Branch comparison
-        const branchStats = db.prepare(`
+        // Branch comparison — consolidated with JOINs instead of correlated subqueries
+        let branchSql = `
             SELECT br.id, br.name, br.code,
-                (SELECT COUNT(*) FROM bookings b WHERE b.branch_id = br.id${bkDateFilter}) as total_leads,
-                (SELECT COUNT(*) FROM bookings b WHERE b.branch_id = br.id AND b.called_count > 0${bkDateFilter}) as called,
-                (SELECT COUNT(*) FROM bookings b WHERE b.branch_id = br.id AND b.status IN ('APPOINTED','ARRIVED','WON')${bkDateFilter}) as appointed,
-                (SELECT COUNT(*) FROM bookings b WHERE b.branch_id = br.id AND b.status IN ('ARRIVED','WON')${bkDateFilter}) as arrived,
-                (SELECT COUNT(*) FROM bookings b WHERE b.branch_id = br.id AND b.status = 'WON'${bkDateFilter}) as won,
-                COALESCE((SELECT SUM(r.amount) FROM revenues r WHERE r.branch_id = br.id${revDateFilter}), 0) as revenue
-            FROM branches br WHERE br.active = 1 ORDER BY br.id
-        `).all();
+                COUNT(b.id) as total_leads,
+                SUM(CASE WHEN b.called_count > 0 THEN 1 ELSE 0 END) as called,
+                SUM(CASE WHEN b.status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END) as appointed,
+                SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN 1 ELSE 0 END) as arrived,
+                SUM(CASE WHEN b.status = 'WON' THEN 1 ELSE 0 END) as won,
+                COALESCE((SELECT SUM(r.amount) FROM revenues r WHERE r.branch_id = br.id`;
+        const branchParams = [];
+        if (hasDateRange) { branchSql += ' AND DATE(r.created_at) BETWEEN ? AND ?'; branchParams.push(from, to); }
+        branchSql += `), 0) as revenue
+            FROM branches br
+            LEFT JOIN bookings b ON b.branch_id = br.id`;
+        if (hasDateRange) { branchSql += ' AND DATE(b.created_at) BETWEEN ? AND ?'; branchParams.push(from, to); }
+        branchSql += ' WHERE br.active = 1 GROUP BY br.id ORDER BY br.id';
+        const branchStats = db.prepare(branchSql).all(...branchParams);
 
-        // Staff comparison
-        const staffStats = db.prepare(`
-            SELECT u.id, u.display_name, u.username, br.name as branch_name, br.code as branch_code,
-                (SELECT COUNT(*) FROM bookings b WHERE b.assigned_to = u.id${bkDateFilter}) as total_leads,
-                (SELECT COUNT(*) FROM bookings b WHERE b.assigned_to = u.id AND b.called_count > 0${bkDateFilter}) as called,
-                (SELECT COUNT(*) FROM bookings b WHERE b.assigned_to = u.id AND b.status IN ('APPOINTED','ARRIVED','WON')${bkDateFilter}) as appointed,
-                (SELECT COUNT(*) FROM bookings b WHERE b.assigned_to = u.id AND b.status IN ('ARRIVED','WON')${bkDateFilter}) as arrived,
-                (SELECT COUNT(*) FROM bookings b WHERE b.assigned_to = u.id AND b.status = 'WON'${bkDateFilter}) as won,
-                COALESCE((SELECT SUM(r.amount) FROM revenues r WHERE r.telesales_id = u.id${revDateFilter}), 0) as revenue
-            FROM users u LEFT JOIN branches br ON u.branch_id = br.id
-            WHERE u.role = 'telesale' AND u.active = 1 ORDER BY revenue DESC
-        `).all();
+        // Staff comparison — consolidated with JOINs
+        let staffSql = `
+            SELECT u.id, u.display_name, u.username, ubr.name as branch_name, ubr.code as branch_code,
+                COUNT(b.id) as total_leads,
+                SUM(CASE WHEN b.called_count > 0 THEN 1 ELSE 0 END) as called,
+                SUM(CASE WHEN b.status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END) as appointed,
+                SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN 1 ELSE 0 END) as arrived,
+                SUM(CASE WHEN b.status = 'WON' THEN 1 ELSE 0 END) as won,
+                COALESCE((SELECT SUM(r.amount) FROM revenues r WHERE r.telesales_id = u.id`;
+        const staffParams = [];
+        if (hasDateRange) { staffSql += ' AND DATE(r.created_at) BETWEEN ? AND ?'; staffParams.push(from, to); }
+        staffSql += `), 0) as revenue
+            FROM users u
+            LEFT JOIN branches ubr ON u.branch_id = ubr.id
+            LEFT JOIN bookings b ON b.assigned_to = u.id`;
+        if (hasDateRange) { staffSql += ' AND DATE(b.created_at) BETWEEN ? AND ?'; staffParams.push(from, to); }
+        staffSql += " WHERE u.role = 'telesale' AND u.active = 1 GROUP BY u.id ORDER BY revenue DESC";
+        const staffStats = db.prepare(staffSql).all(...staffParams);
 
-        // Source breakdown
-        const sourceStats = db.prepare(`
+        // Source breakdown — parameterized
+        let sourceSql = `
             SELECT source, COUNT(*) as count,
                 SUM(CASE WHEN status IN ('ARRIVED','WON') THEN 1 ELSE 0 END) as arrived,
                 COALESCE(SUM(first_revenue), 0) as revenue
-            FROM bookings WHERE 1=1${dateFilter} GROUP BY source ORDER BY count DESC
-        `).all();
+            FROM bookings WHERE 1=1`;
+        const sourceParams = [];
+        if (hasDateRange) { sourceSql += ' AND DATE(created_at) BETWEEN ? AND ?'; sourceParams.push(from, to); }
+        sourceSql += ' GROUP BY source ORDER BY count DESC';
+        const sourceStats = db.prepare(sourceSql).all(...sourceParams);
 
-        // Funnel breakdown (by initial registered service)
-        const funnelStats = db.prepare(`
+        // Funnel breakdown — parameterized
+        let funnelSql = `
             SELECT COALESCE(NULLIF(interest_service, ''), 'Chưa xác định') as funnel_name, COUNT(*) as count,
                 SUM(CASE WHEN status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END) as appointed,
                 SUM(CASE WHEN status IN ('ARRIVED','WON') THEN 1 ELSE 0 END) as arrived,
                 COALESCE(SUM(first_revenue), 0) as revenue
-            FROM bookings WHERE 1=1${dateFilter} GROUP BY interest_service ORDER BY revenue DESC
-        `).all();
+            FROM bookings WHERE 1=1`;
+        const funnelParams = [];
+        if (hasDateRange) { funnelSql += ' AND DATE(created_at) BETWEEN ? AND ?'; funnelParams.push(from, to); }
+        funnelSql += ' GROUP BY interest_service ORDER BY revenue DESC';
+        const funnelStats = db.prepare(funnelSql).all(...funnelParams);
 
         // Page operator KPIs
         const pageDataToday = db.prepare("SELECT COUNT(*) as c FROM bookings WHERE DATE(created_at) = ?").get(today).c;
@@ -932,9 +992,9 @@ app.get('/api/dashboard/admin', auth, requireRole('admin'), (req, res) => {
 
         res.json({
             overview: {
-                total_leads: totalLeads, leads_today: leadsToday,
-                total_called: totalCalled, total_appointed: totalAppointed,
-                total_arrived: totalArrived, total_won: totalWon, total_lost: totalLost,
+                total_leads: totalLeads, leads_today: ov.leads_today,
+                total_called: ov.total_called, total_appointed: totalAppointed,
+                total_arrived: totalArrived, total_won: ov.total_won, total_lost: ov.total_lost,
                 total_revenue: totalRevenue, revenue_today: revenueToday,
                 call_rate: callRate, appointment_rate: appointmentRate,
                 arrival_rate: arrivalRate, avg_revenue_per_arrival: avgRevenuePerArrival
@@ -967,16 +1027,25 @@ app.get('/api/bookings/export', auth, requireRole('admin'), (req, res) => {
         if (status) { sql += ' AND b.status = ?'; params.push(status); }
         if (branch_id) { sql += ' AND b.branch_id = ?'; params.push(branch_id); }
         sql += ' ORDER BY b.created_at DESC';
-        const rows = db.prepare(sql).all(...params);
 
         const STATUS_MAP = { NEW:'Mới', ASSIGNED:'Đã phân', CALLED:'Đã gọi', FOLLOW_UP:'Chăm sóc', APPOINTED:'Có hẹn', ARRIVED:'Đã đến', WON:'Có doanh thu', LOST:'Mất' };
         const HOT_MAP = { HOT:'Nóng', WARM:'Ấm', COLD:'Lạnh' };
 
+        const dateLabel = (from && to) ? `${from}_${to}` : vnDateStr(new Date());
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="leads_${dateLabel}.csv"`);
+
+        // Stream CSV: write BOM + headers first
         const headers = ['STT','Họ tên','SĐT','Giới tính','Năm sinh','Khu vực','Nguồn','Phễu','DV quan tâm','Ghi chú ban đầu','Mức độ','Trạng thái','Chi nhánh','Telesales','Số lần gọi','Kết quả gọi gần nhất','Ngày hẹn','Ngày đến','DV lần đầu','Doanh thu lần đầu','Lý do mất','Ngày tạo'];
-        const csvRows = [headers.join(',')];
-        rows.forEach((r, i) => {
+        res.write('\uFEFF' + headers.join(',') + '\n');
+
+        // Stream rows using iterate() to avoid loading all into memory
+        const stmt = db.prepare(sql);
+        let i = 0;
+        for (const r of stmt.iterate(...params)) {
+            i++;
             const vals = [
-                i + 1, `"${(r.full_name||'').replace(/"/g,'""')}"`, r.phone, r.gender || '',
+                i, `"${(r.full_name||'').replace(/"/g,'""')}"`, r.phone, r.gender || '',
                 r.birth_year || '', `"${(r.area||'').replace(/"/g,'""')}"`, r.source || '',
                 `"${(r.funnel_name||'').replace(/"/g,'""')}"`, `"${(r.interest_service||'').replace(/"/g,'""')}"`,
                 `"${(r.initial_note||'').replace(/"/g,'""')}"`, HOT_MAP[r.hot_level] || r.hot_level || '',
@@ -986,17 +1055,14 @@ app.get('/api/bookings/export', auth, requireRole('admin'), (req, res) => {
                 `"${(r.first_service_name||'').replace(/"/g,'""')}"`, r.first_revenue || 0,
                 `"${(r.lost_reason||'').replace(/"/g,'""')}"`, r.created_at || ''
             ];
-            csvRows.push(vals.join(','));
-        });
-
-        const csvContent = '\uFEFF' + csvRows.join('\n');
-        const dateLabel = (from && to) ? `${from}_${to}` : vnDateStr(new Date());
-        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', `attachment; filename="leads_${dateLabel}.csv"`);
-        res.send(csvContent);
+            res.write(vals.join(',') + '\n');
+        }
+        res.end();
     } catch (error) {
         console.error('Export error:', error);
-        res.status(500).json({ error: 'Có lỗi xảy ra khi xuất file' });
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'Có lỗi xảy ra khi xuất file' });
+        }
     }
 });
 
@@ -1270,6 +1336,35 @@ app.get('/api-docs', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/branch', (req, res) => res.redirect('/admin'));
 app.get('/branch/*', (req, res) => res.redirect('/admin'));
 app.get('/direct-page', (req, res) => res.redirect('/page'));
+
+// ==================== PERIODIC CLEANUP ====================
+
+function runCleanup() {
+    try {
+        // Delete expired sessions
+        const expiredSessions = db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now', 'localtime')").run();
+
+        // Delete activity logs older than 90 days
+        const oldLogs = db.prepare("DELETE FROM activity_logs WHERE created_at < datetime('now', 'localtime', '-90 days')").run();
+
+        // Delete lead events older than 180 days
+        const oldEvents = db.prepare("DELETE FROM lead_events WHERE created_at < datetime('now', 'localtime', '-180 days')").run();
+
+        // Delete page views older than 90 days
+        const oldViews = db.prepare("DELETE FROM page_views WHERE created_at < datetime('now', 'localtime', '-90 days')").run();
+
+        const cleaned = expiredSessions.changes + oldLogs.changes + oldEvents.changes + oldViews.changes;
+        if (cleaned > 0) {
+            console.log(`  🧹 Cleanup: ${expiredSessions.changes} sessions, ${oldLogs.changes} logs, ${oldEvents.changes} events, ${oldViews.changes} page_views removed`);
+        }
+    } catch (e) {
+        console.error('Cleanup error:', e.message);
+    }
+}
+
+// Run cleanup on startup and every 6 hours
+runCleanup();
+setInterval(runCleanup, 6 * 60 * 60 * 1000);
 
 // ==================== START SERVER ====================
 
