@@ -1341,9 +1341,9 @@ function openFunnelManager() {
 
 function renderFunnelManager() {
     const modal = document.getElementById('funnelManagerModal');
-    const rows = adFunnelList.map(f => `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f0f0f0">
+    const rows = adFunnelList.map(f => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0">
         <span style="font-size:14px">${esc(f.name)}</span>
-        <button class="ws-action-btn ws-action-noshow" onclick="deleteFunnel(${f.id})" style="font-size:12px">🗑</button>
+        <button onclick="deleteFunnel(${f.id})" style="background:#FFEBEE;color:#C62828;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600">Xóa</button>
     </div>`).join('');
 
     modal.innerHTML = `<div class="ws-modal" style="max-width:420px">
