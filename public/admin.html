@@ -1186,7 +1186,6 @@ function openAdReportModal(editId) {
                     <div class="ws-field"><label>Số khách đến <span style="font-size:11px;color:#1976D2">🔄 tự động</span></label><input type="number" id="adArrivals" min="0" placeholder="0" style="background:#E3F2FD"></div>
                     <div class="ws-field"><label>Tổng DT lần đầu (đ) <span style="font-size:11px;color:#1976D2">🔄 tự động</span></label><input type="number" id="adRevenue" min="0" placeholder="0" style="background:#E3F2FD"></div>
                     <div class="ws-field"><label>KPI DT lần đầu TB (đ)</label><input type="number" id="adKpi" min="0" placeholder="VD: 3000000"></div>
-                    <div style="grid-column:1/-1;text-align:right"><button type="button" class="ws-btn" onclick="autofillAdReport()" style="font-size:12px;padding:4px 12px">🔄 Lấy từ CRM</button></div>
                     <div class="ws-field" style="grid-column:1/-1"><label>Ghi chú</label><textarea id="adNotes" rows="2" placeholder="Ghi chú thêm..."></textarea></div>
                 </div>
             </div>
@@ -1196,6 +1195,15 @@ function openAdReportModal(editId) {
             </div>
         </div>`;
         document.body.appendChild(modal);
+
+        // Auto-trigger autofill when date/branch/funnel change
+        document.getElementById('adDate').addEventListener('change', () => autofillAdReport(true));
+        document.getElementById('adBranch').addEventListener('change', () => autofillAdReport(true));
+        let adFunnelTimer = null;
+        document.getElementById('adFunnel').addEventListener('input', () => {
+            clearTimeout(adFunnelTimer);
+            adFunnelTimer = setTimeout(() => autofillAdReport(true), 500);
+        });
     }
 
     // Populate branch dropdown
@@ -1286,11 +1294,11 @@ async function deleteAdReport(id) {
     } catch (e) { showToast('Lỗi xóa', 'error'); }
 }
 
-async function autofillAdReport() {
+async function autofillAdReport(silent) {
     const date = document.getElementById('adDate').value;
     const branchId = document.getElementById('adBranch').value;
     const funnelName = document.getElementById('adFunnel').value.trim();
-    if (!date || !branchId) { showAdError('Chọn ngày và chi nhánh trước khi lấy dữ liệu'); return; }
+    if (!date || !branchId) { if (!silent) showAdError('Chọn ngày và chi nhánh trước'); return; }
     try {
         const params = new URLSearchParams({ date, branchId });
         if (funnelName) params.set('funnelName', funnelName);
@@ -1298,9 +1306,7 @@ async function autofillAdReport() {
         document.getElementById('adAppts').value = data.appointments_count || 0;
         document.getElementById('adArrivals').value = data.arrivals_count || 0;
         document.getElementById('adRevenue').value = data.first_revenue_total || 0;
-        document.getElementById('adFormError').style.display = 'none';
-        showToast(`Đã lấy: ${data.appointments_count} hẹn, ${data.arrivals_count} đến, ${(data.first_revenue_total||0).toLocaleString('vi-VN')}đ DT`);
-    } catch (e) { showAdError('Lỗi lấy dữ liệu từ CRM'); }
+    } catch (e) { if (!silent) showAdError('Lỗi lấy dữ liệu từ CRM'); }
 }
 
 // Init
