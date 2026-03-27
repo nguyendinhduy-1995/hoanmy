@@ -238,7 +238,9 @@
                 </div>
                 <div class="ws-field">
                     <label>Phễu / Chiến dịch</label>
-                    <input type="text" id="addFunnel" placeholder="VD: FB_T3_TrietLong">
+                    <select id="addFunnel">
+                        <option value="">— Chọn phễu —</option>
+                    </select>
                 </div>
                 <div class="ws-field">
                     <label>Mức độ nóng</label>
@@ -823,8 +825,20 @@ function toggleAllBr() {
     document.getElementById('toggleBrBtn').textContent = allOpen ? 'Mở tất cả' : 'Thu gọn';
 }
 
+// Load funnel list for page operators
+async function loadPageFunnels() {
+    try {
+        const funnels = await api('/api/ad-funnels');
+        const sel = document.getElementById('addFunnel');
+        if (sel && funnels.length) {
+            sel.innerHTML = '<option value="">— Chọn phễu —</option>' + funnels.map(f => `<option value="${esc(f.name)}">${esc(f.name)}</option>`).join('');
+        }
+    } catch (e) {}
+}
+
 // Init
 loadData();
+loadPageFunnels();
 </script>
 </body>
 </html>

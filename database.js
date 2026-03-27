@@ -429,6 +429,15 @@ telesaleAccounts.forEach((acc, i) => {
   }
 });
 
+// ==================== AD FUNNELS (shared funnel names) ====================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ad_funnels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+  );
+`);
+
 // ==================== AD PERFORMANCE REPORTS ====================
 db.exec(`
   CREATE TABLE IF NOT EXISTS ad_performance_reports (

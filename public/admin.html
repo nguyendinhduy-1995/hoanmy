@@ -279,6 +279,7 @@
                     <button class="ws-btn ws-btn-primary" onclick="loadAdReports()" style="font-size:12px;padding:5px 10px">🔍 Lọc</button>
                     <button class="ws-btn" onclick="resetAdFilters()" style="font-size:12px;padding:5px 10px">↻ Reset</button>
                     <button class="ws-btn ws-btn-primary" onclick="openAdReportModal()" style="font-size:12px;padding:5px 10px">+ Thêm báo cáo</button>
+                    <button class="ws-btn" onclick="openFunnelManager()" style="font-size:12px;padding:5px 10px">⚙️ Quản lý phễu</button>
                 </div>
 
                 <!-- Data Table -->
@@ -1179,12 +1180,12 @@ function openAdReportModal(editId) {
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div class="ws-field"><label>Ngày *</label><input type="date" id="adDate"></div>
                     <div class="ws-field"><label>Chi nhánh *</label><select id="adBranch"><option value="">— Chọn —</option></select></div>
-                    <div class="ws-field" style="grid-column:1/-1"><label>Phễu *</label><input type="text" id="adFunnel" placeholder="VD: FB_T3_TrietLong"></div>
+                    <div class="ws-field" style="grid-column:1/-1"><label>Phễu *</label><select id="adFunnel"><option value="">— Chọn phễu —</option></select></div>
                     <div class="ws-field"><label>Chi phí quảng cáo (đ)</label><input type="number" id="adCost" min="0" placeholder="0"></div>
                     <div class="ws-field"><label>Số khách liên hệ</label><input type="number" id="adLeads" min="0" placeholder="0"></div>
-                    <div class="ws-field"><label>Số lịch hẹn <span style="font-size:11px;color:#1976D2">🔄 tự động</span></label><input type="number" id="adAppts" min="0" placeholder="0" style="background:#E3F2FD"></div>
-                    <div class="ws-field"><label>Số khách đến <span style="font-size:11px;color:#1976D2">🔄 tự động</span></label><input type="number" id="adArrivals" min="0" placeholder="0" style="background:#E3F2FD"></div>
-                    <div class="ws-field"><label>Tổng DT lần đầu (đ) <span style="font-size:11px;color:#1976D2">🔄 tự động</span></label><input type="number" id="adRevenue" min="0" placeholder="0" style="background:#E3F2FD"></div>
+                    <div class="ws-field"><label>Số lịch hẹn</label><input type="number" id="adAppts" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
+                    <div class="ws-field"><label>Số khách đến</label><input type="number" id="adArrivals" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
+                    <div class="ws-field"><label>Tổng DT lần đầu (đ)</label><input type="number" id="adRevenue" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
                     <div class="ws-field"><label>KPI DT lần đầu TB (đ)</label><input type="number" id="adKpi" min="0" placeholder="VD: 3000000"></div>
                     <div class="ws-field" style="grid-column:1/-1"><label>Ghi chú</label><textarea id="adNotes" rows="2" placeholder="Ghi chú thêm..."></textarea></div>
                 </div>
@@ -1199,11 +1200,7 @@ function openAdReportModal(editId) {
         // Auto-trigger autofill when date/branch/funnel change
         document.getElementById('adDate').addEventListener('change', () => autofillAdReport(true));
         document.getElementById('adBranch').addEventListener('change', () => autofillAdReport(true));
-        let adFunnelTimer = null;
-        document.getElementById('adFunnel').addEventListener('input', () => {
-            clearTimeout(adFunnelTimer);
-            adFunnelTimer = setTimeout(() => autofillAdReport(true), 500);
-        });
+        document.getElementById('adFunnel').addEventListener('change', () => autofillAdReport(true));
     }
 
     // Populate branch dropdown
@@ -1211,6 +1208,9 @@ function openAdReportModal(editId) {
     if (branchList && branchList.length) {
         brSel.innerHTML = '<option value="">— Chọn chi nhánh —</option>' + branchList.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
     }
+
+    // Populate funnel dropdown
+    populateAdFunnelDropdown('adFunnel');
 
     document.getElementById('adModalTitle').textContent = isEdit ? 'Sửa báo cáo QC' : 'Thêm báo cáo QC';
     document.getElementById('adFormError').style.display = 'none';
@@ -1230,14 +1230,15 @@ function openAdReportModal(editId) {
             document.getElementById('adNotes').value = r.notes || '';
         }
     } else {
-        ['adDate','adFunnel','adCost','adLeads','adAppts','adArrivals','adRevenue','adKpi','adNotes'].forEach(id => {
+        ['adCost','adLeads','adAppts','adArrivals','adRevenue','adKpi','adNotes'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
         document.getElementById('adBranch').value = '';
-        // Default date to today
-        const now = new Date();
-        document.getElementById('adDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        document.getElementById('adFunnel').value = '';
+        // Default date to yesterday
+        const y = new Date(); y.setDate(y.getDate() - 1);
+        document.getElementById('adDate').value = `${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,'0')}-${String(y.getDate()).padStart(2,'0')}`;
     }
 
     modal.classList.add('show');
@@ -1297,7 +1298,7 @@ async function deleteAdReport(id) {
 async function autofillAdReport(silent) {
     const date = document.getElementById('adDate').value;
     const branchId = document.getElementById('adBranch').value;
-    const funnelName = document.getElementById('adFunnel').value.trim();
+    const funnelName = document.getElementById('adFunnel').value;
     if (!date || !branchId) { if (!silent) showAdError('Chọn ngày và chi nhánh trước'); return; }
     try {
         const params = new URLSearchParams({ date, branchId });
@@ -1309,7 +1310,99 @@ async function autofillAdReport(silent) {
     } catch (e) { if (!silent) showAdError('Lỗi lấy dữ liệu từ CRM'); }
 }
 
+// ==================== FUNNEL MANAGEMENT ====================
+let adFunnelList = [];
+
+async function loadAdFunnels() {
+    try {
+        adFunnelList = await api('/api/ad-funnels');
+    } catch (e) { adFunnelList = []; }
+}
+
+function populateAdFunnelDropdown(selectId) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— Chọn phễu —</option>' + adFunnelList.map(f => `<option value="${esc(f.name)}">${esc(f.name)}</option>`).join('');
+    sel.value = cur;
+}
+
+function openFunnelManager() {
+    let modal = document.getElementById('funnelManagerModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'ws-modal-overlay';
+        modal.id = 'funnelManagerModal';
+        document.body.appendChild(modal);
+    }
+    renderFunnelManager();
+    modal.classList.add('show');
+}
+
+function renderFunnelManager() {
+    const modal = document.getElementById('funnelManagerModal');
+    const rows = adFunnelList.map(f => `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f0f0f0">
+        <span style="font-size:14px">${esc(f.name)}</span>
+        <button class="ws-action-btn ws-action-noshow" onclick="deleteFunnel(${f.id})" style="font-size:12px">🗑</button>
+    </div>`).join('');
+
+    modal.innerHTML = `<div class="ws-modal" style="max-width:420px">
+        <div class="ws-modal-header">
+            <h3 class="ws-modal-title">⚙️ Quản lý phễu quảng cáo</h3>
+            <button class="ws-modal-close" onclick="document.getElementById('funnelManagerModal').classList.remove('show')">&times;</button>
+        </div>
+        <div class="ws-modal-body">
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+                <input type="text" id="newFunnelName" placeholder="Tên phễu mới..." style="flex:1;padding:6px 10px;border:1px solid #ddd;border-radius:6px">
+                <button class="ws-btn ws-btn-primary" onclick="addFunnel()" style="font-size:12px">+ Thêm</button>
+            </div>
+            <div style="max-height:300px;overflow-y:auto;border:1px solid #eee;border-radius:8px">
+                ${rows || '<div style="padding:16px;text-align:center;color:#999">Chưa có phễu nào</div>'}
+            </div>
+        </div>
+    </div>`;
+}
+
+async function addFunnel() {
+    const name = document.getElementById('newFunnelName').value.trim();
+    if (!name) return;
+    try {
+        const res = await api('/api/admin/ad-funnels', { method: 'POST', body: JSON.stringify({ name }) });
+        if (res.error) { showToast(res.error, 'error'); return; }
+        showToast('Đã thêm phễu: ' + name);
+        await loadAdFunnels();
+        renderFunnelManager();
+        // Refresh funnel dropdown in filter & modal
+        populateAdFunnelDropdown('adFunnel');
+        populateFunnelFilter();
+    } catch (e) { showToast('Lỗi thêm phễu', 'error'); }
+}
+
+async function deleteFunnel(id) {
+    if (!confirm('Xóa phễu này?')) return;
+    try {
+        const res = await api(`/api/admin/ad-funnels/${id}`, { method: 'DELETE' });
+        if (res.error) { showToast(res.error, 'error'); return; }
+        showToast('Đã xóa phễu');
+        await loadAdFunnels();
+        renderFunnelManager();
+        populateAdFunnelDropdown('adFunnel');
+        populateFunnelFilter();
+    } catch (e) { showToast('Lỗi xóa', 'error'); }
+}
+
+function populateFunnelFilter() {
+    const sel = document.getElementById('adFunnelFilter');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Tất cả phễu</option>' + adFunnelList.map(f => `<option value="${esc(f.name)}">${esc(f.name)}</option>`).join('');
+    sel.value = cur;
+}
+
 // Init
+loadAdFunnels().then(() => {
+    populateFunnelFilter();
+});
 loadDashboard();
 loadAdminPageReports();
 </script>

@@ -1291,6 +1291,48 @@ app.get('/api/reminders/no-show-yesterday', auth, (req, res) => {
     }
 });
 
+// ==================== AD FUNNELS (shared between admin & page) ====================
+
+// List funnels (accessible by all authenticated users)
+app.get('/api/ad-funnels', auth, (req, res) => {
+    try {
+        const funnels = db.prepare('SELECT id, name FROM ad_funnels ORDER BY name ASC').all();
+        res.json(funnels);
+    } catch (error) {
+        console.error('List funnels error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
+// Create funnel (admin only)
+app.post('/api/admin/ad-funnels', auth, requireRole('admin'), (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name || !String(name).trim()) return res.status(400).json({ error: 'Tên phễu không được trống' });
+        const result = db.prepare('INSERT INTO ad_funnels (name) VALUES (?)').run(String(name).trim());
+        res.json({ id: result.lastInsertRowid, name: String(name).trim() });
+    } catch (error) {
+        if (error.message && error.message.includes('UNIQUE')) {
+            return res.status(409).json({ error: 'Phễu đã tồn tại' });
+        }
+        console.error('Create funnel error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
+// Delete funnel (admin only)
+app.delete('/api/admin/ad-funnels/:id', auth, requireRole('admin'), (req, res) => {
+    try {
+        const existing = db.prepare('SELECT id FROM ad_funnels WHERE id = ?').get(req.params.id);
+        if (!existing) return res.status(404).json({ error: 'Không tìm thấy phễu' });
+        db.prepare('DELETE FROM ad_funnels WHERE id = ?').run(req.params.id);
+        res.json({ message: 'Đã xóa phễu' });
+    } catch (error) {
+        console.error('Delete funnel error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
 // ==================== AD PERFORMANCE REPORTS ====================
 
 // List ad reports with filters
