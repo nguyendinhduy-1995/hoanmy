@@ -1446,6 +1446,35 @@ app.delete('/api/admin/ad-reports/:id', auth, requireRole('admin'), (req, res) =
     }
 });
 
+// Autofill ad report from bookings data
+app.get('/api/admin/ad-reports/autofill', auth, requireRole('admin'), (req, res) => {
+    try {
+        const { date, branchId, funnelName } = req.query;
+        if (!date || !branchId) return res.json({ appointments_count: 0, arrivals_count: 0, first_revenue_total: 0 });
+
+        // Count from bookings cohort: leads created on this date, at this branch, with this funnel
+        let where = 'WHERE DATE(b.created_at) = ? AND b.branch_id = ?';
+        const params = [date, branchId];
+        if (funnelName) {
+            where += ' AND (b.funnel_name = ? OR b.interest_service = ?)';
+            params.push(funnelName, funnelName);
+        }
+
+        const row = db.prepare(`
+            SELECT
+                COALESCE(SUM(CASE WHEN b.status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END), 0) as appointments_count,
+                COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN 1 ELSE 0 END), 0) as arrivals_count,
+                COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN b.first_revenue ELSE 0 END), 0) as first_revenue_total
+            FROM bookings b ${where}
+        `).get(...params);
+
+        res.json(row);
+    } catch (error) {
+        console.error('Ad report autofill error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
 // ==================== LANDING PAGE ROUTES ====================
 
 const landingDir = path.join(__dirname, 'public', 'landing');
