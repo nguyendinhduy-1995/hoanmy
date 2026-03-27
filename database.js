@@ -429,6 +429,29 @@ telesaleAccounts.forEach((acc, i) => {
   }
 });
 
+// ==================== AD PERFORMANCE REPORTS ====================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ad_performance_reports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_date TEXT NOT NULL,
+    branch_id INTEGER NOT NULL REFERENCES branches(id),
+    funnel_name TEXT NOT NULL DEFAULT '',
+    ad_cost INTEGER NOT NULL DEFAULT 0,
+    leads_count INTEGER NOT NULL DEFAULT 0,
+    appointments_count INTEGER NOT NULL DEFAULT 0,
+    arrivals_count INTEGER NOT NULL DEFAULT 0,
+    first_revenue_total INTEGER NOT NULL DEFAULT 0,
+    avg_first_revenue_kpi INTEGER NOT NULL DEFAULT 0,
+    notes TEXT DEFAULT '',
+    created_at DATETIME DEFAULT (datetime('now', 'localtime')),
+    updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
+    UNIQUE(report_date, branch_id, funnel_name)
+  );
+  CREATE INDEX IF NOT EXISTS idx_adr_date ON ad_performance_reports(report_date);
+  CREATE INDEX IF NOT EXISTS idx_adr_branch_date ON ad_performance_reports(branch_id, report_date);
+  CREATE INDEX IF NOT EXISTS idx_adr_funnel_date ON ad_performance_reports(funnel_name, report_date);
+`);
+
 // ==================== DEMO DATA CLEANUP ====================
 // Clean up seeded demo data. Demo leads have initial_note starting with 'Khách hỏi '
 // and were created by the page operator seed account. We keep real data entered by truc_page.

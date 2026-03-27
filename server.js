@@ -1291,6 +1291,161 @@ app.get('/api/reminders/no-show-yesterday', auth, (req, res) => {
     }
 });
 
+// ==================== AD PERFORMANCE REPORTS ====================
+
+// List ad reports with filters
+app.get('/api/admin/ad-reports', auth, requireRole('admin'), (req, res) => {
+    try {
+        const { fromDate, toDate, branchId, funnelName } = req.query;
+        let sql = `SELECT a.*, br.name as branch_name, br.code as branch_code
+            FROM ad_performance_reports a
+            LEFT JOIN branches br ON a.branch_id = br.id
+            WHERE 1=1`;
+        const params = [];
+        if (fromDate) { sql += ' AND a.report_date >= ?'; params.push(fromDate); }
+        if (toDate) { sql += ' AND a.report_date <= ?'; params.push(toDate); }
+        if (branchId) { sql += ' AND a.branch_id = ?'; params.push(branchId); }
+        if (funnelName) { sql += ' AND a.funnel_name = ?'; params.push(funnelName); }
+        sql += ' ORDER BY a.report_date DESC, br.name ASC, a.funnel_name ASC';
+        const reports = db.prepare(sql).all(...params);
+
+        // Get distinct funnel names for filter dropdown
+        const funnels = db.prepare("SELECT DISTINCT funnel_name FROM ad_performance_reports WHERE funnel_name != '' ORDER BY funnel_name").all();
+
+        res.json({ reports, funnels: funnels.map(f => f.funnel_name) });
+    } catch (error) {
+        console.error('Ad reports list error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
+// Create ad report
+app.post('/api/admin/ad-reports', auth, requireRole('admin'), (req, res) => {
+    try {
+        const { report_date, branch_id, funnel_name, ad_cost, leads_count, appointments_count, arrivals_count, first_revenue_total, avg_first_revenue_kpi, notes } = req.body;
+
+        // Validation
+        if (!report_date || !/^\d{4}-\d{2}-\d{2}$/.test(report_date)) {
+            return res.status(400).json({ error: 'Ngày không hợp lệ (YYYY-MM-DD)' });
+        }
+        if (!branch_id || !Number.isInteger(Number(branch_id)) || Number(branch_id) <= 0) {
+            return res.status(400).json({ error: 'Chi nhánh không hợp lệ' });
+        }
+        if (!funnel_name || !String(funnel_name).trim()) {
+            return res.status(400).json({ error: 'Phễu không được để trống' });
+        }
+        const branch = db.prepare('SELECT id FROM branches WHERE id = ?').get(Number(branch_id));
+        if (!branch) {
+            return res.status(400).json({ error: 'Chi nhánh không tồn tại' });
+        }
+
+        const numFields = { ad_cost, leads_count, appointments_count, arrivals_count, first_revenue_total, avg_first_revenue_kpi };
+        for (const [key, val] of Object.entries(numFields)) {
+            if (val !== undefined && val !== null && (isNaN(Number(val)) || Number(val) < 0)) {
+                return res.status(400).json({ error: `${key} phải là số >= 0` });
+            }
+        }
+
+        const result = db.prepare(`INSERT INTO ad_performance_reports
+            (report_date, branch_id, funnel_name, ad_cost, leads_count, appointments_count, arrivals_count, first_revenue_total, avg_first_revenue_kpi, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+            report_date, Number(branch_id), String(funnel_name).trim(),
+            Number(ad_cost) || 0, Number(leads_count) || 0, Number(appointments_count) || 0,
+            Number(arrivals_count) || 0, Number(first_revenue_total) || 0, Number(avg_first_revenue_kpi) || 0,
+            (notes || '').trim()
+        );
+
+        logActivity(req.user.id, req.user.username, req.user.role, 'ad_report_create',
+            `Tạo báo cáo QC: ${report_date} - ${funnel_name}`, req.ip);
+
+        res.json({ id: result.lastInsertRowid, message: 'Đã tạo báo cáo' });
+    } catch (error) {
+        if (error.message && error.message.includes('UNIQUE constraint')) {
+            return res.status(409).json({ error: 'Đã tồn tại báo cáo cho ngày + chi nhánh + phễu này' });
+        }
+        console.error('Ad report create error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
+// Update ad report
+app.patch('/api/admin/ad-reports/:id', auth, requireRole('admin'), (req, res) => {
+    try {
+        const { id } = req.params;
+        const existing = db.prepare('SELECT id FROM ad_performance_reports WHERE id = ?').get(id);
+        if (!existing) return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
+
+        const { report_date, branch_id, funnel_name, ad_cost, leads_count, appointments_count, arrivals_count, first_revenue_total, avg_first_revenue_kpi, notes } = req.body;
+
+        if (report_date && !/^\d{4}-\d{2}-\d{2}$/.test(report_date)) {
+            return res.status(400).json({ error: 'Ngày không hợp lệ' });
+        }
+        if (branch_id !== undefined) {
+            const branch = db.prepare('SELECT id FROM branches WHERE id = ?').get(Number(branch_id));
+            if (!branch) return res.status(400).json({ error: 'Chi nhánh không tồn tại' });
+        }
+        if (funnel_name !== undefined && !String(funnel_name).trim()) {
+            return res.status(400).json({ error: 'Phễu không được để trống' });
+        }
+
+        const numFields = { ad_cost, leads_count, appointments_count, arrivals_count, first_revenue_total, avg_first_revenue_kpi };
+        for (const [key, val] of Object.entries(numFields)) {
+            if (val !== undefined && val !== null && (isNaN(Number(val)) || Number(val) < 0)) {
+                return res.status(400).json({ error: `${key} phải là số >= 0` });
+            }
+        }
+
+        const fields = [];
+        const params = [];
+        if (report_date !== undefined) { fields.push('report_date = ?'); params.push(report_date); }
+        if (branch_id !== undefined) { fields.push('branch_id = ?'); params.push(Number(branch_id)); }
+        if (funnel_name !== undefined) { fields.push('funnel_name = ?'); params.push(String(funnel_name).trim()); }
+        if (ad_cost !== undefined) { fields.push('ad_cost = ?'); params.push(Number(ad_cost) || 0); }
+        if (leads_count !== undefined) { fields.push('leads_count = ?'); params.push(Number(leads_count) || 0); }
+        if (appointments_count !== undefined) { fields.push('appointments_count = ?'); params.push(Number(appointments_count) || 0); }
+        if (arrivals_count !== undefined) { fields.push('arrivals_count = ?'); params.push(Number(arrivals_count) || 0); }
+        if (first_revenue_total !== undefined) { fields.push('first_revenue_total = ?'); params.push(Number(first_revenue_total) || 0); }
+        if (avg_first_revenue_kpi !== undefined) { fields.push('avg_first_revenue_kpi = ?'); params.push(Number(avg_first_revenue_kpi) || 0); }
+        if (notes !== undefined) { fields.push('notes = ?'); params.push((notes || '').trim()); }
+
+        if (fields.length === 0) return res.status(400).json({ error: 'Không có dữ liệu cập nhật' });
+
+        fields.push("updated_at = datetime('now', 'localtime')");
+        params.push(id);
+        db.prepare(`UPDATE ad_performance_reports SET ${fields.join(', ')} WHERE id = ?`).run(...params);
+
+        logActivity(req.user.id, req.user.username, req.user.role, 'ad_report_update',
+            `Cập nhật báo cáo QC #${id}`, req.ip);
+
+        res.json({ message: 'Đã cập nhật' });
+    } catch (error) {
+        if (error.message && error.message.includes('UNIQUE constraint')) {
+            return res.status(409).json({ error: 'Đã tồn tại báo cáo cho ngày + chi nhánh + phễu này' });
+        }
+        console.error('Ad report update error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
+// Delete ad report
+app.delete('/api/admin/ad-reports/:id', auth, requireRole('admin'), (req, res) => {
+    try {
+        const { id } = req.params;
+        const existing = db.prepare('SELECT id, report_date, funnel_name FROM ad_performance_reports WHERE id = ?').get(id);
+        if (!existing) return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
+
+        db.prepare('DELETE FROM ad_performance_reports WHERE id = ?').run(id);
+
+        logActivity(req.user.id, req.user.username, req.user.role, 'ad_report_delete',
+            `Xóa báo cáo QC: ${existing.report_date} - ${existing.funnel_name}`, req.ip);
+
+        res.json({ message: 'Đã xóa' });
+    } catch (error) {
+        console.error('Ad report delete error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
 // ==================== LANDING PAGE ROUTES ====================
 
 const landingDir = path.join(__dirname, 'public', 'landing');

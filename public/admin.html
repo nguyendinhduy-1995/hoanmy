@@ -35,6 +35,10 @@
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                 Quản lý tài khoản
             </button>
+            <button class="ws-nav-item" data-page="ad-reports" onclick="switchPage('ad-reports')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                📊 Báo cáo quảng cáo
+            </button>
             <button class="ws-nav-item" data-page="logs" onclick="switchPage('logs')">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 Nhật ký hoạt động
@@ -260,6 +264,31 @@
                     </div>
                 </div>
             </div>
+            <!-- AD REPORTS PAGE -->
+            <div id="page-ad-reports" class="ws-page" style="display:none">
+                <!-- Summary KPIs -->
+                <div id="adSummaryKpis" style="margin-bottom:12px"></div>
+
+                <!-- Filters -->
+                <div class="ws-filter-bar" style="margin-bottom:12px;gap:8px;flex-wrap:wrap">
+                    <input type="date" id="adFromDate" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                    <span style="color:var(--text-muted)">→</span>
+                    <input type="date" id="adToDate" class="ws-btn" style="cursor:pointer;font-size:12px;padding:5px 8px">
+                    <select id="adBranchFilter" class="ws-btn" style="cursor:pointer;font-size:12px"><option value="">Tất cả chi nhánh</option></select>
+                    <select id="adFunnelFilter" class="ws-btn" style="cursor:pointer;font-size:12px"><option value="">Tất cả phễu</option></select>
+                    <button class="ws-btn ws-btn-primary" onclick="loadAdReports()" style="font-size:12px;padding:5px 10px">🔍 Lọc</button>
+                    <button class="ws-btn" onclick="resetAdFilters()" style="font-size:12px;padding:5px 10px">↻ Reset</button>
+                    <button class="ws-btn ws-btn-primary" onclick="openAdReportModal()" style="font-size:12px;padding:5px 10px">+ Thêm báo cáo</button>
+                </div>
+
+                <!-- Data Table -->
+                <div class="ws-card" style="padding:0;overflow-x:auto">
+                    <div id="adReportTable" style="min-height:200px">
+                        <div class="ws-loading"><div class="ws-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 </div>
@@ -335,14 +364,14 @@ function switchPage(page) {
     document.getElementById('page-' + page).style.display = 'block';
     document.querySelectorAll('.ws-nav-item').forEach(n => n.classList.remove('active'));
     document.querySelector(`[data-page="${page}"]`).classList.add('active');
-    const titles = { dashboard: 'Tổng quan', leads: 'Khách hàng', appointments: 'Lịch hẹn', users: 'Quản lý tài khoản', logs: 'Nhật ký hoạt động' };
+    const titles = { dashboard: 'Tổng quan', leads: 'Khách hàng', appointments: 'Lịch hẹn', users: 'Quản lý tài khoản', logs: 'Nhật ký hoạt động', 'ad-reports': 'Báo cáo quảng cáo' };
     document.getElementById('pageTitle').textContent = titles[page] || '';
     closeSidebar();
     if (page === 'leads') loadLeads();
     if (page === 'users') loadUsers();
     if (page === 'logs') loadLogs();
     if (page === 'appointments') loadAdminAppts();
-
+    if (page === 'ad-reports') loadAdReports();
 }
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -957,6 +986,303 @@ function toggleAllAdminBr() {
     const allOpen = [...els].every(e => e.style.display !== 'none');
     els.forEach(e => { e.style.display = allOpen ? 'none' : 'block'; e.previousElementSibling.querySelector('.chev').textContent = allOpen ? '▸' : '▾'; });
     document.getElementById('toggleAdminBrBtn').textContent = allOpen ? 'Mở tất cả' : 'Thu gọn';
+}
+
+// ==================== AD PERFORMANCE REPORTS ====================
+let adReports = [];
+let adFunnelOptions = [];
+
+function safeDiv(a, b) { return b > 0 ? a / b : 0; }
+function fmtMoney(n) { return Math.round(n || 0).toLocaleString('vi-VN') + 'đ'; }
+function fmtPct(n) { return (n || 0).toFixed(1) + '%'; }
+
+function kpiBadge(pct) {
+    if (pct >= 100) return `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;background:#E8F5E9;color:#2E7D32">${fmtPct(pct)}</span>`;
+    if (pct >= 80) return `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;background:#FFF8E1;color:#F57F17">${fmtPct(pct)}</span>`;
+    return `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;background:#FFEBEE;color:#C62828">${fmtPct(pct)}</span>`;
+}
+
+function resetAdFilters() {
+    document.getElementById('adFromDate').value = '';
+    document.getElementById('adToDate').value = '';
+    document.getElementById('adBranchFilter').value = '';
+    document.getElementById('adFunnelFilter').value = '';
+    loadAdReports();
+}
+
+async function loadAdReports() {
+    try {
+        const params = new URLSearchParams();
+        const from = document.getElementById('adFromDate').value;
+        const to = document.getElementById('adToDate').value;
+        const br = document.getElementById('adBranchFilter').value;
+        const fn = document.getElementById('adFunnelFilter').value;
+        if (from) params.set('fromDate', from);
+        if (to) params.set('toDate', to);
+        if (br) params.set('branchId', br);
+        if (fn) params.set('funnelName', fn);
+
+        const data = await api('/api/admin/ad-reports' + (params.toString() ? '?' + params : ''));
+        adReports = data.reports || [];
+        adFunnelOptions = data.funnels || [];
+
+        // Populate funnel filter
+        const funnelSel = document.getElementById('adFunnelFilter');
+        const curFn = funnelSel.value;
+        funnelSel.innerHTML = '<option value="">Tất cả phễu</option>' + adFunnelOptions.map(f => `<option value="${esc(f)}">${esc(f)}</option>`).join('');
+        funnelSel.value = curFn;
+
+        // Populate branch filter if not yet
+        if (branchList && branchList.length) {
+            const brSel = document.getElementById('adBranchFilter');
+            if (brSel.options.length <= 1) {
+                brSel.innerHTML = '<option value="">Tất cả chi nhánh</option>' + branchList.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+            }
+        }
+
+        renderAdSummary();
+        renderAdTable();
+    } catch (e) { console.error('Load ad reports error:', e); }
+}
+
+function renderAdSummary() {
+    const r = adReports;
+    if (!r.length) {
+        document.getElementById('adSummaryKpis').innerHTML = '';
+        return;
+    }
+    const totCost = r.reduce((s, x) => s + (x.ad_cost || 0), 0);
+    const totLeads = r.reduce((s, x) => s + (x.leads_count || 0), 0);
+    const totAppts = r.reduce((s, x) => s + (x.appointments_count || 0), 0);
+    const totArrivals = r.reduce((s, x) => s + (x.arrivals_count || 0), 0);
+    const totRevenue = r.reduce((s, x) => s + (x.first_revenue_total || 0), 0);
+
+    const costPerLead = safeDiv(totCost, totLeads);
+    const costPerAppt = safeDiv(totCost, totAppts);
+    const costPerArrival = safeDiv(totCost, totArrivals);
+    const avgRevenue = safeDiv(totRevenue, totArrivals);
+
+    // Weighted KPI: sum(kpi * arrivals) / sum(arrivals) for rows with kpi > 0
+    const kpiRows = r.filter(x => x.avg_first_revenue_kpi > 0 && x.arrivals_count > 0);
+    const weightedKpi = kpiRows.length > 0
+        ? kpiRows.reduce((s, x) => s + x.avg_first_revenue_kpi * x.arrivals_count, 0) / kpiRows.reduce((s, x) => s + x.arrivals_count, 0)
+        : 0;
+    const kpiPct = safeDiv(avgRevenue, weightedKpi) * 100;
+
+    document.getElementById('adSummaryKpis').innerHTML = `
+        <div class="ws-kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+            <div class="ws-kpi-card ws-kpi-accent"><div class="ws-kpi-label">Tổng chi phí QC</div><div class="ws-kpi-value">${fmtMoney(totCost)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Tổng liên hệ</div><div class="ws-kpi-value">${fmt(totLeads)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Tổng lịch hẹn</div><div class="ws-kpi-value">${fmt(totAppts)}</div></div>
+            <div class="ws-kpi-card" style="border-left:3px solid var(--green)"><div class="ws-kpi-label">Tổng khách đến</div><div class="ws-kpi-value">${fmt(totArrivals)}</div></div>
+            <div class="ws-kpi-card" style="border-left:3px solid var(--gold)"><div class="ws-kpi-label">Tổng DT lần đầu</div><div class="ws-kpi-value">${fmtMoney(totRevenue)}</div></div>
+        </div>
+        <div class="ws-kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-top:8px">
+            <div class="ws-kpi-card"><div class="ws-kpi-label">CP TB / liên hệ</div><div class="ws-kpi-value">${fmtMoney(costPerLead)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">CP / lịch hẹn</div><div class="ws-kpi-value">${fmtMoney(costPerAppt)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">CP / khách đến</div><div class="ws-kpi-value">${fmtMoney(costPerArrival)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">DT lần đầu TB</div><div class="ws-kpi-value">${fmtMoney(avgRevenue)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">KPI TB (weighted)</div><div class="ws-kpi-value">${weightedKpi > 0 ? fmtMoney(weightedKpi) : '—'}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">% đạt KPI</div><div class="ws-kpi-value">${weightedKpi > 0 ? kpiBadge(kpiPct) : '—'}</div></div>
+        </div>`;
+}
+
+function renderAdTable() {
+    const container = document.getElementById('adReportTable');
+    if (!adReports.length) {
+        container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Chưa có báo cáo quảng cáo</div></div>';
+        return;
+    }
+    const rows = adReports.map(r => {
+        const cpl = safeDiv(r.ad_cost, r.leads_count);
+        const cpa = safeDiv(r.ad_cost, r.appointments_count);
+        const cpv = safeDiv(r.ad_cost, r.arrivals_count);
+        const avgRev = safeDiv(r.first_revenue_total, r.arrivals_count);
+        const kpiPct = safeDiv(avgRev, r.avg_first_revenue_kpi) * 100;
+        const dateShort = r.report_date ? r.report_date.slice(5).replace('-', '/') : '—';
+
+        return `<tr>
+            <td style="white-space:nowrap;font-weight:500">${esc(dateShort)}</td>
+            <td style="white-space:nowrap">${esc(r.branch_name || '')}</td>
+            <td style="white-space:nowrap">${esc(r.funnel_name)}</td>
+            <td style="text-align:right;color:var(--red)">${fmt(r.ad_cost)}</td>
+            <td style="text-align:right">${fmt(r.leads_count)}</td>
+            <td style="text-align:right">${fmt(r.appointments_count)}</td>
+            <td style="text-align:right;color:var(--green)">${fmt(r.arrivals_count)}</td>
+            <td style="text-align:right;color:var(--gold);font-weight:600">${fmt(r.first_revenue_total)}</td>
+            <td style="text-align:right;font-size:12px">${fmtMoney(cpl)}</td>
+            <td style="text-align:right;font-size:12px">${fmtMoney(cpa)}</td>
+            <td style="text-align:right;font-size:12px">${fmtMoney(cpv)}</td>
+            <td style="text-align:right;font-weight:500">${fmtMoney(avgRev)}</td>
+            <td style="text-align:right">${r.avg_first_revenue_kpi > 0 ? fmtMoney(r.avg_first_revenue_kpi) : '—'}</td>
+            <td style="text-align:center">${r.avg_first_revenue_kpi > 0 ? kpiBadge(kpiPct) : '—'}</td>
+            <td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.notes||'')}">${esc(r.notes || '')}</td>
+            <td style="white-space:nowrap">
+                <button class="ws-action-btn" onclick="openAdReportModal(${r.id})">✏️</button>
+                <button class="ws-action-btn ws-action-noshow" onclick="deleteAdReport(${r.id})">🗑</button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    container.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1200px">
+        <thead><tr style="background:#f5f5f5;position:sticky;top:0;z-index:1">
+            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Ngày</th>
+            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Chi nhánh</th>
+            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Phễu</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Chi phí QC</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Liên hệ</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Lịch hẹn</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Đến</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">DT lần đầu</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">CP/LH</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">CP/Hẹn</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">CP/Đến</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">DT TB</th>
+            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">KPI</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">% KPI</th>
+            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Ghi chú</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap"></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
+
+    // Style rows
+    container.querySelectorAll('tbody tr').forEach((tr, i) => {
+        tr.style.borderBottom = '1px solid #f0f0f0';
+        tr.style.transition = 'background .1s';
+        tr.onmouseover = () => tr.style.background = '#f8f8ff';
+        tr.onmouseout = () => tr.style.background = i % 2 ? '#fafafa' : '';
+        if (i % 2) tr.style.background = '#fafafa';
+    });
+}
+
+// ==================== AD REPORT MODAL ====================
+let editAdReportId = null;
+
+function openAdReportModal(editId) {
+    editAdReportId = editId || null;
+    const isEdit = !!editId;
+
+    // Create modal if not exists
+    let modal = document.getElementById('adReportModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'ws-modal-overlay';
+        modal.id = 'adReportModal';
+        modal.innerHTML = `<div class="ws-modal" style="max-width:560px">
+            <div class="ws-modal-header">
+                <h3 class="ws-modal-title" id="adModalTitle">Thêm báo cáo QC</h3>
+                <button class="ws-modal-close" onclick="closeAdReportModal()">&times;</button>
+            </div>
+            <div class="ws-modal-body">
+                <div id="adFormError" style="display:none;padding:8px 12px;background:#FFEBEE;color:#C62828;border-radius:6px;margin-bottom:12px;font-size:13px"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div class="ws-field"><label>Ngày *</label><input type="date" id="adDate"></div>
+                    <div class="ws-field"><label>Chi nhánh *</label><select id="adBranch"><option value="">— Chọn —</option></select></div>
+                    <div class="ws-field" style="grid-column:1/-1"><label>Phễu *</label><input type="text" id="adFunnel" placeholder="VD: FB_T3_TrietLong"></div>
+                    <div class="ws-field"><label>Chi phí quảng cáo (đ)</label><input type="number" id="adCost" min="0" placeholder="0"></div>
+                    <div class="ws-field"><label>Số khách liên hệ</label><input type="number" id="adLeads" min="0" placeholder="0"></div>
+                    <div class="ws-field"><label>Số lịch hẹn</label><input type="number" id="adAppts" min="0" placeholder="0"></div>
+                    <div class="ws-field"><label>Số khách đến</label><input type="number" id="adArrivals" min="0" placeholder="0"></div>
+                    <div class="ws-field"><label>Tổng DT lần đầu (đ)</label><input type="number" id="adRevenue" min="0" placeholder="0"></div>
+                    <div class="ws-field"><label>KPI DT lần đầu TB (đ)</label><input type="number" id="adKpi" min="0" placeholder="VD: 3000000"></div>
+                    <div class="ws-field" style="grid-column:1/-1"><label>Ghi chú</label><textarea id="adNotes" rows="2" placeholder="Ghi chú thêm..."></textarea></div>
+                </div>
+            </div>
+            <div class="ws-modal-footer">
+                <button class="ws-btn" onclick="closeAdReportModal()">Hủy</button>
+                <button class="ws-btn ws-btn-primary" onclick="submitAdReport()">Lưu</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    }
+
+    // Populate branch dropdown
+    const brSel = document.getElementById('adBranch');
+    if (branchList && branchList.length) {
+        brSel.innerHTML = '<option value="">— Chọn chi nhánh —</option>' + branchList.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+    }
+
+    document.getElementById('adModalTitle').textContent = isEdit ? 'Sửa báo cáo QC' : 'Thêm báo cáo QC';
+    document.getElementById('adFormError').style.display = 'none';
+
+    if (isEdit) {
+        const r = adReports.find(x => x.id === editId);
+        if (r) {
+            document.getElementById('adDate').value = r.report_date || '';
+            document.getElementById('adBranch').value = r.branch_id || '';
+            document.getElementById('adFunnel').value = r.funnel_name || '';
+            document.getElementById('adCost').value = r.ad_cost || '';
+            document.getElementById('adLeads').value = r.leads_count || '';
+            document.getElementById('adAppts').value = r.appointments_count || '';
+            document.getElementById('adArrivals').value = r.arrivals_count || '';
+            document.getElementById('adRevenue').value = r.first_revenue_total || '';
+            document.getElementById('adKpi').value = r.avg_first_revenue_kpi || '';
+            document.getElementById('adNotes').value = r.notes || '';
+        }
+    } else {
+        ['adDate','adFunnel','adCost','adLeads','adAppts','adArrivals','adRevenue','adKpi','adNotes'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        document.getElementById('adBranch').value = '';
+        // Default date to today
+        const now = new Date();
+        document.getElementById('adDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    }
+
+    modal.classList.add('show');
+}
+
+function closeAdReportModal() {
+    const modal = document.getElementById('adReportModal');
+    if (modal) modal.classList.remove('show');
+    editAdReportId = null;
+}
+
+async function submitAdReport() {
+    const body = {
+        report_date: document.getElementById('adDate').value,
+        branch_id: Number(document.getElementById('adBranch').value) || 0,
+        funnel_name: document.getElementById('adFunnel').value.trim(),
+        ad_cost: Number(document.getElementById('adCost').value) || 0,
+        leads_count: Number(document.getElementById('adLeads').value) || 0,
+        appointments_count: Number(document.getElementById('adAppts').value) || 0,
+        arrivals_count: Number(document.getElementById('adArrivals').value) || 0,
+        first_revenue_total: Number(document.getElementById('adRevenue').value) || 0,
+        avg_first_revenue_kpi: Number(document.getElementById('adKpi').value) || 0,
+        notes: document.getElementById('adNotes').value.trim(),
+    };
+
+    if (!body.report_date) return showAdError('Vui lòng chọn ngày');
+    if (!body.branch_id) return showAdError('Vui lòng chọn chi nhánh');
+    if (!body.funnel_name) return showAdError('Vui lòng nhập tên phễu');
+
+    try {
+        const url = editAdReportId ? `/api/admin/ad-reports/${editAdReportId}` : '/api/admin/ad-reports';
+        const method = editAdReportId ? 'PATCH' : 'POST';
+        const res = await api(url, { method, body: JSON.stringify(body) });
+        if (res.error) { showAdError(res.error); return; }
+        showToast(editAdReportId ? 'Đã cập nhật báo cáo' : 'Đã tạo báo cáo');
+        closeAdReportModal();
+        loadAdReports();
+    } catch (e) { showAdError('Có lỗi xảy ra'); }
+}
+
+function showAdError(msg) {
+    const el = document.getElementById('adFormError');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+async function deleteAdReport(id) {
+    if (!confirm('Xóa báo cáo này?')) return;
+    try {
+        const res = await api(`/api/admin/ad-reports/${id}`, { method: 'DELETE' });
+        if (res.error) { showToast(res.error, 'error'); return; }
+        showToast('Đã xóa báo cáo');
+        loadAdReports();
+    } catch (e) { showToast('Lỗi xóa', 'error'); }
 }
 
 // Init
