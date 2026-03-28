@@ -1296,8 +1296,10 @@ app.get('/api/reminders/no-show-yesterday', auth, (req, res) => {
 // List funnels (accessible by all authenticated users)
 app.get('/api/ad-funnels', auth, (req, res) => {
     try {
-        const funnels = db.prepare('SELECT id, name FROM ad_funnels ORDER BY name ASC').all();
-        res.json(funnels);
+        const funnels = db.prepare('SELECT id, name, crm_services FROM ad_funnels ORDER BY name ASC').all();
+        // Also return distinct CRM service names for mapping UI
+        const crmServices = db.prepare("SELECT DISTINCT interest_service FROM bookings WHERE interest_service != '' ORDER BY interest_service").all().map(r => r.interest_service);
+        res.json({ funnels, crmServices });
     } catch (error) {
         console.error('List funnels error:', error);
         res.status(500).json({ error: 'Có lỗi xảy ra' });
@@ -1307,15 +1309,29 @@ app.get('/api/ad-funnels', auth, (req, res) => {
 // Create funnel (admin only)
 app.post('/api/admin/ad-funnels', auth, requireRole('admin'), (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, crm_services } = req.body;
         if (!name || !String(name).trim()) return res.status(400).json({ error: 'Tên phễu không được trống' });
-        const result = db.prepare('INSERT INTO ad_funnels (name) VALUES (?)').run(String(name).trim());
-        res.json({ id: result.lastInsertRowid, name: String(name).trim() });
+        const result = db.prepare('INSERT INTO ad_funnels (name, crm_services) VALUES (?, ?)').run(String(name).trim(), (crm_services || '').trim());
+        res.json({ id: result.lastInsertRowid, name: String(name).trim(), crm_services: (crm_services || '').trim() });
     } catch (error) {
         if (error.message && error.message.includes('UNIQUE')) {
             return res.status(409).json({ error: 'Phễu đã tồn tại' });
         }
         console.error('Create funnel error:', error);
+        res.status(500).json({ error: 'Có lỗi xảy ra' });
+    }
+});
+
+// Update funnel mapping (admin only)
+app.patch('/api/admin/ad-funnels/:id', auth, requireRole('admin'), (req, res) => {
+    try {
+        const existing = db.prepare('SELECT id FROM ad_funnels WHERE id = ?').get(req.params.id);
+        if (!existing) return res.status(404).json({ error: 'Không tìm thấy phễu' });
+        const { crm_services } = req.body;
+        db.prepare('UPDATE ad_funnels SET crm_services = ? WHERE id = ?').run((crm_services || '').trim(), req.params.id);
+        res.json({ message: 'Đã cập nhật mapping CRM' });
+    } catch (error) {
+        console.error('Update funnel error:', error);
         res.status(500).json({ error: 'Có lỗi xảy ra' });
     }
 });
@@ -1351,10 +1367,97 @@ app.get('/api/admin/ad-reports', auth, requireRole('admin'), (req, res) => {
         sql += ' ORDER BY a.report_date DESC, br.name ASC, a.funnel_name ASC';
         const reports = db.prepare(sql).all(...params);
 
+        // Load funnel → CRM service mapping
+        const funnelMappings = db.prepare('SELECT name, crm_services FROM ad_funnels').all();
+        const funnelMap = {};
+        for (const f of funnelMappings) {
+            funnelMap[f.name] = (f.crm_services || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+        }
+
+        // CRM data per date+branch+service
+        const crmStmt = db.prepare(`
+            SELECT DATE(b.created_at) as dt, b.branch_id,
+                LOWER(TRIM(b.interest_service)) as svc,
+                COUNT(*) as total_data,
+                COALESCE(SUM(CASE WHEN b.status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END), 0) as appts,
+                COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN 1 ELSE 0 END), 0) as arrivals,
+                COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN b.first_revenue ELSE 0 END), 0) as revenue
+            FROM bookings b
+            WHERE b.interest_service != ''
+            GROUP BY dt, b.branch_id, svc
+        `);
+        const crmRows = crmStmt.all();
+        // Index: crmBySvc[date_branchId][svcLower] = {data, appts, arrivals, revenue}
+        const crmBySvc = {};
+        for (const r of crmRows) {
+            const key = `${r.dt}_${r.branch_id}`;
+            if (!crmBySvc[key]) crmBySvc[key] = {};
+            if (!crmBySvc[key][r.svc]) crmBySvc[key][r.svc] = { data_count: 0, appts: 0, arrivals: 0, revenue: 0 };
+            crmBySvc[key][r.svc].data_count += r.total_data;
+            crmBySvc[key][r.svc].appts += r.appts;
+            crmBySvc[key][r.svc].arrivals += r.arrivals;
+            crmBySvc[key][r.svc].revenue += r.revenue;
+        }
+
+        // Compute per-report CRM data and group totals
+        const crmSummary = {};
+        for (const r of reports) {
+            const groupKey = `${r.report_date}_${r.branch_id}`;
+            const svcData = crmBySvc[groupKey] || {};
+            const mappedSvcs = funnelMap[r.funnel_name] || [];
+
+            // Sum CRM data for this funnel's mapped services
+            let fData = 0, fAppts = 0, fArrivals = 0, fRevenue = 0;
+            for (const [svc, d] of Object.entries(svcData)) {
+                if (mappedSvcs.some(mapped => svc.includes(mapped) || mapped.includes(svc))) {
+                    fData += d.data_count;
+                    fAppts += d.appts;
+                    fArrivals += d.arrivals;
+                    fRevenue += d.revenue;
+                }
+            }
+            r.crm_data_count = fData;
+            r.crm_appointments = fAppts;
+            r.crm_arrivals = fArrivals;
+            r.crm_revenue = fRevenue;
+            r.has_mapping = mappedSvcs.length > 0;
+
+            // Build group totals
+            if (!crmSummary[groupKey]) crmSummary[groupKey] = { data_count: 0, appointments_count: 0, arrivals_count: 0, first_revenue_total: 0 };
+            crmSummary[groupKey].data_count += fData;
+            crmSummary[groupKey].appointments_count += fAppts;
+            crmSummary[groupKey].arrivals_count += fArrivals;
+            crmSummary[groupKey].first_revenue_total += fRevenue;
+        }
+
+        // Also add unmapped CRM totals to group summary
+        for (const groupKey of Object.keys(crmSummary)) {
+            const svcData = crmBySvc[groupKey] || {};
+            // Get all mapped services for this group
+            const allMappedSvcs = new Set();
+            for (const r of reports) {
+                if (`${r.report_date}_${r.branch_id}` === groupKey) {
+                    const mapped = funnelMap[r.funnel_name] || [];
+                    for (const [svc] of Object.entries(svcData)) {
+                        if (mapped.some(m => svc.includes(m) || m.includes(svc))) allMappedSvcs.add(svc);
+                    }
+                }
+            }
+            // Add unmapped services to group total
+            for (const [svc, d] of Object.entries(svcData)) {
+                if (!allMappedSvcs.has(svc)) {
+                    crmSummary[groupKey].data_count += d.data_count;
+                    crmSummary[groupKey].appointments_count += d.appts;
+                    crmSummary[groupKey].arrivals_count += d.arrivals;
+                    crmSummary[groupKey].first_revenue_total += d.revenue;
+                }
+            }
+        }
+
         // Get distinct funnel names for filter dropdown
         const funnels = db.prepare("SELECT DISTINCT funnel_name FROM ad_performance_reports WHERE funnel_name != '' ORDER BY funnel_name").all();
 
-        res.json({ reports, funnels: funnels.map(f => f.funnel_name) });
+        res.json({ reports, funnels: funnels.map(f => f.funnel_name), crmSummary });
     } catch (error) {
         console.error('Ad reports list error:', error);
         res.status(500).json({ error: 'Có lỗi xảy ra' });
@@ -1388,11 +1491,12 @@ app.post('/api/admin/ad-reports', auth, requireRole('admin'), (req, res) => {
             }
         }
 
+        const data_count = req.body.data_count;
         const result = db.prepare(`INSERT INTO ad_performance_reports
-            (report_date, branch_id, funnel_name, ad_cost, leads_count, appointments_count, arrivals_count, first_revenue_total, avg_first_revenue_kpi, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+            (report_date, branch_id, funnel_name, ad_cost, leads_count, data_count, appointments_count, arrivals_count, first_revenue_total, avg_first_revenue_kpi, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
             report_date, Number(branch_id), String(funnel_name).trim(),
-            Number(ad_cost) || 0, Number(leads_count) || 0, Number(appointments_count) || 0,
+            Number(ad_cost) || 0, Number(leads_count) || 0, Number(data_count) || 0, Number(appointments_count) || 0,
             Number(arrivals_count) || 0, Number(first_revenue_total) || 0, Number(avg_first_revenue_kpi) || 0,
             (notes || '').trim()
         );
@@ -1444,6 +1548,7 @@ app.patch('/api/admin/ad-reports/:id', auth, requireRole('admin'), (req, res) =>
         if (funnel_name !== undefined) { fields.push('funnel_name = ?'); params.push(String(funnel_name).trim()); }
         if (ad_cost !== undefined) { fields.push('ad_cost = ?'); params.push(Number(ad_cost) || 0); }
         if (leads_count !== undefined) { fields.push('leads_count = ?'); params.push(Number(leads_count) || 0); }
+        if (req.body.data_count !== undefined) { fields.push('data_count = ?'); params.push(Number(req.body.data_count) || 0); }
         if (appointments_count !== undefined) { fields.push('appointments_count = ?'); params.push(Number(appointments_count) || 0); }
         if (arrivals_count !== undefined) { fields.push('arrivals_count = ?'); params.push(Number(arrivals_count) || 0); }
         if (first_revenue_total !== undefined) { fields.push('first_revenue_total = ?'); params.push(Number(first_revenue_total) || 0); }
@@ -1488,27 +1593,54 @@ app.delete('/api/admin/ad-reports/:id', auth, requireRole('admin'), (req, res) =
     }
 });
 
-// Autofill ad report from bookings data
+// Autofill ad report from bookings data (per-funnel via crm_services mapping)
 app.get('/api/admin/ad-reports/autofill', auth, requireRole('admin'), (req, res) => {
     try {
         const { date, branchId, funnelName } = req.query;
-        if (!date || !branchId) return res.json({ appointments_count: 0, arrivals_count: 0, first_revenue_total: 0 });
+        if (!date || !branchId) return res.json({ data_count: 0, appointments_count: 0, arrivals_count: 0, first_revenue_total: 0 });
 
-        // Count from bookings cohort: leads created on this date, at this branch, with this funnel
-        let where = 'WHERE DATE(b.created_at) = ? AND b.branch_id = ?';
-        const params = [date, branchId];
+        // Get funnel → CRM service mapping
+        let mappedSvcs = [];
         if (funnelName) {
-            where += ' AND (b.funnel_name = ? OR b.interest_service = ?)';
-            params.push(funnelName, funnelName);
+            const funnel = db.prepare('SELECT crm_services FROM ad_funnels WHERE name = ?').get(funnelName);
+            if (funnel && funnel.crm_services) {
+                mappedSvcs = funnel.crm_services.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+            }
         }
 
-        const row = db.prepare(`
-            SELECT
-                COALESCE(SUM(CASE WHEN b.status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END), 0) as appointments_count,
-                COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN 1 ELSE 0 END), 0) as arrivals_count,
-                COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN b.first_revenue ELSE 0 END), 0) as first_revenue_total
-            FROM bookings b ${where}
-        `).get(...params);
+        let row;
+        if (mappedSvcs.length > 0) {
+            // Build LIKE conditions for mapped services
+            const allBookings = db.prepare(`
+                SELECT LOWER(TRIM(b.interest_service)) as svc, b.status, b.first_revenue
+                FROM bookings b
+                WHERE DATE(b.created_at) = ? AND b.branch_id = ? AND b.interest_service != ''
+            `).all(date, branchId);
+
+            let data_count = 0, appts = 0, arrivals = 0, revenue = 0;
+            for (const b of allBookings) {
+                const matches = mappedSvcs.some(m => b.svc.includes(m) || m.includes(b.svc));
+                if (matches) {
+                    data_count++;
+                    if (['appointed', 'arrived', 'won'].includes(b.status.toLowerCase())) appts++;
+                    if (['arrived', 'won'].includes(b.status.toLowerCase())) {
+                        arrivals++;
+                        revenue += b.first_revenue || 0;
+                    }
+                }
+            }
+            row = { data_count, appointments_count: appts, arrivals_count: arrivals, first_revenue_total: revenue };
+        } else {
+            // No mapping: return totals for all bookings
+            const r = db.prepare(`
+                SELECT COUNT(*) as data_count,
+                    COALESCE(SUM(CASE WHEN b.status IN ('APPOINTED','ARRIVED','WON') THEN 1 ELSE 0 END), 0) as appointments_count,
+                    COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN 1 ELSE 0 END), 0) as arrivals_count,
+                    COALESCE(SUM(CASE WHEN b.status IN ('ARRIVED','WON') THEN b.first_revenue ELSE 0 END), 0) as first_revenue_total
+                FROM bookings b WHERE DATE(b.created_at) = ? AND b.branch_id = ?
+            `).get(date, branchId);
+            row = r;
+        }
 
         res.json(row);
     } catch (error) {

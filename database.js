@@ -434,9 +434,11 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS ad_funnels (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
+    crm_services TEXT DEFAULT '',
     created_at DATETIME DEFAULT (datetime('now', 'localtime'))
   );
 `);
+safeAddColumn('ad_funnels', 'crm_services', "TEXT DEFAULT ''");
 
 // ==================== AD PERFORMANCE REPORTS ====================
 db.exec(`
@@ -447,6 +449,7 @@ db.exec(`
     funnel_name TEXT NOT NULL DEFAULT '',
     ad_cost INTEGER NOT NULL DEFAULT 0,
     leads_count INTEGER NOT NULL DEFAULT 0,
+    data_count INTEGER NOT NULL DEFAULT 0,
     appointments_count INTEGER NOT NULL DEFAULT 0,
     arrivals_count INTEGER NOT NULL DEFAULT 0,
     first_revenue_total INTEGER NOT NULL DEFAULT 0,
@@ -460,6 +463,45 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_adr_branch_date ON ad_performance_reports(branch_id, report_date);
   CREATE INDEX IF NOT EXISTS idx_adr_funnel_date ON ad_performance_reports(funnel_name, report_date);
 `);
+safeAddColumn('ad_performance_reports', 'data_count', "INTEGER NOT NULL DEFAULT 0");
+
+// ==================== AUTO-MAP AD FUNNELS TO CRM SERVICES ====================
+// One-time auto-mapping for existing funnels based on keyword matching
+try {
+  const unmappedFunnels = db.prepare("SELECT id, name FROM ad_funnels WHERE crm_services = '' OR crm_services IS NULL").all();
+  if (unmappedFunnels.length > 0) {
+    const distinctServices = db.prepare("SELECT DISTINCT interest_service FROM bookings WHERE interest_service != ''").all().map(r => r.interest_service);
+    const updateStmt = db.prepare("UPDATE ad_funnels SET crm_services = ? WHERE id = ?");
+    
+    const mappingRules = [
+      { pattern: /ch[aă]m\s*s[oó]c\s*da|csd/i, keywords: ['csd', 'chăm sóc da'] },
+      { pattern: /gi[aả]m\s*b[eé]o/i, keywords: ['giảm béo'] },
+      { pattern: /peel|p[eê]l/i, keywords: ['peel'] },
+      { pattern: /phun\s*tr[aắ]ng/i, keywords: ['phun trắng'] },
+      { pattern: /phun\s*x[aă]m/i, keywords: ['phun xăm', 'phun xam'] },
+      { pattern: /tri[eệ]t\s*l[oô]ng/i, keywords: ['triệt lông'] },
+      { pattern: /n[aá]m|đi[eề]u\s*tr[iị]\s*n[aá]m/i, keywords: ['nám', 'trị nám'] },
+    ];
+
+    for (const funnel of unmappedFunnels) {
+      const matched = [];
+      for (const rule of mappingRules) {
+        if (rule.pattern.test(funnel.name)) {
+          for (const svc of distinctServices) {
+            const svcLower = svc.toLowerCase();
+            if (rule.keywords.some(kw => svcLower.includes(kw.toLowerCase()))) {
+              if (!matched.includes(svc)) matched.push(svc);
+            }
+          }
+        }
+      }
+      if (matched.length > 0) {
+        updateStmt.run(matched.join(','), funnel.id);
+        console.log(`  ✅ Auto-mapped funnel "${funnel.name}" → [${matched.join(', ')}]`);
+      }
+    }
+  }
+} catch (e) { console.error('  ⚠️ Auto-map funnels error:', e.message); }
 
 // ==================== DEMO DATA CLEANUP ====================
 // Clean up seeded demo data. Demo leads have initial_note starting with 'Khách hỏi '

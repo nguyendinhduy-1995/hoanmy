@@ -992,6 +992,7 @@ function toggleAllAdminBr() {
 // ==================== AD PERFORMANCE REPORTS ====================
 let adReports = [];
 let adFunnelOptions = [];
+let adCrmSummary = {};
 
 function safeDiv(a, b) { return b > 0 ? a / b : 0; }
 function fmtMoney(n) { return Math.round(n || 0).toLocaleString('vi-VN') + 'đ'; }
@@ -1026,6 +1027,7 @@ async function loadAdReports() {
         const data = await api('/api/admin/ad-reports' + (params.toString() ? '?' + params : ''));
         adReports = data.reports || [];
         adFunnelOptions = data.funnels || [];
+        adCrmSummary = data.crmSummary || {};
 
         // Populate funnel filter
         const funnelSel = document.getElementById('adFunnelFilter');
@@ -1054,11 +1056,23 @@ function renderAdSummary() {
     }
     const totCost = r.reduce((s, x) => s + (x.ad_cost || 0), 0);
     const totLeads = r.reduce((s, x) => s + (x.leads_count || 0), 0);
-    const totAppts = r.reduce((s, x) => s + (x.appointments_count || 0), 0);
-    const totArrivals = r.reduce((s, x) => s + (x.arrivals_count || 0), 0);
-    const totRevenue = r.reduce((s, x) => s + (x.first_revenue_total || 0), 0);
+
+    // CRM totals from crmSummary (avoid double counting per date+branch)
+    const seenKeys = new Set();
+    let totData = 0, totAppts = 0, totArrivals = 0, totRevenue = 0;
+    for (const x of r) {
+        const key = `${x.report_date}_${x.branch_id}`;
+        if (!seenKeys.has(key) && adCrmSummary[key]) {
+            seenKeys.add(key);
+            totData += adCrmSummary[key].data_count || 0;
+            totAppts += adCrmSummary[key].appointments_count || 0;
+            totArrivals += adCrmSummary[key].arrivals_count || 0;
+            totRevenue += adCrmSummary[key].first_revenue_total || 0;
+        }
+    }
 
     const costPerLead = safeDiv(totCost, totLeads);
+    const costPerData = safeDiv(totCost, totData);
     const costPerAppt = safeDiv(totCost, totAppts);
     const costPerArrival = safeDiv(totCost, totArrivals);
     const avgRevenue = safeDiv(totRevenue, totArrivals);
@@ -1072,19 +1086,21 @@ function renderAdSummary() {
 
     document.getElementById('adSummaryKpis').innerHTML = `
         <div class="ws-kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
-            <div class="ws-kpi-card ws-kpi-accent"><div class="ws-kpi-label">Tổng chi phí QC</div><div class="ws-kpi-value">${fmtMoney(totCost)}</div></div>
-            <div class="ws-kpi-card"><div class="ws-kpi-label">Tổng liên hệ</div><div class="ws-kpi-value">${fmt(totLeads)}</div></div>
+            <div class="ws-kpi-card ws-kpi-accent"><div class="ws-kpi-label">Tổng chi phí quảng cáo</div><div class="ws-kpi-value">${fmtMoney(totCost)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Tổng khách hàng nhắn tin</div><div class="ws-kpi-value">${fmt(totLeads)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Tổng Data thu được</div><div class="ws-kpi-value">${fmt(totData)}</div></div>
             <div class="ws-kpi-card"><div class="ws-kpi-label">Tổng lịch hẹn</div><div class="ws-kpi-value">${fmt(totAppts)}</div></div>
             <div class="ws-kpi-card" style="border-left:3px solid var(--green)"><div class="ws-kpi-label">Tổng khách đến</div><div class="ws-kpi-value">${fmt(totArrivals)}</div></div>
-            <div class="ws-kpi-card" style="border-left:3px solid var(--gold)"><div class="ws-kpi-label">Tổng DT lần đầu</div><div class="ws-kpi-value">${fmtMoney(totRevenue)}</div></div>
+            <div class="ws-kpi-card" style="border-left:3px solid var(--gold)"><div class="ws-kpi-label">Tổng doanh thu lần đầu</div><div class="ws-kpi-value">${fmtMoney(totRevenue)}</div></div>
         </div>
         <div class="ws-kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-top:8px">
-            <div class="ws-kpi-card"><div class="ws-kpi-label">CP TB / liên hệ</div><div class="ws-kpi-value">${fmtMoney(costPerLead)}</div></div>
-            <div class="ws-kpi-card"><div class="ws-kpi-label">CP / lịch hẹn</div><div class="ws-kpi-value">${fmtMoney(costPerAppt)}</div></div>
-            <div class="ws-kpi-card"><div class="ws-kpi-label">CP / khách đến</div><div class="ws-kpi-value">${fmtMoney(costPerArrival)}</div></div>
-            <div class="ws-kpi-card"><div class="ws-kpi-label">DT lần đầu TB</div><div class="ws-kpi-value">${fmtMoney(avgRevenue)}</div></div>
-            <div class="ws-kpi-card"><div class="ws-kpi-label">KPI TB (weighted)</div><div class="ws-kpi-value">${weightedKpi > 0 ? fmtMoney(weightedKpi) : '—'}</div></div>
-            <div class="ws-kpi-card"><div class="ws-kpi-label">% đạt KPI</div><div class="ws-kpi-value">${weightedKpi > 0 ? kpiBadge(kpiPct) : '—'}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Chi phí / Khách nhắn tin</div><div class="ws-kpi-value">${fmtMoney(costPerLead)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Chi phí / Data</div><div class="ws-kpi-value">${fmtMoney(costPerData)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Chi phí / Lịch hẹn</div><div class="ws-kpi-value">${fmtMoney(costPerAppt)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Chi phí / Khách đến</div><div class="ws-kpi-value">${fmtMoney(costPerArrival)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Doanh thu trung bình / Khách đến</div><div class="ws-kpi-value">${fmtMoney(avgRevenue)}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">KPI trung bình</div><div class="ws-kpi-value">${weightedKpi > 0 ? fmtMoney(weightedKpi) : '—'}</div></div>
+            <div class="ws-kpi-card"><div class="ws-kpi-label">Phần trăm đạt KPI</div><div class="ws-kpi-value">${weightedKpi > 0 ? kpiBadge(kpiPct) : '—'}</div></div>
         </div>`;
 }
 
@@ -1094,68 +1110,200 @@ function renderAdTable() {
         container.innerHTML = '<div class="ws-empty"><div class="ws-empty-text">Chưa có báo cáo quảng cáo</div></div>';
         return;
     }
-    const rows = adReports.map(r => {
-        const cpl = safeDiv(r.ad_cost, r.leads_count);
-        const cpa = safeDiv(r.ad_cost, r.appointments_count);
-        const cpv = safeDiv(r.ad_cost, r.arrivals_count);
-        const avgRev = safeDiv(r.first_revenue_total, r.arrivals_count);
-        const kpiPct = safeDiv(avgRev, r.avg_first_revenue_kpi) * 100;
-        const dateShort = r.report_date ? r.report_date.slice(5).replace('-', '/') : '—';
 
-        return `<tr>
-            <td style="white-space:nowrap;font-weight:500">${esc(dateShort)}</td>
-            <td style="white-space:nowrap">${esc(r.branch_name || '')}</td>
-            <td style="white-space:nowrap">${esc(r.funnel_name)}</td>
-            <td style="text-align:right;color:var(--red)">${fmt(r.ad_cost)}</td>
-            <td style="text-align:right">${fmt(r.leads_count)}</td>
-            <td style="text-align:right">${fmt(r.appointments_count)}</td>
-            <td style="text-align:right;color:var(--green)">${fmt(r.arrivals_count)}</td>
-            <td style="text-align:right;color:var(--gold);font-weight:600">${fmt(r.first_revenue_total)}</td>
-            <td style="text-align:right;font-size:12px">${fmtMoney(cpl)}</td>
-            <td style="text-align:right;font-size:12px">${fmtMoney(cpa)}</td>
-            <td style="text-align:right;font-size:12px">${fmtMoney(cpv)}</td>
-            <td style="text-align:right;font-weight:500">${fmtMoney(avgRev)}</td>
-            <td style="text-align:right">${r.avg_first_revenue_kpi > 0 ? fmtMoney(r.avg_first_revenue_kpi) : '—'}</td>
-            <td style="text-align:center">${r.avg_first_revenue_kpi > 0 ? kpiBadge(kpiPct) : '—'}</td>
-            <td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.notes||'')}">${esc(r.notes || '')}</td>
-            <td style="white-space:nowrap">
-                <button class="ws-action-btn" onclick="openAdReportModal(${r.id})">✏️</button>
-                <button class="ws-action-btn ws-action-noshow" onclick="deleteAdReport(${r.id})">🗑</button>
-            </td>
+    // Pre-group reports by date+branch
+    const groups = {};
+    for (const r of adReports) {
+        const key = `${r.report_date}_${r.branch_id}`;
+        if (!groups[key]) groups[key] = { reports: [], key, date: r.report_date, branch_id: r.branch_id, branch_name: r.branch_name };
+        groups[key].reports.push(r);
+    }
+
+    let rowsHtml = '';
+    for (const gKey of Object.keys(groups)) {
+        const g = groups[gKey];
+        const crm = adCrmSummary[gKey];
+        const dateShort = g.date ? g.date.slice(5).replace('-', '/') : '—';
+        const groupCost = g.reports.reduce((s, x) => s + (x.ad_cost || 0), 0);
+        const groupLeads = g.reports.reduce((s, x) => s + (x.leads_count || 0), 0);
+        const groupData = g.reports.reduce((s, x) => s + (x.crm_data_count || 0), 0);
+        const groupAppts = g.reports.reduce((s, x) => s + (x.crm_appointments || 0), 0);
+        const groupArrivals = g.reports.reduce((s, x) => s + (x.crm_arrivals || 0), 0);
+        const groupRevenue = g.reports.reduce((s, x) => s + (x.crm_revenue || 0), 0);
+
+        // Use CRM summary (includes unmapped services) if available
+        const totalData = crm ? crm.data_count : groupData;
+        const totalAppts = crm ? crm.appointments_count : groupAppts;
+        const totalArrivals = crm ? crm.arrivals_count : groupArrivals;
+        const totalRevenue = crm ? crm.first_revenue_total : groupRevenue;
+
+        // Group header row
+        const cpData = safeDiv(groupCost, totalData);
+        const cpAppt = safeDiv(groupCost, totalAppts);
+        const cpArr = safeDiv(groupCost, totalArrivals);
+        const avgRev = safeDiv(totalRevenue, totalArrivals);
+        rowsHtml += `<tr style="background:#e8f4fd;font-weight:600;border-bottom:2px solid #b3d9f2" data-is-group="1">
+            <td style="white-space:nowrap;padding:6px">${esc(dateShort)}</td>
+            <td style="white-space:nowrap">${esc(g.branch_name || '')}</td>
+            <td style="color:#1565C0;font-size:12px">📊 Tổng hợp</td>
+            <td style="text-align:right;color:var(--red)">${fmt(groupCost)}</td>
+            <td style="text-align:right">${fmt(groupLeads)}</td>
+            <td style="text-align:right;color:#1565C0">${fmt(totalData)}</td>
+            <td style="text-align:right">${fmt(totalAppts)}</td>
+            <td style="text-align:right;color:var(--green)">${fmt(totalArrivals)}</td>
+            <td style="text-align:right;color:var(--gold);font-weight:600">${fmtMoney(totalRevenue)}</td>
+            <td style="text-align:right;font-size:12px">${groupLeads > 0 ? fmtMoney(safeDiv(groupCost, groupLeads)) : '—'}</td>
+            <td style="text-align:right;font-size:12px">${totalData > 0 ? fmtMoney(cpData) : '—'}</td>
+            <td style="text-align:right;font-size:12px">${totalAppts > 0 ? fmtMoney(cpAppt) : '—'}</td>
+            <td style="text-align:right;font-size:12px">${totalArrivals > 0 ? fmtMoney(cpArr) : '—'}</td>
+            <td style="text-align:right">${totalArrivals > 0 ? fmtMoney(avgRev) : '—'}</td>
+            <td style="text-align:center">—</td>
+            <td></td>
+            <td></td>
         </tr>`;
-    }).join('');
 
-    container.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1200px">
+        // Individual funnel rows (UNIFIED: ad data + CRM data on same row)
+        for (const r of g.reports) {
+            const cpl = safeDiv(r.ad_cost, r.leads_count);
+            const cpd = safeDiv(r.ad_cost, r.crm_data_count);
+            const cpa = safeDiv(r.ad_cost, r.crm_appointments);
+            const cpv = safeDiv(r.ad_cost, r.crm_arrivals);
+            const avgFRev = safeDiv(r.crm_revenue, r.crm_arrivals);
+            const kpiPct = r.avg_first_revenue_kpi > 0 ? safeDiv(avgFRev, r.avg_first_revenue_kpi) * 100 : 0;
+            const noMapping = !r.has_mapping;
+            const mappingWarn = noMapping ? ' title="Chưa mapping dịch vụ - vào Quản lý phễu để cấu hình" style="cursor:help"' : '';
+
+            rowsHtml += `<tr>
+                <td style="white-space:nowrap;font-weight:500;padding:6px">${esc(dateShort)}</td>
+                <td style="white-space:nowrap">${esc(r.branch_name || '')}</td>
+                <td style="white-space:nowrap;padding-left:16px">${noMapping ? '⚠️' : '📢'} ${esc(r.funnel_name)}</td>
+                <td style="text-align:right;color:var(--red)">${fmt(r.ad_cost)}</td>
+                <td style="text-align:right">${fmt(r.leads_count)}</td>
+                <td style="text-align:right;color:#1565C0"${mappingWarn}>${r.has_mapping ? fmt(r.crm_data_count) : '<span style="color:#ff9800;font-size:11px">chưa map</span>'}</td>
+                <td style="text-align:right"${mappingWarn}>${r.has_mapping ? fmt(r.crm_appointments) : '<span style="color:#ff9800;font-size:11px">—</span>'}</td>
+                <td style="text-align:right;color:var(--green)"${mappingWarn}>${r.has_mapping ? fmt(r.crm_arrivals) : '<span style="color:#ff9800;font-size:11px">—</span>'}</td>
+                <td style="text-align:right;color:var(--gold)"${mappingWarn}>${r.has_mapping ? (r.crm_revenue > 0 ? fmtMoney(r.crm_revenue) : '0đ') : '<span style="color:#ff9800;font-size:11px">—</span>'}</td>
+                <td style="text-align:right;font-size:12px">${r.leads_count > 0 ? fmtMoney(cpl) : '—'}</td>
+                <td style="text-align:right;font-size:12px">${r.has_mapping && r.crm_data_count > 0 ? fmtMoney(cpd) : '—'}</td>
+                <td style="text-align:right;font-size:12px">${r.has_mapping && r.crm_appointments > 0 ? fmtMoney(cpa) : '—'}</td>
+                <td style="text-align:right;font-size:12px">${r.has_mapping && r.crm_arrivals > 0 ? fmtMoney(cpv) : '—'}</td>
+                <td style="text-align:right">${r.has_mapping && r.crm_arrivals > 0 ? fmtMoney(avgFRev) : (r.avg_first_revenue_kpi > 0 ? fmtMoney(r.avg_first_revenue_kpi) : '—')}</td>
+                <td style="text-align:center">${r.has_mapping && r.avg_first_revenue_kpi > 0 && r.crm_arrivals > 0 ? kpiBadge(kpiPct) : '—'}</td>
+                <td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.notes||'')}">${esc(r.notes || '')}</td>
+                <td style="white-space:nowrap">
+                    <button class="ws-action-btn" onclick="openAdReportModal(${r.id})">✏️</button>
+                    <button class="ws-action-btn ws-action-noshow" onclick="deleteAdReport(${r.id})">🗑</button>
+                </td>
+            </tr>`;
+        }
+    }
+
+    // Mobile detection
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+        // MOBILE: Card-based layout
+        let mobileHtml = '';
+        for (const gKey of Object.keys(groups)) {
+            const g = groups[gKey];
+            const crm = adCrmSummary[gKey];
+            const dateShort = g.date ? g.date.slice(5).replace('-', '/') : '—';
+            const groupCost = g.reports.reduce((s, x) => s + (x.ad_cost || 0), 0);
+            const groupLeads = g.reports.reduce((s, x) => s + (x.leads_count || 0), 0);
+            const totalData = crm ? crm.data_count : g.reports.reduce((s, x) => s + (x.crm_data_count || 0), 0);
+            const totalAppts = crm ? crm.appointments_count : g.reports.reduce((s, x) => s + (x.crm_appointments || 0), 0);
+            const totalArrivals = crm ? crm.arrivals_count : g.reports.reduce((s, x) => s + (x.crm_arrivals || 0), 0);
+            const totalRevenue = crm ? crm.first_revenue_total : g.reports.reduce((s, x) => s + (x.crm_revenue || 0), 0);
+
+            // Group header card
+            mobileHtml += `<div class="ad-mobile-group">
+                <div class="ad-mobile-group-header">
+                    <div class="ad-mobile-group-title">📊 ${esc(dateShort)} — ${esc(g.branch_name || '')}</div>
+                </div>
+                <div class="ad-mobile-group-summary">
+                    <div class="ad-mobile-stat"><span class="ad-mobile-stat-label">Chi phí</span><span class="ad-mobile-stat-value" style="color:var(--red)">${fmtMoney(groupCost)}</span></div>
+                    <div class="ad-mobile-stat"><span class="ad-mobile-stat-label">Nhắn tin</span><span class="ad-mobile-stat-value">${fmt(groupLeads)}</span></div>
+                    <div class="ad-mobile-stat"><span class="ad-mobile-stat-label">Data</span><span class="ad-mobile-stat-value" style="color:#1565C0">${fmt(totalData)}</span></div>
+                    <div class="ad-mobile-stat"><span class="ad-mobile-stat-label">Lịch hẹn</span><span class="ad-mobile-stat-value">${fmt(totalAppts)}</span></div>
+                    <div class="ad-mobile-stat"><span class="ad-mobile-stat-label">Khách đến</span><span class="ad-mobile-stat-value" style="color:var(--green)">${fmt(totalArrivals)}</span></div>
+                    <div class="ad-mobile-stat"><span class="ad-mobile-stat-label">Doanh thu</span><span class="ad-mobile-stat-value" style="color:var(--gold)">${fmtMoney(totalRevenue)}</span></div>
+                </div>`;
+
+            // Individual funnel cards
+            for (const r of g.reports) {
+                const cpl = safeDiv(r.ad_cost, r.leads_count);
+                const cpd = safeDiv(r.ad_cost, r.crm_data_count);
+                mobileHtml += `<div class="ad-mobile-card">
+                    <div class="ad-mobile-card-header">
+                        <span>${r.has_mapping ? '📢' : '⚠️'} ${esc(r.funnel_name)}</span>
+                        <div class="ad-mobile-card-actions">
+                            <button class="ws-action-btn" onclick="openAdReportModal(${r.id})">✏️</button>
+                            <button class="ws-action-btn ws-action-noshow" onclick="deleteAdReport(${r.id})">🗑</button>
+                        </div>
+                    </div>
+                    <div class="ad-mobile-card-grid">
+                        <div class="ad-mobile-metric"><span class="ad-m-label">Chi phí</span><span class="ad-m-value" style="color:var(--red)">${fmtMoney(r.ad_cost)}</span></div>
+                        <div class="ad-mobile-metric"><span class="ad-m-label">Nhắn tin</span><span class="ad-m-value">${fmt(r.leads_count)}</span></div>
+                        <div class="ad-mobile-metric"><span class="ad-m-label">Data</span><span class="ad-m-value" style="color:#1565C0">${r.has_mapping ? fmt(r.crm_data_count) : '—'}</span></div>
+                        <div class="ad-mobile-metric"><span class="ad-m-label">Lịch hẹn</span><span class="ad-m-value">${r.has_mapping ? fmt(r.crm_appointments) : '—'}</span></div>
+                        <div class="ad-mobile-metric"><span class="ad-m-label">Khách đến</span><span class="ad-m-value" style="color:var(--green)">${r.has_mapping ? fmt(r.crm_arrivals) : '—'}</span></div>
+                        <div class="ad-mobile-metric"><span class="ad-m-label">Doanh thu</span><span class="ad-m-value" style="color:var(--gold)">${r.has_mapping && r.crm_revenue > 0 ? fmtMoney(r.crm_revenue) : '0đ'}</span></div>
+                        <div class="ad-mobile-metric"><span class="ad-m-label">CP/Tin nhắn</span><span class="ad-m-value">${r.leads_count > 0 ? fmtMoney(cpl) : '—'}</span></div>
+                        <div class="ad-mobile-metric"><span class="ad-m-label">CP/Data</span><span class="ad-m-value">${r.has_mapping && r.crm_data_count > 0 ? fmtMoney(cpd) : '—'}</span></div>
+                    </div>
+                    ${r.notes ? `<div class="ad-mobile-note">📝 ${esc(r.notes)}</div>` : ''}
+                </div>`;
+            }
+            mobileHtml += '</div>';
+        }
+        container.innerHTML = mobileHtml;
+        return;
+    }
+
+    // DESKTOP: Table layout
+    const thStyle = 'padding:8px 6px;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap;font-size:12px';
+    container.innerHTML = `<table class="ad-report-table" style="width:100%;border-collapse:collapse;font-size:13px;min-width:1200px">
         <thead><tr style="background:#f5f5f5;position:sticky;top:0;z-index:1">
-            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Ngày</th>
-            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Chi nhánh</th>
-            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Phễu</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Chi phí QC</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Liên hệ</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Lịch hẹn</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Đến</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">DT lần đầu</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">CP/LH</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">CP/Hẹn</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">CP/Đến</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">DT TB</th>
-            <th style="padding:8px 6px;text-align:right;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">KPI</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">% KPI</th>
-            <th style="padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap">Ghi chú</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap"></th>
+            <th style="${thStyle};text-align:left">Ngày</th>
+            <th style="${thStyle};text-align:left">Chi nhánh</th>
+            <th style="${thStyle};text-align:left">Phễu</th>
+            <th style="${thStyle};text-align:right">Chi phí</th>
+            <th style="${thStyle};text-align:right">Nhắn tin</th>
+            <th style="${thStyle};text-align:right">Data</th>
+            <th style="${thStyle};text-align:right">Lịch hẹn</th>
+            <th style="${thStyle};text-align:right">Khách đến</th>
+            <th style="${thStyle};text-align:right">Doanh thu</th>
+            <th style="${thStyle};text-align:right">CP/Nhắn tin</th>
+            <th style="${thStyle};text-align:right">CP/Data</th>
+            <th style="${thStyle};text-align:right">CP/Lịch hẹn</th>
+            <th style="${thStyle};text-align:right">CP/Khách đến</th>
+            <th style="${thStyle};text-align:right">DT TB/Khách đến</th>
+            <th style="${thStyle};text-align:center">%KPI</th>
+            <th style="${thStyle};text-align:left">Ghi chú</th>
+            <th style="${thStyle};text-align:center;width:70px"></th>
         </tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>${rowsHtml}</tbody>
     </table>`;
 
-    // Style rows
-    container.querySelectorAll('tbody tr').forEach((tr, i) => {
-        tr.style.borderBottom = '1px solid #f0f0f0';
-        tr.style.transition = 'background .1s';
-        tr.onmouseover = () => tr.style.background = '#f8f8ff';
-        tr.onmouseout = () => tr.style.background = i % 2 ? '#fafafa' : '';
-        if (i % 2) tr.style.background = '#fafafa';
+    // Style individual funnel rows
+    container.querySelectorAll('tbody tr').forEach(tr => {
+        if (!tr.dataset.isGroup) {
+            tr.style.borderBottom = '1px solid #f0f0f0';
+            tr.style.transition = 'background .1s';
+            tr.onmouseover = () => { if (!tr.dataset.isGroup) tr.style.background = '#f8f8ff'; };
+            tr.onmouseout = () => { if (!tr.dataset.isGroup) tr.style.background = ''; };
+        }
     });
 }
+
+// Re-render on resize to switch between mobile cards and desktop table
+let _adResizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(_adResizeTimer);
+    _adResizeTimer = setTimeout(() => {
+        if (adReports.length > 0) renderAdTable();
+    }, 250);
+});
 
 // ==================== AD REPORT MODAL ====================
 let editAdReportId = null;
@@ -1182,11 +1330,12 @@ function openAdReportModal(editId) {
                     <div class="ws-field"><label>Chi nhánh *</label><select id="adBranch"><option value="">— Chọn —</option></select></div>
                     <div class="ws-field" style="grid-column:1/-1"><label>Phễu *</label><select id="adFunnel"><option value="">— Chọn phễu —</option></select></div>
                     <div class="ws-field"><label>Chi phí quảng cáo (đ)</label><input type="number" id="adCost" min="0" placeholder="0"></div>
-                    <div class="ws-field"><label>Số khách liên hệ</label><input type="number" id="adLeads" min="0" placeholder="0"></div>
+                    <div class="ws-field"><label>Số khách hàng nhắn tin</label><input type="number" id="adLeads" min="0" placeholder="0"></div>
+                    <div class="ws-field"><label>Data thu được</label><input type="number" id="adDataCount" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
                     <div class="ws-field"><label>Số lịch hẹn</label><input type="number" id="adAppts" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
                     <div class="ws-field"><label>Số khách đến</label><input type="number" id="adArrivals" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
-                    <div class="ws-field"><label>Tổng DT lần đầu (đ)</label><input type="number" id="adRevenue" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
-                    <div class="ws-field"><label>KPI DT lần đầu TB (đ)</label><input type="number" id="adKpi" min="0" placeholder="VD: 3000000"></div>
+                    <div class="ws-field"><label>Tổng doanh thu lần đầu (đ)</label><input type="number" id="adRevenue" min="0" placeholder="0" readonly style="background:#f5f5f5"></div>
+                    <div class="ws-field"><label>KPI doanh thu lần đầu trung bình (đ)</label><input type="number" id="adKpi" min="0" placeholder="VD: 3000000"></div>
                     <div class="ws-field" style="grid-column:1/-1"><label>Ghi chú</label><textarea id="adNotes" rows="2" placeholder="Ghi chú thêm..."></textarea></div>
                 </div>
             </div>
@@ -1302,21 +1451,25 @@ async function autofillAdReport(silent) {
     if (!date || !branchId) { if (!silent) showAdError('Chọn ngày và chi nhánh trước'); return; }
     try {
         const params = new URLSearchParams({ date, branchId });
-        if (funnelName) params.set('funnelName', funnelName);
+        if (funnelName) params.append('funnelName', funnelName);
         const data = await api('/api/admin/ad-reports/autofill?' + params);
+        document.getElementById('adDataCount').value = data.data_count || 0;
         document.getElementById('adAppts').value = data.appointments_count || 0;
         document.getElementById('adArrivals').value = data.arrivals_count || 0;
         document.getElementById('adRevenue').value = data.first_revenue_total || 0;
-    } catch (e) { if (!silent) showAdError('Lỗi lấy dữ liệu từ CRM'); }
+    } catch (e) { if (!silent) showAdError('Lỗi lấy dữ liệu tự động'); }
 }
 
 // ==================== FUNNEL MANAGEMENT ====================
 let adFunnelList = [];
+let adCrmServiceList = [];
 
 async function loadAdFunnels() {
     try {
-        adFunnelList = await api('/api/ad-funnels');
-    } catch (e) { adFunnelList = []; }
+        const data = await api('/api/ad-funnels');
+        adFunnelList = data.funnels || [];
+        adCrmServiceList = data.crmServices || [];
+    } catch (e) { adFunnelList = []; adCrmServiceList = []; }
 }
 
 function populateAdFunnelDropdown(selectId) {
@@ -1341,12 +1494,36 @@ function openFunnelManager() {
 
 function renderFunnelManager() {
     const modal = document.getElementById('funnelManagerModal');
-    const rows = adFunnelList.map(f => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0">
-        <span style="font-size:14px">${esc(f.name)}</span>
-        <button onclick="deleteFunnel(${f.id})" style="background:#FFEBEE;color:#C62828;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600">Xóa</button>
-    </div>`).join('');
+    const rows = adFunnelList.map(f => {
+        const mappedSvcs = (f.crm_services || '').split(',').map(s => s.trim()).filter(Boolean);
+        const chips = mappedSvcs.length > 0
+            ? mappedSvcs.map(s => `<span style="background:#E3F2FD;color:#1565C0;padding:2px 6px;border-radius:4px;font-size:11px;margin:1px">${esc(s)}</span>`).join('')
+            : '<span style="color:#ff9800;font-size:11px">⚠️ Chưa mapping</span>';
+        return `<div style="display:flex;flex-direction:column;padding:10px 14px;border-bottom:1px solid #f0f0f0">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <span style="font-size:14px;font-weight:600">${esc(f.name)}</span>
+                <div style="display:flex;gap:4px">
+                    <button onclick="toggleFunnelMapping(${f.id})" style="background:#E3F2FD;color:#1565C0;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer">🔗 Mapping</button>
+                    <button onclick="deleteFunnel(${f.id})" style="background:#FFEBEE;color:#C62828;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer">Xóa</button>
+                </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">${chips}</div>
+            <div id="funnelMapping_${f.id}" style="display:none;margin-top:8px;padding:8px;background:#fafafa;border-radius:6px;border:1px solid #eee">
+                <div style="font-size:11px;color:#666;margin-bottom:6px">Chọn dịch vụ CRM tương ứng:</div>
+                <div style="display:flex;flex-direction:column;gap:4px;max-height:150px;overflow-y:auto">
+                    ${adCrmServiceList.map(svc => {
+                        const checked = mappedSvcs.some(m => m.toLowerCase() === svc.toLowerCase()) ? 'checked' : '';
+                        return `<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+                            <input type="checkbox" ${checked} onchange="saveFunnelMapping(${f.id})" data-funnel-id="${f.id}" data-svc="${esc(svc)}" class="funnel-svc-cb">
+                            ${esc(svc)}
+                        </label>`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
 
-    modal.innerHTML = `<div class="ws-modal" style="max-width:420px">
+    modal.innerHTML = `<div class="ws-modal" style="max-width:520px">
         <div class="ws-modal-header">
             <h3 class="ws-modal-title">⚙️ Quản lý phễu quảng cáo</h3>
             <button class="ws-modal-close" onclick="document.getElementById('funnelManagerModal').classList.remove('show')">&times;</button>
@@ -1356,11 +1533,31 @@ function renderFunnelManager() {
                 <input type="text" id="newFunnelName" placeholder="Tên phễu mới..." style="flex:1;padding:6px 10px;border:1px solid #ddd;border-radius:6px">
                 <button class="ws-btn ws-btn-primary" onclick="addFunnel()" style="font-size:12px">+ Thêm</button>
             </div>
-            <div style="max-height:300px;overflow-y:auto;border:1px solid #eee;border-radius:8px">
+            <div style="max-height:400px;overflow-y:auto;border:1px solid #eee;border-radius:8px">
                 ${rows || '<div style="padding:16px;text-align:center;color:#999">Chưa có phễu nào</div>'}
+            </div>
+            <div style="margin-top:10px;padding:8px;background:#FFF8E1;border-radius:6px;font-size:11px;color:#F57F17">
+                💡 <b>Mapping CRM:</b> Mỗi phễu quảng cáo cần được gắn với dịch vụ CRM tương ứng để hiển thị đúng Data, Lịch hẹn, Khách đến và Doanh thu trên báo cáo.
             </div>
         </div>
     </div>`;
+}
+
+function toggleFunnelMapping(funnelId) {
+    const el = document.getElementById('funnelMapping_' + funnelId);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveFunnelMapping(funnelId) {
+    const checkboxes = document.querySelectorAll(`.funnel-svc-cb[data-funnel-id="${funnelId}"]`);
+    const selected = [];
+    checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.dataset.svc); });
+    try {
+        await api(`/api/admin/ad-funnels/${funnelId}`, { method: 'PATCH', body: JSON.stringify({ crm_services: selected.join(',') }) });
+        const funnel = adFunnelList.find(f => f.id === funnelId);
+        if (funnel) funnel.crm_services = selected.join(',');
+        showToast('Đã lưu mapping');
+    } catch (e) { showToast('Lỗi lưu mapping', 'error'); }
 }
 
 async function addFunnel() {
@@ -1372,7 +1569,6 @@ async function addFunnel() {
         showToast('Đã thêm phễu: ' + name);
         await loadAdFunnels();
         renderFunnelManager();
-        // Refresh funnel dropdown in filter & modal
         populateAdFunnelDropdown('adFunnel');
         populateFunnelFilter();
     } catch (e) { showToast('Lỗi thêm phễu', 'error'); }
